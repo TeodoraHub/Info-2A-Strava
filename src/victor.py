@@ -1,6 +1,6 @@
-a, b = 0, 5
+a, b = 0, 6
 
 for i in range(b):
     print(" " * a, end="")
-    a += 1
+    a += 3
     print("Hello Victor !")
