@@ -1,0 +1,118 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class User {
+  +int id
+  +string username
+  +string email
+  +string password_hash
+  +datetime created_at
+  +createActivity(gpx_file, meta)
+  +follow(user: User)
+  +unfollow(user: User)
+}
+
+class Activity {
+  +int id
+  +int user_id
+  +SportType sport
+  +string title
+  +string description
+  +datetime start_time
+  +int duration_sec
+  +float distance_km
+  +int elevation_gain_m
+  +string gpx_path
+  +string summary_polyline
+  +datetime created_at
+  +update(meta)
+  +delete()
+}
+
+class Comment {
+  +int id
+  +int activity_id
+  +int user_id
+  +string content
+  +datetime created_at
+}
+
+class Like {
+  +int activity_id
+  +int user_id
+  +datetime created_at
+}
+
+class Follow {
+  +int follower_id
+  +int followed_id
+  +datetime created_at
+}
+
+class StatsService {
+  +getWeeklyCounts(user_id) : WeeklyCounts
+  +getWeeklyDistance(user_id) : WeeklyDistance
+  +getWeeklyDuration(user_id) : WeeklyDuration
+}
+
+class VisualizationService {
+  +barplots(stats)
+  +calendarHeatmap(stats)
+}
+
+class GPXParser {
+  +parse(file) : ParsedGPX
+  +computeMetrics(track)
+}
+
+class FeedService {
+  +getFeed(user_id, filters?) : Activity[]
+}
+
+class Route {
+  +int id
+  +int creator_id
+  +string start_address
+  +string end_address
+  +float distance_km
+  +string gpx_path
+  +string summary_polyline
+  +datetime created_at
+}
+
+class RoutingService {
+  +createRoute(start, end) : Route
+  +exportGPX(route_id) : file
+}
+
+class PredictionService {
+  +predictPace(user_id, distance_km)
+  +fitModel(user_id)
+}
+
+enum SportType {
+  RUN
+  RIDE
+  SWIM
+  HIKE
+  WALK
+  ROW
+  OTHER
+}
+
+User "1" --> "0..*" Activity : possède
+User "1" --> "0..*" Comment : écrit
+User "1" --> "0..*" Like : met
+Activity "1" --> "0..*" Comment : reçoit
+Activity "1" --> "0..*" Like : reçoit
+User "1" --> "0..*" Follow : suit
+Activity --> SportType
+StatsService ..> Activity
+VisualizationService ..> StatsService
+FeedService ..> Follow
+FeedService ..> Activity
+GPXParser ..> Activity
+Route "1" --> "1" User : créateur
+RoutingService ..> Route
+PredictionService ..> Activity
+@enduml
