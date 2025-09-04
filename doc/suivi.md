@@ -9,7 +9,7 @@
 # :dart: Échéances
 
 ---
-Dossier d'Analyse :  :clock1: <iframe src="https://free.timeanddate.com/countdown/i83zdl7u/n1264/cf11/cm0/cu2/ct4/cs0/ca0/co0/cr0/ss0/cac009/cpcf00/pcfff/tcfff/fs100/szw256/szh108/iso2023-10-07T12:00:00" allowtransparency="true" frameborder="0" width="130" height="16"></iframe>
+Dossier d'Analyse :  :clock1: <iframe src="https://free.timeanddate.com/countdown/i83zdl7u/n1264/cf11/cm0/cu2/ct4/cs0/ca0/co0/cr0/ss0/cac009/cpcf00/pcfff/tcfff/fs100/szw256/szh108/iso2025-11-22T20:00:00" allowtransparency="true" frameborder="0" width="130" height="16"></iframe>
 
 ---
 
@@ -64,15 +64,15 @@ gantt
 
 ## Dossier Analyse
 
-* [x] Diagramme de Gantt
-* [x] Diagramme de cas d'utilisation
-* [x] Diagramme de classe
+* [ ] Diagramme de Gantt
+* [ ] Diagramme de cas d'utilisation
+* [ ] Diagramme de classe
 * [ ] Répartition des parties à rédiger
 
 ## Code
 
-* [ ] Créer dépôt Git commun
-  * [ ] vérifier que tout le monde peut **push** et **pull**
+* [x] Créer dépôt Git commun
+  * [x] vérifier que tout le monde peut **push** et **pull**
 * [ ] Version 0 de l'application
   * coder une et une seule fonctionnalité simple de A à Z, et faire tourner l'appli
   * cela permettra à toute l'équipe d'avoir une bonne base de départ
