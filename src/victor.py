@@ -1,4 +1,4 @@
-a, b = 0, 4
+a, b = 0, 6
 
 for i in range(b):
     print(" " * a, end="")
