@@ -2,7 +2,7 @@
 
 # :clipboard:  Présentation du sujet
 
-* **Sujet** : Application pour gérer une liste de joueurs et de joueuses
+* **Sujet** : Application de sport
 * **Tuteur / Tutrice** : Rick Auray (rick.auray@ensai.fr)
 * [Dépôt GitHub](https://github.com/ludo2ne/ENSAI-projet-info-2A-template)
 
