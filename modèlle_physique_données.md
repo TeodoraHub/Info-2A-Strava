@@ -45,19 +45,12 @@ erDiagram
         datetime date_suivi
     }
 
-    Statistiques {
-        int id_user PK, FK
-        int nombre_activites_semaine
-        float kilometres_semaine
-        float heures_activite_semaine
-    }
 
     %% Relations
     Utilisateur ||--o{ Activite : "crée"
     Utilisateur ||--o{ Commentaire : "écrit"
     Utilisateur ||--o{ Like : "donne"
     Utilisateur ||--o{ Suivi : "suit"
-    Utilisateur ||--o{ Statistiques : "utilise"
 
     Activite }o--|| Sport : "appartient à"
     Activite ||--o{ Commentaire : "reçoit"
