@@ -1,6 +1,6 @@
 ```mermaid
 erDiagram
-    Utilisateur {
+    User {
         int id_user PK
         string nom_user
         string email_user UK
@@ -24,7 +24,7 @@ erDiagram
         int id_sport FK
     }
 
-    Commentaire {
+    Comment {
         int id PK
         string contenu
         datetime date_commentaire
