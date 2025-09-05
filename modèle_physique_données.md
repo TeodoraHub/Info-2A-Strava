@@ -13,7 +13,7 @@ erDiagram
     }
 
     Activite {
-        int id PK
+        int id_activite PK
         string titre
         string description
         date date_activite
@@ -25,7 +25,7 @@ erDiagram
     }
 
     Comment {
-        int id PK
+        int id_comment PK
         string contenu
         datetime date_comment
         int id_user FK
@@ -33,7 +33,7 @@ erDiagram
     }
 
     Like {
-        int id PK
+        int id_like PK
         datetime date_like
         int id_user FK
         int id_activite FK
