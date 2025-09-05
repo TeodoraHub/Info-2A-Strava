@@ -17,7 +17,7 @@ namespace Main {
         +consulter_activites() List~Activite~
         +modifier_activite(activite: Activite) void
         +supprimer_activite(activite: Activite) void
-        +suivre_utilisateur(utilisateur: Utilisateur) void
+        +suivre_user(user: User) void
         +liker_activite(activite: Activite) void
         +commenter_activite(activite: Activite, commentaire: string) void
         +obtenir_statistiques() Statistiques
@@ -32,10 +32,10 @@ namespace Main {
         -distance: float
         -sport: Sport
         -fichier_gpx: string
-        -utilisateur: id_user
+        -user: id_user
         +modifier() void
         +supprimer() void
-        +ajouter_like(utilisateur: id_user) void
+        +ajouter_like(user: id_user) void
         +ajouter_commentaire(commentaire: Commentaire) void
         +vitesse(fichierGpx) float
     }
@@ -52,20 +52,20 @@ namespace Main {
         -id_activite: int
         -contenu: string
         -date_commentaire: Date
-        -utilisateur: id_user
+        -user: id_user
         -activite: id
     }
 
     class Like{
         -id_activite: int
-        -utilisateur: id_user
+        -user: id_user
         -activite: id
         -date_like: Date
     }
 
     class FilActualite{
         -activites: List~Activite~
-        +obtenir_activites_utilisateurs_suivis(utilisateur: Utilisateur) List~Activite~
+        +obtenir_activites_users_suivis(user: User) List~Activite~
         +appliquer_filtres(filtres: Map~string, Object~) List~Activite~
     }
 
@@ -76,7 +76,7 @@ namespace Main {
     }
 
     class Statistiques{
-        -utilisateur: id_user
+        -user: id_user
         -nombre_activites_semaine: int
         -nombre_activites_sport: Map~Sport, int~
         -kilometres_semaine: float
@@ -87,15 +87,15 @@ namespace Main {
 }
 
 %% Relations
-Utilisateur "1" --> "*" Activite : crée
-Utilisateur "1" --> "*" Commentaire : écrit
-Utilisateur "1" --> "*" Like : donne
-Utilisateur "1" --> "*" Suivi : suit/est suivi
-Utilisateur "1" <-- "*" Statistiques : utilise
+User "1" --> "*" Activite : crée
+User "1" --> "*" Comment : écrit
+User "1" --> "*" Like : donne
+User "1" --> "*" Suivi : suit/est suivi
+User "1" <-- "*" Statistiques : utilise
 Activite "*" --> "1" Sport : appartient à
-Activite "1" <-- "*" Commentaire : reçoit
+Activite "1" <-- "*" Comment : reçoit
 Activite "1" <-- "*" Like : reçoit
 FilActualite "*" --> "*" Activite : contient
-Suivi "*" --> "1" Utilisateur : suiveur
-Suivi "*" --> "1" Utilisateur : suivi
+Suivi "*" --> "1" User : suiveur
+Suivi "*" --> "1" User : suivi
 ```
