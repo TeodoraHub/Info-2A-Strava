@@ -1,3 +1,4 @@
+mermaid
 ---
 title: MODELE PHYSIQUE DE DONNEES - APPLICATION SPORTIVE
 ---
