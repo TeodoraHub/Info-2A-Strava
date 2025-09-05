@@ -81,7 +81,7 @@ namespace Main {
         -nombre_activites_sport: Map~Sport, int~
         -kilometres_semaine: float
         -heures_activite_semaine: float
-        +calculer_statistiques() void
+        +calculer_statistiques(id_user) void
         +obtenir_statistiques_periode(dateDebut: Date, dateFin: Date) Statistiques
     }
 }
