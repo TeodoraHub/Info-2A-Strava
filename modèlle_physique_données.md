@@ -1,4 +1,4 @@
-mermaid
+```mermaid
 ---
 title: MODELE PHYSIQUE DE DONNEES - APPLICATION SPORTIVE
 ---
@@ -70,3 +70,4 @@ erDiagram
 
     Suivi }o--|| Utilisateur : "suiveur"
     Suivi }o--|| Utilisateur : "suivi"
+```mermaid
