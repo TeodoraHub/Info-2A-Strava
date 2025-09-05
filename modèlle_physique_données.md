@@ -1,7 +1,4 @@
 ```mermaid
----
-title: MODELE PHYSIQUE DE DONNEES - APPLICATION SPORTIVE
----
 erDiagram
     Utilisateur {
         int id_user PK
@@ -40,7 +37,6 @@ erDiagram
         datetime date_like
         int id_user FK
         int id_activite FK
-        -- contrainte : UNIQUE(id_user, id_activite)
     }
 
     Suivi {
@@ -70,4 +66,4 @@ erDiagram
 
     Suivi }o--|| Utilisateur : "suiveur"
     Suivi }o--|| Utilisateur : "suivi"
-mermaid'''
+```
