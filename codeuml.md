@@ -91,7 +91,7 @@ Utilisateur "1" --> "*" Activite : crée
 Utilisateur "1" --> "*" Commentaire : écrit
 Utilisateur "1" --> "*" Like : donne
 Utilisateur "1" --> "*" Suivi : suit/est suivi
-Utilisateur "1" --> "1" Statistiques : possède
+Utilisateur "1" <-- "*" Statistiques : utilise
 Activite "1" --> "1" Sport : appartient à
 Activite "1" <-- "*" Commentaire : reçoit
 Activite "1" <-- "*" Like : reçoit
