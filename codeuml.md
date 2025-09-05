@@ -8,7 +8,7 @@ title: APPLICATION SPORTIVE
 ---
 classDiagram
 namespace Main {
-    class Utilisateur{
+    class User{
         -id_user: int
         -nom_user: string
         -email_user: string
@@ -24,7 +24,7 @@ namespace Main {
     }
 
     class Activite {
-        -id: int
+        -id_activite: int
         -titre: string
         -description: string
         -date_activite: Date
@@ -48,8 +48,8 @@ namespace Main {
         RANDONNEE
     }
 
-    class Commentaire{
-        -id: int
+    class Comment{
+        -id_activite: int
         -contenu: string
         -date_commentaire: Date
         -utilisateur: id_user
@@ -57,7 +57,7 @@ namespace Main {
     }
 
     class Like{
-        -id: int
+        -id_activite: int
         -utilisateur: id_user
         -activite: id
         -date_like: Date
@@ -92,7 +92,7 @@ Utilisateur "1" --> "*" Commentaire : écrit
 Utilisateur "1" --> "*" Like : donne
 Utilisateur "1" --> "*" Suivi : suit/est suivi
 Utilisateur "1" <-- "*" Statistiques : utilise
-Activite "1" --> "1" Sport : appartient à
+Activite "*" --> "1" Sport : appartient à
 Activite "1" <-- "*" Commentaire : reçoit
 Activite "1" <-- "*" Like : reçoit
 FilActualite "*" --> "*" Activite : contient
