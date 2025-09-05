@@ -70,4 +70,4 @@ erDiagram
 
     Suivi }o--|| Utilisateur : "suiveur"
     Suivi }o--|| Utilisateur : "suivi"
-```mermaid
+mermaid'''
