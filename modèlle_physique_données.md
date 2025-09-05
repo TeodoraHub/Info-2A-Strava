@@ -40,10 +40,9 @@ erDiagram
     }
 
     Suivi {
-        int id_suiveur FK
-        int id_suivi FK
+        int id_suiveur PK, FK
+        int id_suivi PK, FK
         datetime date_suivi
-        PK { id_suiveur, id_suivi }
     }
 
     Statistiques {
