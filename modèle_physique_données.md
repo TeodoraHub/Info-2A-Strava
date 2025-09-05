@@ -50,7 +50,6 @@ erDiagram
     User ||--o{ Activite : "crée"
     User ||--o{ Comment : "écrit"
     User ||--o{ Like : "donne"
-    User ||--o{ Suivi : "suit"
 
     Activite }o--|| Sport : "appartient à"
     Activite ||--o{ Comment : "reçoit"
