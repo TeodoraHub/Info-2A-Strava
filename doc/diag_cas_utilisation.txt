@@ -2,27 +2,50 @@
 ' à coller ici pour visualiser : https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000
 ' doc : https://plantuml.com/fr/use-case-diagram
 
-
 left to right direction
 
-actor "Utilisateur"      as user
-actor "Administrateur"   as admin
-actor "Joueur"           as joueur
+actor "Utilisateur" as user
 
 rectangle {
-  usecase "S'inscrire"        as inscription
-  usecase "S'authentifier"    as authentification
-  usecase "Quitter"           as quitter
-  usecase "Lister joueurs"    as lister_joueurs
+  usecase "S'inscrire"          as inscription
+  usecase "Se connecter"        as connexion
+  usecase "Quitter"              as quitter
+
+  usecase "Consulter fil d'actualités"        as consulter_fil
+  usecase "Liker activité"       as liker
+  usecase "Commenter activité"   as commenter
+  usecase "Suivre utilisateur"   as suivre
+
+  usecase "Créer activité"       as creer_activite
+  usecase "Consulter profil"     as consulter_profil
+  usecase "Consulter activités" as consulter_activites
+  usecase "Consulter statistiques" as consulter_statistiques
+  usecase "Consulter followers"  as consulter_followers
+  usecase "Modifier activité" as modifier_activite
+  usecase "Supprimer activité" as supprimer_activite
 }
 
-joueur --> quitter
-
+' Arrivée
 user --> inscription
-user --> authentification
+user --> connexion
 user --> quitter
 
-admin --> quitter
-admin --> lister_joueurs
+' Après connexion
+connexion --> consulter_fil
+connexion --> creer_activite
+connexion --> consulter_profil
+
+' Actions liées au fil d'activité
+consulter_fil --> liker
+consulter_fil --> commenter
+consulter_fil --> suivre
+
+' Actions liées au profil
+consulter_profil --> consulter_activites
+consulter_profil --> consulter_statistiques
+consulter_profil --> consulter_followers
+' Actions liées aux activités du profil
+consulter_activites --> modifier_activite
+consulter_activites --> supprimer_activite
 
 @enduml
