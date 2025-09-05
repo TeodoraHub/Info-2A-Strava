@@ -12,31 +12,32 @@ namespace Main {
         -id_user: int
         -nom_user: string
         -email_user: string
-        -motDePasse: string
-        +creerActivite(fichierGpx: File) Activite
-        +consulterActivites() List~Activite~
-        +modifierActivite(activite: Activite) void
-        +supprimerActivite(activite: Activite) void
-        +suivreUtilisateur(utilisateur: Utilisateur) void
-        +likerActivite(activite: Activite) void
-        +commenterActivite(activite: Activite, commentaire: string) void
-        +obtenirStatistiques() Statistiques
+        -mot_de_passe: string
+        +creer_activite(fichier_gpx: File) Activite
+        +consulter_activites() List~Activite~
+        +modifier_activite(activite: Activite) void
+        +supprimer_activite(activite: Activite) void
+        +suivre_utilisateur(utilisateur: Utilisateur) void
+        +liker_activite(activite: Activite) void
+        +commenter_activite(activite: Activite, commentaire: string) void
+        +obtenir_statistiques() Statistiques
     }
 
     class Activite {
         -id: int
         -titre: string
         -description: string
-        -dateActivite: Date
+        -date_activite: Date
         -duree: int
         -distance: float
         -sport: Sport
-        -fichierGpx: string
+        -fichier_gpx: string
         -utilisateur: Utilisateur
         +modifier() void
         +supprimer() void
-        +ajouterLike(utilisateur: Utilisateur) void
-        +ajouterCommentaire(commentaire: Commentaire) void
+        +ajouter_like(utilisateur: Utilisateur) void
+        +ajouter_commentaire(commentaire: Commentaire) void
+        +vitesse(fichierGpx) float
     }
 
     class Sport{
@@ -50,7 +51,7 @@ namespace Main {
     class Commentaire{
         -id: int
         -contenu: string
-        -dateCommentaire: Date
+        -date_commentaire: Date
         -utilisateur: Utilisateur
         -activite: Activite
     }
@@ -59,29 +60,29 @@ namespace Main {
         -id: int
         -utilisateur: Utilisateur
         -activite: Activite
-        -dateLike: Date
+        -date_like: Date
     }
 
     class FilActualite{
         -activites: List~Activite~
-        +obtenirActivitesUtilisateursSuivis(utilisateur: Utilisateur) List~Activite~
-        +appliquerFiltres(filtres: Map~string, Object~) List~Activite~
+        +obtenir_activites_utilisateurs_suivis(utilisateur: Utilisateur) List~Activite~
+        +appliquer_filtres(filtres: Map~string, Object~) List~Activite~
     }
 
     class Suivi{
         -suiveur: Utilisateur
         -suivi: Utilisateur
-        -dateSuivi: Date
+        -date_suivi: Date
     }
 
     class Statistiques{
         -utilisateur: Utilisateur
-        -nombreActivitesParSemaine: int
-        -nombreActivitesParSport: Map~Sport, int~
-        -kilometresParSemaine: float
-        -heuresActiviteParSemaine: float
-        +calculerStatistiques() void
-        +obtenirStatistiquesPeriode(dateDebut: Date, dateFin: Date) Statistiques
+        -nombre_activites_semaine: int
+        -nombre_activites_sport: Map~Sport, int~
+        -kilometres_semaine: float
+        -heures_activite_semaine: float
+        +calculer_statistiques() void
+        +obtenir_statistiques_periode(dateDebut: Date, dateFin: Date) Statistiques
     }
 }
 
