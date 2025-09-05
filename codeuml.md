@@ -45,8 +45,6 @@ namespace Main {
         CYCLISME
         NATATION
         RANDONNEE
-        MUSCULATION
-        AUTRE
     }
 
     class Commentaire{
