@@ -90,7 +90,6 @@ namespace Main {
 User "1" --> "*" Activite : crée
 User "1" --> "*" Comment : écrit
 User "1" --> "*" Like : donne
-User "1" --> "*" Suivi : suit/est suivi
 User "1" <-- "*" Statistiques : utilise
 Activite "*" --> "1" Sport : appartient à
 Activite "1" <-- "*" Comment : reçoit
