@@ -38,6 +38,7 @@ namespace Main {
         +ajouter_like(user: id_user) void
         +ajouter_commentaire(commentaire: Commentaire) void
         +vitesse(fichierGpx) float
+        +map(fichiergpx) img
     }
 
     class Sport{
@@ -83,6 +84,7 @@ namespace Main {
         -heures_activite_semaine: float
         +calculer_statistiques(id_user) void
         +obtenir_statistiques_periode(dateDebut: Date, dateFin: Date) Statistiques
+        +diagram_stat(Statistiques) plot
     }
 }
 
