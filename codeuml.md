@@ -32,10 +32,10 @@ namespace Main {
         -distance: float
         -sport: Sport
         -fichier_gpx: string
-        -utilisateur: Utilisateur
+        -utilisateur: id_user
         +modifier() void
         +supprimer() void
-        +ajouter_like(utilisateur: Utilisateur) void
+        +ajouter_like(utilisateur: id_user) void
         +ajouter_commentaire(commentaire: Commentaire) void
         +vitesse(fichierGpx) float
     }
@@ -52,14 +52,14 @@ namespace Main {
         -id: int
         -contenu: string
         -date_commentaire: Date
-        -utilisateur: Utilisateur
-        -activite: Activite
+        -utilisateur: id_user
+        -activite: id
     }
 
     class Like{
         -id: int
-        -utilisateur: Utilisateur
-        -activite: Activite
+        -utilisateur: id_user
+        -activite: id
         -date_like: Date
     }
 
@@ -70,13 +70,13 @@ namespace Main {
     }
 
     class Suivi{
-        -suiveur: Utilisateur
-        -suivi: Utilisateur
+        -suiveur: id_user
+        -suivi: id_user
         -date_suivi: Date
     }
 
     class Statistiques{
-        -utilisateur: Utilisateur
+        -utilisateur: id_user
         -nombre_activites_semaine: int
         -nombre_activites_sport: Map~Sport, int~
         -kilometres_semaine: float
