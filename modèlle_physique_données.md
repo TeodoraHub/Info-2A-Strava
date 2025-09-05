@@ -27,7 +27,7 @@ erDiagram
     Comment {
         int id PK
         string contenu
-        datetime date_commentaire
+        datetime date_comment
         int id_user FK
         int id_activite FK
     }
@@ -47,15 +47,15 @@ erDiagram
 
 
     %% Relations
-    Utilisateur ||--o{ Activite : "crée"
-    Utilisateur ||--o{ Commentaire : "écrit"
-    Utilisateur ||--o{ Like : "donne"
-    Utilisateur ||--o{ Suivi : "suit"
+    User ||--o{ Activite : "crée"
+    User ||--o{ Comment : "écrit"
+    User ||--o{ Like : "donne"
+    User ||--o{ Suivi : "suit"
 
     Activite }o--|| Sport : "appartient à"
-    Activite ||--o{ Commentaire : "reçoit"
+    Activite ||--o{ Comment : "reçoit"
     Activite ||--o{ Like : "reçoit"
 
-    Suivi }o--|| Utilisateur : "suiveur"
-    Suivi }o--|| Utilisateur : "suivi"
+    Suivi }o--|| User : "suiveur"
+    Suivi }o--|| User : "suivi"
 ```
