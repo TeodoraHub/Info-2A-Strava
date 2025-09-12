@@ -35,21 +35,24 @@ gantt
     Rapport + Code               :milestone, 2025-11-22,
     Soutenance                   :milestone, 2025-12-10,
     
-    section Vac
+    section Vacances
     Toussaint                    :crit,    2025-10-25, 2025-11-02
     
     section Analyse
-    analyse sujet                :active,    2025-08-29, 15d
-    modélisation                 :active,    2025-09-05, 15d
-    rédaction                    :active,    2025-09-20, 2025-10-05
-    relecture                    :active,    2025-10-05, 2025-10-07
+    analyse sujet                :done,    2025-08-29, 15d
+    modélisation                 :active,  2025-09-05, 12d
+    
+    section Rédaction
+    rédaction dossier analyse    :active,  2025-09-12, 2025-09-27
+    relecture                    :active,  dossier,    2025-09-24, 3d
+    rédaction rapport            :active,  2025-10-30, 2025-11-22
+    relecture                    :active,  rapport,    2025-11-19, 3d
     
     section Code
+    lister classes à coder       :active,    2025-09-05, 10d
     coder une v0                 :active,    2025-09-12, 15d
-    lister classes à coder       :active,    2025-09-05, 7d
-    
+    coder VF                     :active,    2025-10-13, 2025-11-18
 
-    %%Stats univariées retraités   :done,         2025-11-28, 3d
 ```
 
 # :calendar: Livrables
