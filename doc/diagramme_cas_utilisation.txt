@@ -1,4 +1,8 @@
 @startuml
+' à coller ici pour visualiser : https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000
+' doc : https://plantuml.com/fr/use-case-diagram
+
+  
 left to right direction
 
 actor "Utilisateur" as user
@@ -37,6 +41,7 @@ user --> quitter
 ' Après connexion
 connexion --> consulter_fil
 connexion --> creer_activite
+connexion --> supprimer_activite
 connexion --> consulter_profil
 connexion --> predire_distance
 connexion --> creer_parcours
@@ -54,7 +59,6 @@ consulter_profil --> consulter_followers
 
 ' Actions liées aux activités du profil
 consulter_activites --> modifier_activite
-consulter_activites --> supprimer_activite
 consulter_activites --> visualiser_trace
 
 ' Actions liées aux parcours
