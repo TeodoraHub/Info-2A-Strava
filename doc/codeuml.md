@@ -45,21 +45,13 @@ classDiagram
         +Sport sport
         +string fichier_gpx
         +id_user user
-        +modifier() void
-        +supprimer() void
-        +ajouter_like(user: id_user) void
-        +ajouter_commentaire(commentaire: Comment) void
-        +vitesse() float
     }
 
     class Statistiques {
-        +id_user user
-        +int nombre_activites_semaine
-        +Map~Sport, int~ nombre_activites_sport
-        +float kilometres_semaine
-        +float heures_activite_semaine
-        +calculer_statistiques(id_user) void
-        +obtenir_statistiques_periode(dateDebut: Date, dateFin: Date) Statistiques
+        +calculer_statistiques(id_user : int) void
+        +nombre_activites(id_user : int, periode : str, sport : str) int
+        +kilometres(id_user : int, periode : str, sport : str)
+        +heures_activite(id_user : int, periode : str, sport : str)
     }
 
     class Like {
@@ -77,13 +69,6 @@ classDiagram
         +int activite
     }
 
-    class Sport {
-        COURSE_A_PIED
-        CYCLISME
-        NATATION
-        RANDONNEE
-    }
-
     class Cyclisme {
         +str type_velo
         +vitesse() float
@@ -95,12 +80,11 @@ classDiagram
     }
 
     class Natation {
-        + str type_natation
+        + str type_nage
         +vitesse() float
     }
 
     class CourseAPied {
-        +flot longueur_foulee
         +vitesse() float
     }
 
@@ -109,7 +93,6 @@ classDiagram
     User "1" --> "*" Comment : écrit
     User "1" --> "*" Like : donne
     User "1" --> "*" Statistiques : utilise
-    Activite "*" --> "1" Sport : appartient à
     Activite "1" <-- "*" Comment : reçoit
     Activite "1" <-- "*" Like : reçoit
     FilActualite "*" --> "*" Activite : contient
