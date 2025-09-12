@@ -1,4 +1,4 @@
-
+' Ce code est à exécuter sur PlantUml Editor afin d'en visualiser le graphique
 @startuml
 
 ' Configuration
