@@ -19,7 +19,10 @@ gantt
     dateFormat  YYYY-MM-DD
     axisFormat  %d %b
     title       Diagramme de Gantt
+    
     %%excludes  YYYY-MM-DD and/or sunday and/or weekends 
+     
+    
      
     section Suivi
     TP1 et Suivi 1               :milestone, 2025-08-29,
@@ -39,19 +42,22 @@ gantt
     Toussaint                    :crit,    2025-10-25, 2025-11-02
     
     section Analyse
-    analyse sujet                :done,    2025-08-29, 15d
-    modélisation                 :active,  2025-09-05, 12d
+    étude du sujet                :done,    2025-08-29, 15d
+    modélisation                 :done,    2025-09-05, 12d
     
     section Rédaction
     rédaction dossier analyse    :active,  2025-09-12, 2025-09-27
-    relecture                    :active,  dossier,    2025-09-24, 3d
+    relecture                    :active, dossier,    2025-09-24, 3d
     rédaction rapport            :active,  2025-10-30, 2025-11-22
-    relecture                    :active,  rapport,    2025-11-19, 3d
+    relecture                    :active,  rapport,   2025-11-19, 3d
     
     section Code
-    lister classes à coder       :active,    2025-09-05, 10d
-    coder une v0                 :active,    2025-09-12, 15d
-    coder VF                     :active,    2025-10-13, 2025-11-18
+    lister classes à coder       :active,    2025-09-25, 7d
+    création de la base de données  :active,    2025-09-27, 12d
+    création de l'API           :active,    2025-09-30, 12d
+    coder une v0                 :active,    2025-10-05, 20d
+    coder VF                     :active,    2025-10-25, 2025-11-20
+    
 
 ```
 
