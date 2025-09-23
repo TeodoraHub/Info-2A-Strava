@@ -52,10 +52,10 @@ gantt
     relecture                    :active,  rapport,   2025-11-19, 3d
     
     section Code
-    lister classes à coder       :active,    2025-09-25, 7d
+    coder les classes        :active,    2025-09-25, 7d
     création de la base de données  :active,    2025-09-27, 12d
-    création de l'API           :active,    2025-09-30, 12d
-    coder une v0                 :active,    2025-10-05, 20d
+    coder une v0           :active,    2025-10-05, 25d
+    création de l'API                  :active,    2025-10-25,15d
     coder VF                     :active,    2025-10-25, 2025-11-20
     
 
@@ -65,7 +65,7 @@ gantt
 
 | Date     | Livrables                                                    |
 | -------- | ------------------------------------------------------------ |
-| 27 sept. | [Dossier d'Analyse](https://www.overleaf.com/)               |
+| 27 sept. | [Dossier d'Analyse](https://www.overleaf.com/project/68c3d29190c68c815e925a5d)               |
 | 22 nov.  | Rapport final + code (:hammer_and_wrench:  [correcteur orthographe et grammaire](https://www.scribens.fr/))|
 | 10 déc.  | Soutenance                                                   |
 
