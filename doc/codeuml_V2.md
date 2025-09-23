@@ -42,9 +42,7 @@ classDiagram
         +Date date_activite
         +int duree
         +float distance
-        +Sport sport
-        +string fichier_gpx
-        +id_user user
+        +int id_user
     }
 
     class Statistiques {
@@ -56,8 +54,7 @@ classDiagram
 
     class Like {
         +int id_activite
-        +id_user user
-        +int activite
+        +int id_user
         +Date date_like
     }
 
@@ -65,8 +62,7 @@ classDiagram
         +int id_activite
         +string contenu
         +Date date_commentaire
-        +id_user user
-        +int activite
+        +int id_user
     }
 
     class Cyclisme {
