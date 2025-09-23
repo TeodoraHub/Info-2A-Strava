@@ -1,87 +1,68 @@
-' Ce code est à exécuter sur PlantUml Editor afin d'en visualiser le graphique
 @startuml
+' à coller ici pour visualiser : https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000
+' doc : https://plantuml.com/fr/use-case-diagram
 
-' Configuration
+  
 left to right direction
-skinparam packageStyle rectangle
 
-' Acteurs
-actor "Utilisateur\nNon-connecté" as UtilisateurNonConnecte
-actor "Utilisateur\nConnecté" as UtilisateurConnecte
+actor "Utilisateur" as user
 
-' Frontière du système
-rectangle "Application Sportive" {
-  
-  ' Cas d'utilisation - Authentification
-  usecase "Se connecter" as SeConnecter
-  usecase "Créer un compte" as CreerCompte
-  
-  ' Cas d'utilisation - Gestion des activités
-  usecase "Créer une activité" as CreerActivite
-  usecase "Charger fichier GPX" as ChargerFichierGPX
-  usecase "Consulter ses activités" as ConsulterActivites
-  usecase "Modifier une activité" as ModifierActivite
-  usecase "Supprimer une activité" as SupprimerActivite
-  usecase "Consulter les activités\npubliques" as ConsulterActivitesPubliques
-  
-  ' Cas d'utilisation - Fonctionnalités sociales
-  usecase "Suivre un utilisateur" as SuivreUtilisateur
-  usecase "Arrêter de suivre" as ArreterSuivre
-  usecase "Liker une activité" as LikerActivite
-  usecase "Commenter une activité" as CommenterActivite
-  usecase "Consulter fil d'actualité" as ConsulterFilActualite
-  usecase "Appliquer des filtres" as AppliquerFiltres
-  
-  ' Cas d'utilisation - Statistiques et visualisation
-  usecase "Consulter ses statistiques" as ConsulterStatistiques
-  usecase "Visualiser le tracé\nsur carte" as VisualiserTrace
-  usecase "Visualiser statistiques\ngraphiques" as VisualiserStatistiques
-  
-  ' Cas d'utilisation - Fonctionnalités avancées
-  usecase "Créer un parcours" as CreerParcours
-  usecase "Télécharger trace GPS" as TelechargerTraceGPS
-  usecase "Accéder aux prédictions\nde distance" as PredictionsDistance
-  
+rectangle {
+  usecase "S'inscrire"          as inscription
+  usecase "Se connecter"        as connexion
+  usecase "Quitter"             as quitter
 
-' Relations Utilisateur Non-connecté
-UtilisateurNonConnecte --> SeConnecter
-UtilisateurNonConnecte --> CreerCompte
-UtilisateurNonConnecte --> ConsulterActivitesPubliques
+  usecase "Consulter fil d'actualités"        as consulter_fil
+  usecase "Filtrer fil d'actualités"          as filtrer_fil #lightblue
+  usecase "Liker activité"       as liker
+  usecase "Commenter activité"   as commenter
+  usecase "Suivre utilisateur"   as suivre
 
-' Relations Utilisateur Connecté - Gestion activités
-UtilisateurConnecte --> CreerActivite
-UtilisateurConnecte --> ConsulterActivites
-UtilisateurConnecte --> ModifierActivite
-UtilisateurConnecte --> SupprimerActivite
+  usecase "Créer activité"       as creer_activite
+  usecase "Consulter profil"     as consulter_profil
+  usecase "Consulter activités"  as consulter_activites
+  usecase "Consulter statistiques" as consulter_statistiques
+  usecase "Consulter followers"  as consulter_followers
+  usecase "Modifier activité"    as modifier_activite
+  usecase "Supprimer activité"   as supprimer_activite
+  usecase "Visualiser le tracé"  as visualiser_trace #lightblue
+  usecase "Prédire distance"     as predire_distance #lightblue
 
-' Relations Utilisateur Connecté - Social
-UtilisateurConnecte --> SuivreUtilisateur
-UtilisateurConnecte --> ArreterSuivre
-UtilisateurConnecte --> LikerActivite
-UtilisateurConnecte --> CommenterActivite
-UtilisateurConnecte --> ConsulterFilActualite
+  usecase "Créer un parcours"    as creer_parcours #lightblue
+  usecase "Visualiser parcours"  as visualiser_parcours #lightblue
+  usecase "Télécharger la trace GPS du parcours" as telecharger_trace_parcours #lightblue
+}
 
-' Relations Utilisateur Connecté - Statistiques
-UtilisateurConnecte --> ConsulterStatistiques
-UtilisateurConnecte --> VisualiserTrace
+' Arrivée
+user --> inscription
+user --> connexion
+user --> quitter
 
-' Relations Utilisateur Connecté - Fonctionnalités avancées
-UtilisateurConnecte --> CreerParcours
-UtilisateurConnecte --> TelechargerTraceGPS
-UtilisateurConnecte --> PredictionsDistance
+' Après connexion
+connexion --> consulter_fil
+connexion --> creer_activite
+connexion --> supprimer_activite
+connexion --> consulter_profil
+connexion --> predire_distance
+connexion --> creer_parcours
 
+' Actions liées au fil d'activité
+consulter_fil --> liker
+consulter_fil --> commenter
+consulter_fil --> suivre
+consulter_fil --> filtrer_fil
 
-' Relations d'inclusion (include)
-CreerActivite ..> ChargerFichierGPX : <<include>>
-ConsulterFilActualite ..> AppliquerFiltres : <<include>>
-CreerParcours ..> TelechargerTraceGPS : <<include>>
+' Actions liées au profil
+consulter_profil --> consulter_activites
+consulter_profil --> consulter_statistiques
+consulter_profil --> consulter_followers
 
-' Relations d'extension (extend)
-VisualiserStatistiques ..> ConsulterStatistiques : <<extend>>
-VisualiserTrace ..> ConsulterActivites : <<extend>>
+' Actions liées aux activités du profil
+consulter_activites --> modifier_activite
+consulter_activites --> visualiser_trace
 
-' Héritage d'acteur (généralisation)
-UtilisateurConnecte --|> UtilisateurNonConnecte
+' Actions liées aux parcours
+creer_parcours --> visualiser_parcours
+creer_parcours --> telecharger_trace_parcours
 
 @enduml
-
