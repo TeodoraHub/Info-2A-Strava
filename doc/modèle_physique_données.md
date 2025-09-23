@@ -1,6 +1,6 @@
 ```mermaid
 erDiagram
-    User {
+    Utilisateur {
         int id_user PK
         string nom_user
         string email_user UK
@@ -24,7 +24,7 @@ erDiagram
         int id_sport FK
     }
 
-    Comment {
+    Commentaire {
         int id_comment PK
         string contenu
         datetime date_comment
@@ -47,14 +47,14 @@ erDiagram
 
 
     %% Relations
-    User ||--o{ Activite : "crée"
-    User ||--o{ Comment : "écrit"
-    User ||--o{ Like : "donne"
+    Utilisateur ||--o{ Activite : "crée"
+    Utilisateur ||--o{ Commentaire : "écrit"
+    Utilisateur ||--o{ Like : "donne"
 
     Activite }o--|| Sport : "appartient à"
-    Activite ||--o{ Comment : "reçoit"
+    Activite ||--o{ Commentaire : "reçoit"
     Activite ||--o{ Like : "reçoit"
 
-    Suivi }o--|| User : "suiveur"
-    Suivi }o--|| User : "suivi"
+    Suivi }o--|| Utilisateur : "suiveur"
+    Suivi }o--|| Utilisateur : "suivi"
 ```
