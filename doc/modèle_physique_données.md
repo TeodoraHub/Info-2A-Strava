@@ -1,5 +1,7 @@
+
 ```mermaid
 erDiagram
+    %% Table principale des utilisateurs
     Utilisateur {
         int id_user PK
         string nom_user
@@ -7,11 +9,13 @@ erDiagram
         string mot_de_passe
     }
     
+    %% Table des sports (référentiel)
     Sport {
         int id_sport PK
         string nom_sport UK
     }
     
+    %% Table centrale des activités
     Activite {
         int id_activite PK
         string titre
@@ -24,6 +28,7 @@ erDiagram
         int id_sport FK
     }
     
+    %% Tables d'interaction sociale
     Commentaire {
         int id_comment PK
         string contenu
@@ -39,13 +44,15 @@ erDiagram
         int id_activite FK
     }
     
+    %% Table de relation utilisateur-utilisateur
     Suivi {
         int id_suiveur PK,FK
         int id_suivi PK,FK
         datetime date_suivi
     }
     
-    Statistiques {
+    %% Table des statistiques
+    Statistique {
         int id_statistique PK
         int id_user FK
         enum periode
