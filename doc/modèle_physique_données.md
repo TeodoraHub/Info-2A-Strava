@@ -49,7 +49,7 @@ erDiagram
    
     %% Relations principales
     Utilisateur ||--o{ Activite : cree
-    Sport ||--o{ Activite : categorise
+    Sport ||--o{ Activite : appartient
     
     %% Relations d'interaction
     Utilisateur ||--o{ Commentaire : ecrit
