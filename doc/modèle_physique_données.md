@@ -7,11 +7,6 @@ erDiagram
         string email_user UK
         string mot_de_passe
     }
-    
-    Sport {
-        int id_sport PK
-        string nom_sport UK
-    }
 
     Activite {
         int id_activite PK
@@ -21,8 +16,9 @@ erDiagram
         int duree
         float distance
         string fichier_gpx
+        string sport
+        string detail_sport
         int id_user FK
-        int id_sport FK
     }
     
     Commentaire {
@@ -49,7 +45,6 @@ erDiagram
    
     %% Relations principales
     Utilisateur ||--o{ Activite : cree
-    Sport ||--o{ Activite : appartient
     
     %% Relations d'interaction
     Utilisateur ||--o{ Commentaire : ecrit
