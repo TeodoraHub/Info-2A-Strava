@@ -46,18 +46,7 @@ erDiagram
         datetime date_suivi
     }
     
-    Statistique {
-        int id_statistique PK
-        int id_user FK
-        enum periode
-        date date_debut
-        date date_fin
-        int nb_activites
-        float distance_totale
-        float vit_moy_periode
-        int temps_total
-    }
-
+   
     %% Relations principales
     Utilisateur ||--o{ Activite : cree
     Sport ||--o{ Activite : categorise
@@ -71,5 +60,4 @@ erDiagram
     %% Relations de suivi et statistiques
     Utilisateur ||--o{ Suivi : suit
     Utilisateur ||--o{ Suivi : est_suivi
-    Utilisateur ||--o{ Statistique : possede
 ```
