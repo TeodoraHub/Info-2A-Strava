@@ -1,17 +1,10 @@
 
-CREATE TABLE User (
+CREATE TABLE Utilisateur (
     id_user INTEGER PRIMARY KEY AUTOINCREMENT,
     nom_user TEXT NOT NULL,
     email_user TEXT NOT NULL UNIQUE,
     mot_de_passe TEXT NOT NULL
 );
-
-
-CREATE TABLE Sport (
-    id_sport INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom_sport TEXT NOT NULL UNIQUE
-);
-
 
 CREATE TABLE Activite (
     id_activite INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,14 +14,14 @@ CREATE TABLE Activite (
     duree INTEGER,
     distance REAL,
     fichier_gpx TEXT,
+    sport TEXT,
+    detail_sport TEXT,
     id_user INTEGER NOT NULL,
-    id_sport INTEGER NOT NULL,
     FOREIGN KEY (id_user) REFERENCES User(id_user),
-    FOREIGN KEY (id_sport) REFERENCES Sport(id_sport)
 );
 
 
-CREATE TABLE Comment (
+CREATE TABLE Commentaire (
     id_comment INTEGER PRIMARY KEY AUTOINCREMENT,
     contenu TEXT NOT NULL,
     date_comment DATETIME DEFAULT CURRENT_TIMESTAMP,
