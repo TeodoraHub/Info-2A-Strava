@@ -1,8 +1,6 @@
 from utils.singleton import Singleton
 from dao.db_connection import DBConnection
 
-from service.utilisateur_service import UtilisateurService
-
 class ResetDatabase(metaclass=Singleton):
     """
     Reinitialisation de la base de données
