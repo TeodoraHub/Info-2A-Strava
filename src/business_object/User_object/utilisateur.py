@@ -1,9 +1,13 @@
-import gpxpy
 from datetime import datetime
+
+import gpxpy
+
+from business_object.Activity_object.abstract_activity import Activite
 from business_object.Activity_object.course_pied import CoursePied
 from business_object.Activity_object.cyclism import Cyclism
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
+
 
 class Utilisateur:
     """
@@ -27,6 +31,8 @@ class Utilisateur:
         self.nom_user = nom_user
         self.mail_user = mail_user
         self.mdp = mdp
+        # On fait une fausse liste d'activité pour l'instant mais on devra la relier à la base de données après
+        self.activites: list[Activite] = []
 
     def __str__(self):
         """Permet d'afficher les informations de l'utilisateur"""
@@ -36,7 +42,15 @@ class Utilisateur:
         """Retourne les attributs de l'utilisateur dans une liste"""
         return [self.id_user, self.nom_user, self.mail_user]
 
-    def creer_activite(self, type_activite: str, titre: str, description: str, lieu: str, fichier_gpx: str, **kwargs):
+    def creer_activite(
+        self,
+        type_activite: str,
+        titre: str,
+        description: str,
+        lieu: str,
+        fichier_gpx: str,
+        **kwargs,
+    ):
         with open(fichier_gpx, "r", encoding="utf-8") as f:
             gpx = gpxpy.parse(f)
 
@@ -54,7 +68,7 @@ class Utilisateur:
                 date_activite=datetime.now(),
                 duree=duree,
                 distance=distance_m,
-                id_user=self.id_user
+                id_user=self.id_user,
             )
 
         elif type_activite == "cyclisme":
@@ -65,7 +79,7 @@ class Utilisateur:
                 date_activite=datetime.now().date(),
                 distance=distance_m,
                 id_user=self.id_user,
-                type_velo=type_velo
+                type_velo=type_velo,
             )
 
         elif type_activite == "natation":
@@ -78,7 +92,7 @@ class Utilisateur:
                 duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,
-                type_nage=type_nage
+                type_nage=type_nage,
             )
 
         elif type_activite == "randonnee":
@@ -91,8 +105,16 @@ class Utilisateur:
                 duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,
-                type_terrain=type_terrain
+                type_terrain=type_terrain,
             )
 
         else:
             raise ValueError(f"Type d’activité inconnu: {type_activite}")
+
+        # Ces fonctions sont faîtes en partant du principe qu'on a une liste des activités dans les attributs
+
+        def consulter_activites(self):
+            return self.activites
+
+        def supprimer_activite(self):
+            self.activites = [a for a in self.activites if a.id_activite != id_activite]
