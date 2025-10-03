@@ -3,60 +3,44 @@ from datetime import datetime, timedelta
 
 class Statistiques:
     """
-    Classe permettant de calculer des statistiques
-    sur les activités d'un utilisateur.
+    Classe utilitaire pour calculer des statistiques
+    sur les activités d'un utilisateur, sans stocker d'état.
 
-    Attributs
-    ----------
-    utilisateur : Utilisateur
-        l'utilisateur dont on veut calculer les statistiques
+    Toutes les méthodes sont statiques et prennent un objet
+    Utilisateur en paramètre.
     """
 
-    def __init__(self, utilisateur):
-        """Constructeur"""
-        self.utilisateur = utilisateur
-
-    def __str__(self):
-        """Affichage simplifié"""
-        return f"Statistiques de {self.utilisateur.nom_user}"
-
-    def nombre_activites(self, periode: str = None, sport: str = None) -> int:
+    @staticmethod
+    def nombre_activites(utilisateur, periode: str = None, sport: str = None) -> int:
         """
-        Retourne le nombre d'activités selon une période et un sport donnés.
-
-        Paramètres
-        ----------
-        periode : str, optionnel
-            "7j", "30j" ou None (par défaut : toutes les activités)
-        sport : str, optionnel
-            type de sport (CoursePied, Cyclism, Natation, Randonnee)
-
-        Retour
-        ------
-        int
+        Retourne le nombre d'activités de l'utilisateur
+        selon une période et un sport donnés.
         """
-        activites = self._filtrer(periode, sport)
+        activites = Statistiques._filtrer(utilisateur, periode, sport)
         return len(activites)
 
-    def kilometres(self, periode: str = None, sport: str = None) -> float:
+    @staticmethod
+    def kilometres(utilisateur, periode: str = None, sport: str = None) -> float:
         """
-        Retourne le total des kilomètres parcourus.
+        Retourne le total des kilomètres parcourus par l'utilisateur.
         """
-        activites = self._filtrer(periode, sport)
+        activites = Statistiques._filtrer(utilisateur, periode, sport)
         return sum(getattr(a, "distance", 0) for a in activites) / 1000
 
-    def heures_activite(self, periode: str = None, sport: str = None) -> float:
+    @staticmethod
+    def heures_activite(utilisateur, periode: str = None, sport: str = None) -> float:
         """
-        Retourne le total des heures d'activité.
+        Retourne le total des heures d'activité de l'utilisateur.
         """
-        activites = self._filtrer(periode, sport)
+        activites = Statistiques._filtrer(utilisateur, periode, sport)
         return sum(getattr(a, "duree", 0) for a in activites) / 3600
 
-    def _filtrer(self, periode: str, sport: str):
+    @staticmethod
+    def _filtrer(utilisateur, periode: str = None, sport: str = None):
         """
-        Filtre les activités de l'utilisateur selon période et sport.
+        Filtre les activités de l'utilisateur selon une période et un sport.
         """
-        activites = getattr(self.utilisateur, "activites", [])
+        activites = getattr(utilisateur, "activites", [])
 
         if sport:
             activites = [a for a in activites if a.__class__.__name__.lower() == sport.lower()]
