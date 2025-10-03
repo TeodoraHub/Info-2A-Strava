@@ -1,114 +1,198 @@
-import logging
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from typing import List, Dict, Optional
+from datetime import datetime
+import secrets
 
-from service.joueur_service import JoueurService
-from utils.log_init import initialiser_logs
+# Tes DAO et services (à importer depuis tes fichiers)
+from dao import UtilisateurDAO, ActivityDAO
+from service import ActivityService
 
-app = FastAPI(title="Mon webservice")
+app = FastAPI(title="Striv API")
+security = HTTPBasic()
 
+# Mock de base de données (à remplacer par ta vraie session SQLAlchemy)
+def get_db():
+    # Ici, tu devrais retourner une session SQLAlchemy réelle
+    # Exemple : yield SessionLocal()
+    pass
 
-initialiser_logs("Webservice")
+# Authentification basique (comme dans ton code)
+USERS = {
+    "alice": {"password": "wonderland", "roles": ["admin"], "id": 1},
+    "bob": {"password": "builder", "roles": ["user"], "id": 2},
+}
 
-joueur_service = JoueurService()
+def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
+    username = credentials.username
+    password = credentials.password
+    user = USERS.get(username)
+    if not user or not secrets.compare_digest(password, user["password"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
+    return user
 
+@app.get("/users/{user_id}/profil")
+def get_profil(
+    user_id: int,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Retourne le profil d'un utilisateur, ses followers et ses suivis.
+    """
+    user_dao = UtilisateurDAO(db)
+    user = user_dao.get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
 
-@app.get("/", include_in_schema=False)
-async def redirect_to_docs():
-    """Redirect to the API documentation"""
-    return RedirectResponse(url="/docs")
+    followers = user_dao.get_followers(user_id)
+    following = user_dao.get_following(user_id)
 
+    return {
+        "username": user.username,
+        "email": user.email,
+        "followers": [{"id": f.id, "username": f.username} for f in followers],
+        "following": [{"id": f.id, "username": f.username} for f in following],
+    }
 
-@app.get("/joueur/", tags=["Joueurs"])
-async def lister_tous_joueurs():
-    """Lister tous les joueurs"""
-    logging.info("Lister tous les joueurs")
-    liste_joueurs = joueur_service.lister_tous()
-
-    liste_model = []
-    for joueur in liste_joueurs:
-        liste_model.append(joueur)
-
-    return liste_model
-
-
-@app.get("/joueur/{id_joueur}", tags=["Joueurs"])
-async def joueur_par_id(id_joueur: int):
-    """Trouver un joueur à partir de son id"""
-    logging.info("Trouver un joueur à partir de son id")
-    return joueur_service.trouver_par_id(id_joueur)
-
-
-class JoueurModel(BaseModel):
-    """Définir un modèle Pydantic pour les Joueurs"""
-
-    id_joueur: int | None = None  # Champ optionnel
-    pseudo: str
-    mdp: str
-    age: int
-    mail: str
-    fan_pokemon: bool
-
-
-@app.post("/joueur/", tags=["Joueurs"])
-async def creer_joueur(j: JoueurModel):
-    """Créer un joueur"""
-    logging.info("Créer un joueur")
-    if joueur_service.pseudo_deja_utilise(j.pseudo):
-        raise HTTPException(status_code=404, detail="Pseudo déjà utilisé")
-
-    joueur = joueur_service.creer(j.pseudo, j.mdp, j.age, j.mail, j.fan_pokemon)
-    if not joueur:
-        raise HTTPException(status_code=404, detail="Erreur lors de la création du joueur")
-
-    return joueur
-
-
-@app.put("/joueur/{id_joueur}", tags=["Joueurs"])
-def modifier_joueur(id_joueur: int, j: JoueurModel):
-    """Modifier un joueur"""
-    logging.info("Modifier un joueur")
-    joueur = joueur_service.trouver_par_id(id_joueur)
-    if not joueur:
-        raise HTTPException(status_code=404, detail="Joueur non trouvé")
-
-    joueur.pseudo = j.pseudo
-    joueur.mdp = j.mdp
-    joueur.age = j.age
-    joueur.mail = j.mail
-    joueur.fan_pokemon = j.fan_pokemon
-    joueur = joueur_service.modifier(joueur)
-    if not joueur:
-        raise HTTPException(status_code=404, detail="Erreur lors de la modification du joueur")
-
-    return f"Joueur {j.pseudo} modifié"
+@app.get("/f1")
+def me(user = Depends(get_current_user)):
+    return {"user": user}
+# ----------------------------------------------------------
 
 
-@app.delete("/joueur/{id_joueur}", tags=["Joueurs"])
-def supprimer_joueur(id_joueur: int):
-    """Supprimer un joueur"""
-    logging.info("Supprimer un joueur")
-    joueur = joueur_service.trouver_par_id(id_joueur)
-    if not joueur:
-        raise HTTPException(status_code=404, detail="Joueur non trouvé")
+# Jamais de DAO dans les méthodes des objets métiers
+# Les services orchestrent l'utilisation des objets métiers et de la DAO
+# On peut aussi se passer des services et orchestrer directement dans le endpoint
 
-    joueur_service.supprimer(joueur)
-    return f"Joueur {joueur.pseudo} supprimé"
+@app.get("/users/{user_id}/activities")
+def get_activities(
+    user_id: int,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Retourne la liste des activités d'un utilisateur.
+    """
+    activity_dao = ActivityDAO(db)
+    activities = activity_dao.get_by_user(user_id)
+    return [
+        {
+            "id": a.id,
+            "type": a.type,
+            "distance": a.distance,
+            "duration": a.duration,
+            "date": a.date.isoformat(),
+        }
+        for a in activities
+    ]
+
+from datetime import datetime, timedelta
+
+def get_last_month_year():
+    today = datetime.now()
+    first_day_of_current_month = today.replace(day=1)
+    last_day_of_last_month = first_day_of_current_month - timedelta(days=1)
+    return last_day_of_last_month.year, last_day_of_last_month.month
+
+def get_monthly_stats(self, user_id: int):
+    # Récupère l'année et le mois précédents
+    year, month = get_last_month_year()
+
+    # Récupère les activités de l'utilisateur
+    activities = self.activity_dao.get_by_user(user_id)
+
+    # Filtre les activités du mois précédent
+    monthly_activities = [
+        a for a in activities
+        if a.date.year == year and a.date.month == month
+    ]
+
+    # Calcule les statistiques
+    total_distance = sum(a.distance for a in monthly_activities)
+    total_duration = sum(a.duration for a in monthly_activities)
+
+    return {
+        "year": year,
+        "month": month,
+        "total_distance": total_distance,
+        "total_duration": total_duration,
+        "activities_count": len(monthly_activities),
+    }
 
 
-@app.get("/hello/{name}")
-async def hello_name(name: str):
-    """Afficher Hello"""
-    logging.info("Afficher Hello")
-    return f"message : Hello {name}"
+@app.get("/users/{user_id}/feed")
+def get_feed(
+    user_id: int,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Retourne le fil d'activités de l'utilisateur et des personnes qu'il suit.
+    """
+    activity_service = ActivityService(db)
+    feed = activity_service.get_feed(user_id)
+    return [
+        {
+            "id": a.id,
+            "user_id": a.user_id,
+            "type": a.type,
+            "distance": a.distance,
+            "duration": a.duration,
+            "date": a.date.isoformat(),
+        }
+        for a in feed
+    ]
 
+@app.post("users/{user_id}/activities")
+def create_activity(user_id):
+    user = UtilisateurDAO().get(user_id)
+    activity = user.create_activity()
+    AcitivityDAO().save(activity)
+    # OU
+    # UtilisateurService().create_activity(user_id)
 
-# Run the FastAPI application
-if __name__ == "__main__":
-    import uvicorn
+@app.post("/users/{user_id}/follow/{target_user_id}")
+def follow_user(
+    user_id: int,
+    target_user_id: int,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Permet à un utilisateur de suivre un autre utilisateur.
+    """
+    user_dao = UtilisateurDAO(db)
+    success = user_dao.follow(user_id, target_user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Already following or user not found")
+    return {"message": f"User {user_id} now follows user {target_user_id}"}
 
-    uvicorn.run(app, host="0.0.0.0", port=9876)
+@app.get("/users/{user_id}/feed")
+def get_feed(
+    user_id: int,
+    current_user: dict = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    """
+    Retourne le fil d'activités de l'utilisateur et des personnes qu'il suit.
+    """
+    activity_service = ActivityService(db)
+    feed = activity_service.get_feed(user_id)
+    return [
+        {
+            "id": a.id,
+            "user_id": a.user_id,
+            "type": a.type,
+            "distance": a.distance,
+            "duration": a.duration,
+            "date": a.date.isoformat(),
+        }
+        for a in feed
+    ]
 
-    logging.info("Arret du Webservice")
+    
