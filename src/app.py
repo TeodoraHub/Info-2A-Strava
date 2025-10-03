@@ -3,7 +3,8 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 
 from service import ActivityService
-from dao import UtilisateurDAO, AcitivityDAO
+from dao.activite_dao import AcitivityDAO
+from dao.utilisateur_dao import UtilisateurDAO
 
 # ------------- Authentification Basique ------------------
 
@@ -40,8 +41,8 @@ def me(user = Depends(get_current_user)):
 @app.post("users/{user_id}/activities")
 def create_activity(user_id):
     user = UtilisateurDAO().get(user_id)
-    activity = user.create_activity()
-    AcitivityDAO().save(activity)
+    activity = user.creer_activite()
+    ActiviteDAO().save(activity)
     # OU
     # UtilisateurService().create_activity(user_id)
 

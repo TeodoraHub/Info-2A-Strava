@@ -15,11 +15,10 @@ class ActivityDAO:
         """
         self.db = db
 
-    def create(self, activite) -> Activity:
+    def save(self, activity: Activity) -> Activity:
         """
-        Crée une nouvelle activité pour un utilisateur.
+        Enregistre une activité dans la base de données.
         """
-
         self.db.add(activity)
         self.db.commit()
         self.db.refresh(activity)
