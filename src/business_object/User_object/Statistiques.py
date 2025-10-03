@@ -53,4 +53,3 @@ class Statistiques:
             activites = [a for a in activites if a.date_activite >= seuil]
 
         return activites
-        return activites
