@@ -25,7 +25,7 @@ CREATE TABLE activite (
     sport       VARCHAR(256),
     detail_sport VARCHAR(256),
     id_user     INTEGER NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES utilisateur(id_user),
+    FOREIGN KEY (id_user) REFERENCES utilisateur(id_user)
 );
 
 
