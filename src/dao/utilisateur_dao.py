@@ -32,12 +32,12 @@ class UtilisateurDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "INSERT INTO utilisateur(nom_user, email_user, mdp) VALUES        "
-                        "(%(nom_user)s, %(email_user)s, %(mail)s, %(mdp)s)             "
+                        "INSERT INTO utilisateur(nom_user, mail_user, mdp) VALUES        "
+                        "(%(nom_user)s, %(mail_user)s, %(mail)s, %(mdp)s)             "
                         "  RETURNING id_user;                                                ",
                         {
                             "nom_user": utilisateur.nom_user,
-                            "email_user": utilisateur.email_user,
+                            "mail_user": utilisateur.mail_user,
                             "mdp": utilisateur.mdp,
                         },
                     )
@@ -84,7 +84,7 @@ class UtilisateurDao(metaclass=Singleton):
         if res:
             utilisateur = Utilisateur(
                 nom_user=res["nom_user"],
-                email_user=res["email_user"],
+                mail_user=res["mail_user"],
                 mdp=res["mdp"],
                 id_user=res["id_user"],
             )
@@ -125,7 +125,7 @@ class UtilisateurDao(metaclass=Singleton):
                     id_user=row["id_user"],
                     nom_user=row["nom_user"],
                     mdp=row["mdp"],
-                    email_user=row["email_user"]
+                    mail_user=row["mail_user"]
                 )
 
                 liste_utilisateurs.append(utilisateur)
@@ -155,12 +155,12 @@ class UtilisateurDao(metaclass=Singleton):
                     cursor.execute(
                         "UPDATE utilisateur                                      "
                         "   SET nom_user      = %(nom_user)s,                   "
-                        "       email_user         = %(email_user)s,                      "
+                        "       mail_user         = %(mail_user)s,                      "
                         "       mdp = %(mdp)s               "
                         " WHERE id_user = %(id_user)s;                  ",
                         {
                             "nom_user": utilisateur.nom_user,
-                            "email_user": utilisateur.email_user,
+                            "mail_user": utilisateur.mail_user,
                             "mdp": utilisateur.mdp,
                             "id_user": utilisateur.id_user,
                         },
@@ -238,8 +238,8 @@ class UtilisateurDao(metaclass=Singleton):
             utilisateur = Utilisateur(
                 nom_user=res["nom_user"],
                 mdp=res["mdp"],
-                email_user=res["email_user"]
-                id_user=res["id_user"],
+                mail_user=res["mail_user"],
+                id_user=res["id_user"]
             )
 
         return utilisateur
