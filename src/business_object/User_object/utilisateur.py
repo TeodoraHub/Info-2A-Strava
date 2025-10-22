@@ -37,6 +37,27 @@ class Utilisateur:
         return [self.id_user, self.nom_user, self.mail_user]
 
     def creer_activite(self, type_activite: str, titre: str, description: str, lieu: str, fichier_gpx: str, **kwargs):
+        """
+        Permet de créer une nouvelle activité
+
+        Parameters
+        ----------
+        type_activite : str
+            type de l'activité (course, cyxlisme, natation ou randonnee)
+        titre : str
+            titre de l'activité
+        description : str
+            desription de l'activité
+        lieu : str
+            lieu de l'activité
+        fichier_gpx : str
+            fichier contenant les informations sur l'activité
+
+        Returns
+        -------
+        return : AbstractActivity
+            renvoie l'activité créée
+        """
         with open(fichier_gpx, "r", encoding="utf-8") as f:
             gpx = gpxpy.parse(f)
 
