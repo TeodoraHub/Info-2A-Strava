@@ -4,7 +4,7 @@ import gpxpy
 
 from business_object.Activity_object.abstract_activity import Activite
 from business_object.Activity_object.course_a_pieds import CoursePied
-from business_object.Activity_object.cyclism import Cyclism
+from business_object.Activity_object.cyclisme import Cyclisme
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
 from dao.activite_dao import ActivityDAO
