@@ -3,11 +3,11 @@ from InquirerPy import inquirer
 from view.vue_abstraite import VueAbstraite
 from view.session import Session
 
-from service.joueur_service import JoueurService
+from service.utilisateur_service import UtilisateurService
 
 
-class MenuJoueurVue(VueAbstraite):
-    """Vue du menu du joueur
+class MenuUtilisateurVue(VueAbstraite):
+    """Vue du menu de l'utilisateur
 
     Attributes
     ----------
@@ -34,8 +34,10 @@ class MenuJoueurVue(VueAbstraite):
         choix = inquirer.select(
             message="Faites votre choix : ",
             choices=[
-                "Afficher les joueurs de la base de données",
-                "Afficher des pokemons (par appel à un Webservice)",
+                "Consulter fil d'actualités",
+                "Chercher un utilisateur",
+                "Créer une activité",
+                "Supprimer une activité",
                 "Infos de session",
                 "Se déconnecter",
             ],
@@ -49,13 +51,16 @@ class MenuJoueurVue(VueAbstraite):
                 return AccueilVue()
 
             case "Infos de session":
-                return MenuJoueurVue(Session().afficher())
+                return MenuUtilisateurVue(Session().afficher())
 
-            case "Afficher les joueurs de la base de données":
-                joueurs_str = JoueurService().afficher_tous()
-                return MenuJoueurVue(joueurs_str)
+            case "Consulter fil d'actualités":
+                pass
 
-            case "Afficher des pokemons (par appel à un Webservice)":
-                from view.pokemon_vue import PokemonVue
+            case "Chercher un utilisateur":
+                pass
 
-                return PokemonVue()
+            case "Créer une activité":
+                pass
+
+            case "Supprimer une activité":
+                pass

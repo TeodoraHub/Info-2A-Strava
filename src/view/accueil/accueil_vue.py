@@ -25,7 +25,6 @@ class AccueilVue(VueAbstraite):
             choices=[
                 "Se connecter",
                 "Créer un compte",
-                "Ré-initialiser la base de données",
                 "Infos de session",
                 "Quitter",
             ],
@@ -43,14 +42,7 @@ class AccueilVue(VueAbstraite):
             case "Créer un compte":
                 from view.accueil.inscription_vue import InscriptionVue
 
-                return InscriptionVue("Création de compte joueur")
+                return InscriptionVue("Création de compte utilisateur")
 
             case "Infos de session":
                 return AccueilVue(Session().afficher())
-
-            case "Ré-initialiser la base de données":
-                succes = ResetDatabase().lancer()
-                message = (
-                    f"Ré-initilisation de la base de données - {'SUCCES' if succes else 'ECHEC'}"
-                )
-                return AccueilVue(message)
