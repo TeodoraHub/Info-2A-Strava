@@ -4,6 +4,7 @@ from business_object.Activity_object.course_pied import CoursePied
 from business_object.Activity_object.cyclism import Cyclism
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
+from dao.activite_dao import ActivityDAO
 
 class Utilisateur:
     """
@@ -117,3 +118,107 @@ class Utilisateur:
 
         else:
             raise ValueError(f"Type d’activité inconnu: {type_activite}")
+
+
+    def consulter_activites(self):
+        """
+        Liste toutes les activités appartenant à l'utilisateur,
+        en interrogeant la base via ActivityDAO.
+        """
+        utilisateur = Session().utilisateur
+        if not utilisateur or utilisateur.db_session is None:
+            raise RuntimeError("Aucun utilisateur connecté.")
+
+        dao = ActivityDAO(session)
+        activites = dao.get_by_user(self.id_user)
+        return activites
+
+
+    def modifier_activite(self):
+        """
+        Permet à l'utilisateur de modifier une de ses activités.
+
+        Fonctionnement
+        -------------
+        1. Liste toutes les activités de l'utilisateur avec leur ID et titre.
+        2. Demande à l'utilisateur de saisir l'ID de l'activité à modifier.
+        3. Permet de modifier le titre et la description (les champs laissés vides restent inchangés).
+        4. Enregistre les modifications dans la base de données.
+
+        Raises
+        ------
+        ValueError
+            si l'ID saisi ne correspond à aucune activité de l'utilisateur
+        RuntimeError
+            si aucune session SQLAlchemy n'est associée à l'utilisateur
+        """
+        utilisateur = Session().utilisateur
+        if not utilisateur or utilisateur.db_session is None:
+            raise RuntimeError("Aucun utilisateur connecté.")
+
+        dao = ActivityDAO(self.db_session)
+        activites = dao.get_by_user(self.id_user)
+        if not activites:
+            print("Aucune activité à modifier.")
+            return
+
+        # Affiche les activités avec leur ID
+        for act in activites:
+            print(f"ID {act.id}: {act.titre}")
+
+        choix_id = int(input("Entrez l'ID de l'activité à modifier : "))
+        activite = next((a for a in activites if a.id == choix_id), None)
+        if not activite:
+            print("ID invalide.")
+            return
+
+        # Demande les champs à modifier
+        nouveau_titre = input(f"Titre ({activite.titre}): ") or activite.titre
+        nouvelle_description = input(f"Description ({activite.description}): ") or activite.description
+
+        activite.titre = nouveau_titre
+        activite.description = nouvelle_description
+
+        self.db_session.commit()
+        print("Activité modifiée.")
+
+
+    def supprimer_activite(self):
+        """
+        Permet à l'utilisateur de supprimer une de ses activités.
+
+        Fonctionnement
+        -------------
+        1. Liste toutes les activités de l'utilisateur avec leur ID et titre.
+        2. Demande à l'utilisateur de saisir l'ID de l'activité à supprimer.
+        3. Supprime l'activité de la base de données.
+
+        Raises
+        ------
+        ValueError
+            si l'ID saisi ne correspond à aucune activité de l'utilisateur
+        RuntimeError
+            si aucune session SQLAlchemy n'est associée à l'utilisateur
+        """
+        utilisateur = Session().utilisateur
+        if not utilisateur or utilisateur.db_session is None:
+            raise RuntimeError("Aucun utilisateur connecté.")
+
+        dao = ActivityDAO(self.db_session)
+        activites = dao.get_by_user(self.id_user)
+        if not activites:
+            print("Aucune activité à supprimer.")
+            return
+
+        # Affiche les activités avec leur ID
+        for act in activites:
+            print(f"ID {act.id}: {act.titre}")
+
+        choix_id = int(input("Entrez l'ID de l'activité à supprimer : "))
+        activite = next((a for a in activites if a.id == choix_id), None)
+        if not activite:
+            raise ValueError("ID invalide : aucune activité correspondante.")
+
+        self.db_session.delete(activite)
+        self.db_session.commit()
+        print("Activité supprimée.")
