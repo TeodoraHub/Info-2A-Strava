@@ -262,68 +262,68 @@ class Utilisateur:
         dao.ajouter_suivi(utilisateur.id_user, utilisateur_a_suivre.id_user)
 
 
-def liker_activite(self, activite):
-    """
-    Permet à l'utilisateur connecté de liker une activité,
-    en vérifiant dans la base que le like n'existe pas déjà.
+    def liker_activite(self, activite):
+        """
+        Permet à l'utilisateur connecté de liker une activité,
+        en vérifiant dans la base que le like n'existe pas déjà.
 
-    Parameters
-    ----------
-    activite : Activity
-        instance de l'activité à liker
+        Parameters
+        ----------
+        activite : Activity
+            instance de l'activité à liker
 
-    Returns
-    -------
-    Like
-        objet Like créé
-    """
-    utilisateur = Session().utilisateur
-    dao = LikeDAO(utilisateur.db_session)
+        Returns
+        -------
+        Like
+            objet Like créé
+        """
+        utilisateur = Session().utilisateur
+        dao = LikeDAO(utilisateur.db_session)
 
-    # Vérifie si l'utilisateur a déjà liké l'activité
-    if dao.existe_like(utilisateur.id_user, activite.id):
-        print("Vous avez déjà liké cette activité.")
-        return None
+        # Vérifie si l'utilisateur a déjà liké l'activité
+        if dao.existe_like(utilisateur.id_user, activite.id):
+            print("Vous avez déjà liké cette activité.")
+            return None
 
-    # Crée le like dans la base
-    like = Like(
-        id_activite=activite.id,
-        id_user=utilisateur.id_user,
-        date_like=datetime.now()
-    )
-    dao.ajouter_like(like)
-    return like
+        # Crée le like dans la base
+        like = Like(
+            id_activite=activite.id,
+            id_user=utilisateur.id_user,
+            date_like=datetime.now()
+        )
+        dao.ajouter_like(like)
+        return like
 
 
-def commenter_activite(self, activite, contenu: str):
-    """
-    Permet à l'utilisateur connecté de commenter une activité,
-    en enregistrant le commentaire directement dans la base.
+    def commenter_activite(self, activite, contenu: str):
+        """
+        Permet à l'utilisateur connecté de commenter une activité,
+        en enregistrant le commentaire directement dans la base.
 
-    Parameters
-    ----------
-    activite : Activity
-        instance de l'activité à commenter
-    contenu : str
-        texte du commentaire
+        Parameters
+        ----------
+        activite : Activity
+            instance de l'activité à commenter
+        contenu : str
+            texte du commentaire
 
-    Returns
-    -------
-    Commentaire
-        objet Commentaire créé et stocké en base
-    """
-    utilisateur = Session().utilisateur
-    dao = CommentaireDAO(utilisateur.db_session)
+        Returns
+        -------
+        Commentaire
+            objet Commentaire créé et stocké en base
+        """
+        utilisateur = Session().utilisateur
+        dao = CommentaireDAO(utilisateur.db_session)
 
-    commentaire = Commentaire(
-        id_activite=activite.id,
-        contenu=contenu,
-        date_commentaire=datetime.now(),
-        id_user=utilisateur.id_user
-    )
+        commentaire = Commentaire(
+            id_activite=activite.id,
+            contenu=contenu,
+            date_commentaire=datetime.now(),
+            id_user=utilisateur.id_user
+        )
 
-    dao.ajouter_commentaire(commentaire)
-    return commentaire
+        dao.ajouter_commentaire(commentaire)
+        return commentaire
 
 
     def obtenir_statistiques(self, periode: str = None, sport: str = None):
