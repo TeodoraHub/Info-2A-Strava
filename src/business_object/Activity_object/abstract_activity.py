@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from datetime import date
 
 
@@ -8,6 +8,7 @@ class AbstractActivity(ABC):
         id: int,
         titre: str,
         description: str,
+        sport: str,
         date_activite: date,
         lieu: str,
         distance: float,
@@ -22,4 +23,11 @@ class AbstractActivity(ABC):
         self.id_user = id_user
 
     def __str__(self):
-        return f"{self.titre} - {self.date_activite} - {self.distance}km en {self.duree}min"
+        return f"{self.titre} - {self.date_activite} - {self.distance}km"
+
+    @abstractmethod
+    def vitesse(self) -> float:
+        """
+        calculer et retourner la vitesse de l'activité.
+        """
+        pass
