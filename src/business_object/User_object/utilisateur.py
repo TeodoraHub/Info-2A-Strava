@@ -3,7 +3,7 @@ from datetime import datetime
 import gpxpy
 
 from business_object.Activity_object.abstract_activity import Activite
-from business_object.Activity_object.course_pied import CoursePied
+from business_object.Activity_object.course_a_pieds import CoursePied
 from business_object.Activity_object.cyclism import Cyclism
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
@@ -235,3 +235,117 @@ class Utilisateur:
         self.db_session.delete(activite)
         self.db_session.commit()
         print("Activité supprimée.")
+
+    def suivre_utilisateur(self, utilisateur_a_suivre):
+        """
+        Permet à l'utilisateur connecté de suivre un autre utilisateur.
+
+        Parameters
+        ----------
+        utilisateur_a_suivre : Utilisateur
+            instance de l'utilisateur à suivre
+
+        Raises
+        ------
+        ValueError
+            si l'utilisateur se suit lui-même ou est déjà suivi
+        """
+        utilisateur = Session().utilisateur
+        if utilisateur.id_user == utilisateur_a_suivre.id_user:
+            raise ValueError("Impossible de se suivre soi-même.")
+
+        dao = SuiviDAO(utilisateur.db_session)
+        suivi_existant = dao.existe_suivi(utilisateur.id_user, utilisateur_a_suivre.id_user)
+        if suivi_existant:
+            raise ValueError("Utilisateur déjà suivi.")
+
+        dao.ajouter_suivi(utilisateur.id_user, utilisateur_a_suivre.id_user)
+
+
+def liker_activite(self, activite):
+    """
+    Permet à l'utilisateur connecté de liker une activité,
+    en vérifiant dans la base que le like n'existe pas déjà.
+
+    Parameters
+    ----------
+    activite : Activity
+        instance de l'activité à liker
+
+    Returns
+    -------
+    Like
+        objet Like créé
+    """
+    utilisateur = Session().utilisateur
+    dao = LikeDAO(utilisateur.db_session)
+
+    # Vérifie si l'utilisateur a déjà liké l'activité
+    if dao.existe_like(utilisateur.id_user, activite.id):
+        print("Vous avez déjà liké cette activité.")
+        return None
+
+    # Crée le like dans la base
+    like = Like(
+        id_activite=activite.id,
+        id_user=utilisateur.id_user,
+        date_like=datetime.now()
+    )
+    dao.ajouter_like(like)
+    return like
+
+
+def commenter_activite(self, activite, contenu: str):
+    """
+    Permet à l'utilisateur connecté de commenter une activité,
+    en enregistrant le commentaire directement dans la base.
+
+    Parameters
+    ----------
+    activite : Activity
+        instance de l'activité à commenter
+    contenu : str
+        texte du commentaire
+
+    Returns
+    -------
+    Commentaire
+        objet Commentaire créé et stocké en base
+    """
+    utilisateur = Session().utilisateur
+    dao = CommentaireDAO(utilisateur.db_session)
+
+    commentaire = Commentaire(
+        id_activite=activite.id,
+        contenu=contenu,
+        date_commentaire=datetime.now(),
+        id_user=utilisateur.id_user
+    )
+
+    dao.ajouter_commentaire(commentaire)
+    return commentaire
+
+
+    def obtenir_statistiques(self, periode: str = None, sport: str = None):
+        """
+        Retourne les statistiques de l'utilisateur connecté.
+
+        Parameters
+        ----------
+        periode : str, optional
+            période à filtrer ('7j' ou '30j')
+        sport : str, optional
+            sport à filtrer ('course', 'cyclisme', 'natation', 'randonnee')
+
+        Returns
+        -------
+        dict
+            dictionnaire avec nombre d'activités, kilomètres et heures
+        """
+        utilisateur = Session().utilisateur
+        stats = {
+            "nombre_activites": Statistiques.nombre_activites(utilisateur, periode, sport),
+            "kilometres": Statistiques.kilometres(utilisateur, periode, sport),
+            "heures": Statistiques.heures_activite(utilisateur, periode, sport)
+        }
+        return stats
