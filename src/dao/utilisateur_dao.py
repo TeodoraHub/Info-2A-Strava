@@ -5,10 +5,10 @@ from utils.log_decorator import log
 
 from dao.db_connection import DBConnection
 
-from business_object.utilisateur import Utilisateur
+from business_object.User_object.utilisateur import Utilisateur
 
 
-class UtilisateurDao(metaclass=Singleton):
+class UtilisateurDAO(metaclass=Singleton):
     """Classe contenant les méthodes pour accéder aux Utilisateurs de la base de données"""
 
     @log

@@ -3,11 +3,11 @@ from datetime import datetime
 import gpxpy
 
 from business_object.Activity_object.abstract_activity import Activite
-from business_object.Activity_object.course_pied import CoursePied
+from business_object.Activity_object.course_a_pieds import CoursePied
 from business_object.Activity_object.cyclism import Cyclism
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
-
+from dao.activite_dao import ActivityDAO
 
 class Utilisateur:
     """
@@ -132,10 +132,220 @@ class Utilisateur:
         else:
             raise ValueError(f"Type d’activité inconnu: {type_activite}")
 
-        # Ces fonctions sont faîtes en partant du principe qu'on a une liste des activités dans les attributs
 
-        def consulter_activites(self):
-            return self.activites
+    def consulter_activites(self):
+        """
+        Liste toutes les activités appartenant à l'utilisateur,
+        en interrogeant la base via ActivityDAO.
+        """
+        utilisateur = Session().utilisateur
+        if not utilisateur or utilisateur.db_session is None:
+            raise RuntimeError("Aucun utilisateur connecté.")
 
-        def supprimer_activite(self):
-            self.activites = [a for a in self.activites if a.id_activite != id_activite]
+        dao = ActivityDAO(session)
+        activites = dao.get_by_user(self.id_user)
+        return activites
+
+
+    def modifier_activite(self):
+        """
+        Permet à l'utilisateur de modifier une de ses activités.
+
+        Fonctionnement
+        -------------
+        1. Liste toutes les activités de l'utilisateur avec leur ID et titre.
+        2. Demande à l'utilisateur de saisir l'ID de l'activité à modifier.
+        3. Permet de modifier le titre et la description (les champs laissés vides restent inchangés).
+        4. Enregistre les modifications dans la base de données.
+
+        Raises
+        ------
+        ValueError
+            si l'ID saisi ne correspond à aucune activité de l'utilisateur
+        RuntimeError
+            si aucune session SQLAlchemy n'est associée à l'utilisateur
+        """
+        utilisateur = Session().utilisateur
+        if not utilisateur or utilisateur.db_session is None:
+            raise RuntimeError("Aucun utilisateur connecté.")
+
+        dao = ActivityDAO(self.db_session)
+        activites = dao.get_by_user(self.id_user)
+        if not activites:
+            print("Aucune activité à modifier.")
+            return
+
+        # Affiche les activités avec leur ID
+        for act in activites:
+            print(f"ID {act.id}: {act.titre}")
+
+        choix_id = int(input("Entrez l'ID de l'activité à modifier : "))
+        activite = next((a for a in activites if a.id == choix_id), None)
+        if not activite:
+            print("ID invalide.")
+            return
+
+        # Demande les champs à modifier
+        nouveau_titre = input(f"Titre ({activite.titre}): ") or activite.titre
+        nouvelle_description = input(f"Description ({activite.description}): ") or activite.description
+
+        activite.titre = nouveau_titre
+        activite.description = nouvelle_description
+
+        self.db_session.commit()
+        print("Activité modifiée.")
+
+
+    def supprimer_activite(self):
+        """
+        Permet à l'utilisateur de supprimer une de ses activités.
+
+        Fonctionnement
+        -------------
+        1. Liste toutes les activités de l'utilisateur avec leur ID et titre.
+        2. Demande à l'utilisateur de saisir l'ID de l'activité à supprimer.
+        3. Supprime l'activité de la base de données.
+
+        Raises
+        ------
+        ValueError
+            si l'ID saisi ne correspond à aucune activité de l'utilisateur
+        RuntimeError
+            si aucune session SQLAlchemy n'est associée à l'utilisateur
+        """
+        utilisateur = Session().utilisateur
+        if not utilisateur or utilisateur.db_session is None:
+            raise RuntimeError("Aucun utilisateur connecté.")
+
+        dao = ActivityDAO(self.db_session)
+        activites = dao.get_by_user(self.id_user)
+        if not activites:
+            print("Aucune activité à supprimer.")
+            return
+
+        # Affiche les activités avec leur ID
+        for act in activites:
+            print(f"ID {act.id}: {act.titre}")
+
+        choix_id = int(input("Entrez l'ID de l'activité à supprimer : "))
+        activite = next((a for a in activites if a.id == choix_id), None)
+        if not activite:
+            raise ValueError("ID invalide : aucune activité correspondante.")
+
+        self.db_session.delete(activite)
+        self.db_session.commit()
+        print("Activité supprimée.")
+
+    def suivre_utilisateur(self, utilisateur_a_suivre):
+        """
+        Permet à l'utilisateur connecté de suivre un autre utilisateur.
+
+        Parameters
+        ----------
+        utilisateur_a_suivre : Utilisateur
+            instance de l'utilisateur à suivre
+
+        Raises
+        ------
+        ValueError
+            si l'utilisateur se suit lui-même ou est déjà suivi
+        """
+        utilisateur = Session().utilisateur
+        if utilisateur.id_user == utilisateur_a_suivre.id_user:
+            raise ValueError("Impossible de se suivre soi-même.")
+
+        dao = SuiviDAO(utilisateur.db_session)
+        suivi_existant = dao.existe_suivi(utilisateur.id_user, utilisateur_a_suivre.id_user)
+        if suivi_existant:
+            raise ValueError("Utilisateur déjà suivi.")
+
+        dao.ajouter_suivi(utilisateur.id_user, utilisateur_a_suivre.id_user)
+
+
+    def liker_activite(self, activite):
+        """
+        Permet à l'utilisateur connecté de liker une activité,
+        en vérifiant dans la base que le like n'existe pas déjà.
+
+        Parameters
+        ----------
+        activite : Activity
+            instance de l'activité à liker
+
+        Returns
+        -------
+        Like
+            objet Like créé
+        """
+        utilisateur = Session().utilisateur
+        dao = LikeDAO(utilisateur.db_session)
+
+        # Vérifie si l'utilisateur a déjà liké l'activité
+        if dao.existe_like(utilisateur.id_user, activite.id):
+            print("Vous avez déjà liké cette activité.")
+            return None
+
+        # Crée le like dans la base
+        like = Like(
+            id_activite=activite.id,
+            id_user=utilisateur.id_user,
+            date_like=datetime.now()
+        )
+        dao.ajouter_like(like)
+        return like
+
+
+    def commenter_activite(self, activite, contenu: str):
+        """
+        Permet à l'utilisateur connecté de commenter une activité,
+        en enregistrant le commentaire directement dans la base.
+
+        Parameters
+        ----------
+        activite : Activity
+            instance de l'activité à commenter
+        contenu : str
+            texte du commentaire
+
+        Returns
+        -------
+        Commentaire
+            objet Commentaire créé et stocké en base
+        """
+        utilisateur = Session().utilisateur
+        dao = CommentaireDAO(utilisateur.db_session)
+
+        commentaire = Commentaire(
+            id_activite=activite.id,
+            contenu=contenu,
+            date_commentaire=datetime.now(),
+            id_user=utilisateur.id_user
+        )
+
+        dao.ajouter_commentaire(commentaire)
+        return commentaire
+
+
+    def obtenir_statistiques(self, periode: str = None, sport: str = None):
+        """
+        Retourne les statistiques de l'utilisateur connecté.
+
+        Parameters
+        ----------
+        periode : str, optional
+            période à filtrer ('7j' ou '30j')
+        sport : str, optional
+            sport à filtrer ('course', 'cyclisme', 'natation', 'randonnee')
+
+        Returns
+        -------
+        dict
+            dictionnaire avec nombre d'activités, kilomètres et heures
+        """
+        utilisateur = Session().utilisateur
+        stats = {
+            "nombre_activites": Statistiques.nombre_activites(utilisateur, periode, sport),
+            "kilometres": Statistiques.kilometres(utilisateur, periode, sport),
+            "heures": Statistiques.heures_activite(utilisateur, periode, sport)
+        }
+        return stats
