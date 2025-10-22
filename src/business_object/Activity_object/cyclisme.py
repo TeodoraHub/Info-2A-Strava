@@ -3,7 +3,7 @@ from datetime import date
 from business_object.Activity_object.abstract_activity import AbstractActivity
 
 
-class Cyclism(AbstractActivity):
+class Cyclisme(AbstractActivity):
     def __init__(
         self,
         titre,
