@@ -94,7 +94,7 @@ class Utilisateur:
 
         elif type_activite == "cyclisme":
             type_velo = kwargs.get("type_velo", "route")
-            return Cyclism(
+            return Cyclisme(
                 titre=titre,
                 description=description,
                 date_activite=datetime.now().date(),
