@@ -1,6 +1,6 @@
 import logging
 
-from business_object.Like_Comment_object.commentaire import Commentaire
+from business_object.like_comment_object.commentaire import Commentaire
 from dao.db_connection import DBConnection
 from utils.log_decorator import log
 from utils.singleton import Singleton

@@ -18,7 +18,7 @@ class AbstractActivity(ABC):
         self.id = id
         self.titre = titre
         self.description = description
-        self.sport = sport,
+        self.sport = sport
         self.date_activite = date_activite
         self.lieu = lieu
         self.distance = distance
