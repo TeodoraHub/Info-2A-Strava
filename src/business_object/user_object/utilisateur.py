@@ -87,6 +87,7 @@ class Utilisateur:
                 titre=titre,
                 description=description,
                 date_activite=datetime.now(),
+                lieu=lieu,
                 duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,
@@ -95,9 +96,12 @@ class Utilisateur:
         elif type_activite == "cyclisme":
             type_velo = kwargs.get("type_velo", "route")
             return Cyclisme(
+                id_activite=id_activite,
                 titre=titre,
                 description=description,
                 date_activite=datetime.now().date(),
+                lieu=lieu,
+                duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,
                 type_velo=type_velo,
@@ -124,6 +128,7 @@ class Utilisateur:
                 titre=titre,
                 description=description,
                 date_activite=datetime.now(),
+                lieu=lieu,
                 duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,

@@ -490,8 +490,8 @@ class TestSuivreUtilisateur:
 
     def test_suivre_utilisateur_deja_suivi(self):
         # GIVEN - Deux utilisateurs avec un suivi existant
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.SuiviDAO") as mock_dao_class:
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.SuiviDAO") as mock_dao_class:
             
             user1 = Utilisateur(1, "User1", "user1@test.fr", "pass")
             user2 = Utilisateur(2, "User2", "user2@test.fr", "pass")

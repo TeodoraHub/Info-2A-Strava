@@ -10,12 +10,23 @@ class Randonnee(AbstractActivity):
         titre,
         description,
         date_activite,
+        lieu: str,
         duree,
         distance,
         id_user,
         type_terrain: str,
     ):
-        super().__init__(id_activite, titre, description, date_activite, duree, distance, id_user)
+        super().__init__(
+            id=id_activite,
+            titre=titre,
+            description=description,
+            sport="randonnee",
+            date_activite=date_activite,
+            lieu=lieu,
+            distance=distance,
+            id_user=id_user,
+            duree=duree
+        )
         self.type_terrain = type_terrain
 
     def vitesse(self):
