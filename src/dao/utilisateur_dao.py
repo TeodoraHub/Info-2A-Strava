@@ -33,8 +33,8 @@ class UtilisateurDAO(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         "INSERT INTO utilisateur(nom_user, mail_user, mdp) VALUES        "
-                        "(%(nom_user)s, %(mail_user)s, %(mail)s, %(mdp)s)             "
-                        "  RETURNING id_user;                                                ",
+                        "(%(nom_user)s, %(mail_user)s, %(mdp)s)             "
+                        "  RETURNING id_user;           ",
                         {
                             "nom_user": utilisateur.nom_user,
                             "mail_user": utilisateur.mail_user,
