@@ -5,7 +5,7 @@ from utils.log_decorator import log
 
 from dao.db_connection import DBConnection
 
-from business_object.User_object.utilisateur import Utilisateur
+from business_object.user_object.utilisateur import Utilisateur
 
 
 class UtilisateurDAO(metaclass=Singleton):
@@ -33,8 +33,8 @@ class UtilisateurDAO(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         "INSERT INTO utilisateur(nom_user, mail_user, mdp) VALUES        "
-                        "(%(nom_user)s, %(mail_user)s, %(mail)s, %(mdp)s)             "
-                        "  RETURNING id_user;                                                ",
+                        "(%(nom_user)s, %(mail_user)s, %(mdp)s)             "
+                        "  RETURNING id_user;           ",
                         {
                             "nom_user": utilisateur.nom_user,
                             "mail_user": utilisateur.mail_user,

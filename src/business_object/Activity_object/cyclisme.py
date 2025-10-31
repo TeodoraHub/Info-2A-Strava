@@ -6,15 +6,27 @@ from business_object.Activity_object.abstract_activity import AbstractActivity
 class Cyclisme(AbstractActivity):
     def __init__(
         self,
+        id_activite,
         titre,
-        duree,
         description,
+        duree,
         date_activite: date,
+        lieu: str,
         distance,
         id_user,
         type_velo: str,
     ):
-        super().__init__(id, titre, description, date_activite, duree, distance, id_user)
+        super().__init__(
+            id=id_activite,
+            titre=titre,
+            description=description,
+            sport="cyclisme",
+            date_activite=date_activite,
+            lieu=lieu,
+            distance=distance,
+            id_user=id_user,
+            duree=duree
+        )
         self.type_velo = type_velo
 
     def vitesse(self):

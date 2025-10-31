@@ -18,7 +18,7 @@ sys.modules['business_object.statistiques'] = MagicMock()
 sys.modules['business_object.like'] = MagicMock()
 sys.modules['business_object.commentaire'] = MagicMock()
 
-from business_object.User_object.utilisateur import Utilisateur
+from src.business_object.user_object.utilisateur import Utilisateur
 
 
 class TestUtilisateurInit:
@@ -200,8 +200,8 @@ class TestConsulterActivites:
 
     def test_consulter_activites_succes(self):
         # GIVEN - Un utilisateur connecté avec une session DB
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.ActivityDAO") as mock_dao_class:
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.ActivityDAO") as mock_dao_class:
             
             user = Utilisateur(1, "Test", "test@test.fr", "pass")
             
@@ -228,7 +228,7 @@ class TestConsulterActivites:
 
     def test_consulter_activites_pas_de_session(self):
         # GIVEN - Aucun utilisateur connecté
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class:
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class:
             user = Utilisateur(1, "Test", "test@test.fr", "pass")
             mock_session_instance = Mock()
             mock_session_instance.utilisateur = None
@@ -244,8 +244,8 @@ class TestModifierActivite:
 
     def test_modifier_activite_succes(self):
         # GIVEN - Un utilisateur avec une activité existante
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.ActivityDAO") as mock_dao_class, \
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.ActivityDAO") as mock_dao_class, \
              patch("builtins.input") as mock_input, \
              patch("builtins.print") as mock_print:
             
@@ -282,8 +282,8 @@ class TestModifierActivite:
 
     def test_modifier_activite_aucune_activite(self):
         # GIVEN - Un utilisateur sans activités
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.ActivityDAO") as mock_dao_class, \
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.ActivityDAO") as mock_dao_class, \
              patch("builtins.print") as mock_print:
             
             user = Utilisateur(1, "Test", "test@test.fr", "pass")
@@ -309,8 +309,8 @@ class TestModifierActivite:
 
     def test_modifier_activite_id_invalide(self):
         # GIVEN - Un utilisateur avec une activité mais un ID invalide saisi
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.ActivityDAO") as mock_dao_class, \
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.ActivityDAO") as mock_dao_class, \
              patch("builtins.input") as mock_input, \
              patch("builtins.print") as mock_print:
             
@@ -348,8 +348,8 @@ class TestSupprimerActivite:
 
     def test_supprimer_activite_succes(self):
         # GIVEN - Un utilisateur avec une activité à supprimer
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.ActivityDAO") as mock_dao_class, \
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.ActivityDAO") as mock_dao_class, \
              patch("builtins.input") as mock_input, \
              patch("builtins.print") as mock_print:
             
@@ -384,8 +384,8 @@ class TestSupprimerActivite:
 
     def test_supprimer_activite_id_invalide(self):
         # GIVEN - Un utilisateur avec une activité mais un ID invalide
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.ActivityDAO") as mock_dao_class, \
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.ActivityDAO") as mock_dao_class, \
              patch("builtins.input") as mock_input:
             
             user = Utilisateur(1, "Test", "test@test.fr", "pass")
@@ -415,8 +415,8 @@ class TestSupprimerActivite:
 
     def test_supprimer_activite_aucune_activite(self):
         # GIVEN - Un utilisateur sans activités
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.ActivityDAO") as mock_dao_class, \
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.ActivityDAO") as mock_dao_class, \
              patch("builtins.print") as mock_print:
             
             user = Utilisateur(1, "Test", "test@test.fr", "pass")
@@ -446,8 +446,8 @@ class TestSuivreUtilisateur:
 
     def test_suivre_utilisateur_succes(self):
         # GIVEN - Deux utilisateurs différents
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.SuiviDAO") as mock_dao_class:
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.SuiviDAO") as mock_dao_class:
             
             user1 = Utilisateur(1, "User1", "user1@test.fr", "pass")
             user2 = Utilisateur(2, "User2", "user2@test.fr", "pass")
@@ -474,7 +474,7 @@ class TestSuivreUtilisateur:
 
     def test_suivre_utilisateur_soi_meme(self):
         # GIVEN - Un utilisateur qui tente de se suivre lui-même
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class:
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class:
             user = Utilisateur(1, "User", "user@test.fr", "pass")
             
             # Mock de Session
@@ -490,8 +490,8 @@ class TestSuivreUtilisateur:
 
     def test_suivre_utilisateur_deja_suivi(self):
         # GIVEN - Deux utilisateurs avec un suivi existant
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.SuiviDAO") as mock_dao_class:
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.SuiviDAO") as mock_dao_class:
             
             user1 = Utilisateur(1, "User1", "user1@test.fr", "pass")
             user2 = Utilisateur(2, "User2", "user2@test.fr", "pass")
@@ -519,9 +519,9 @@ class TestLikerActivite:
 
     def test_liker_activite_succes(self):
         # GIVEN - Un utilisateur et une activité à liker
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.LikeDAO") as mock_dao_class, \
-             patch("business_object.User_object.utilisateur.Like") as mock_like_class:
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.LikeDAO") as mock_dao_class, \
+             patch("business_object.user_object.utilisateur.Like") as mock_like_class:
             
             user = Utilisateur(1, "User", "user@test.fr", "pass")
             mock_activite = Mock()
@@ -554,8 +554,8 @@ class TestLikerActivite:
 
     def test_liker_activite_deja_like(self):
         # GIVEN - Un utilisateur qui a déjà liké une activité
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.LikeDAO") as mock_dao_class, \
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.LikeDAO") as mock_dao_class, \
              patch("builtins.print") as mock_print:
             
             user = Utilisateur(1, "User", "user@test.fr", "pass")
@@ -588,9 +588,9 @@ class TestCommenterActivite:
 
     def test_commenter_activite_succes(self):
         # GIVEN - Un utilisateur et une activité à commenter
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.CommentaireDAO") as mock_dao_class, \
-             patch("business_object.User_object.utilisateur.Commentaire") as mock_comm_class:
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.CommentaireDAO") as mock_dao_class, \
+             patch("business_object.user_object.utilisateur.Commentaire") as mock_comm_class:
             
             user = Utilisateur(1, "User", "user@test.fr", "pass")
             mock_activite = Mock()
@@ -621,64 +621,24 @@ class TestCommenterActivite:
             mock_dao.ajouter_commentaire.assert_called_once_with(mock_commentaire)
 
 
-class TestObtenerStatistiques:
+class TestObtenirStatistiques:
     """Tests de la méthode obtenir_statistiques"""
 
     def test_obtenir_statistiques_sans_filtre(self):
         # GIVEN - Un utilisateur connecté
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.Statistiques") as mock_stats_class:
-            
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.Statistiques") as mock_stats_class:
+
             user = Utilisateur(1, "User", "user@test.fr", "pass")
-            
+
             # Mock de Session
             mock_utilisateur = Mock()
             mock_session_instance = Mock()
             mock_session_instance.utilisateur = mock_utilisateur
             mock_session_class.return_value = mock_session_instance
-            
+
             # Mock des statistiques
-            mock_stats_class.nombre_activites.return_value = 5
-            mock_stats_class.kilometres.return_value = 25.0
-            mock_stats_class.heures_activite.return_value = 4.0
-
-            # WHEN - On obtient les statistiques avec filtres
-            stats = user.obtenir_statistiques(periode="7j", sport="course")
-
-            # THEN - Les statistiques filtrées sont calculées et retournées
-            assert stats["nombre_activites"] == 5
-            assert stats["kilometres"] == 25.0
-            assert stats["heures"] == 4.0
-            mock_stats_class.nombre_activites.assert_called_once_with(mock_utilisateur, "7j", "course")
-            mock_stats_class.kilometres.assert_called_once_with(mock_utilisateur, "7j", "course")
-            mock_stats_class.heures_activite.assert_called_once_with(mock_utilisateur, "7j", "course")
-
-    def test_obtenir_statistiques_periode_30j(self):
-        # GIVEN - Un utilisateur et un filtre de période 30 jours
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.Statistiques") as mock_stats_class:
-            
-            user = Utilisateur(1, "User", "user@test.fr", "pass")
-            
-            # Mock de Session
-            mock_utilisateur = Mock()
-            mock_session_instance = Mock()
-            mock_session_instance.utilisateur = mock_utilisateur
-            mock_session_class.return_value = mock_session_instance
-            
-            # Mock des statistiques
-            mock_stats_class.nombre_activites.return_value = 20
-            mock_stats_class.kilometres.return_value = 150.0
-            mock_stats_class.heures_activite.return_value = 15.0
-
-            # WHEN - On obtient les statistiques sur 30 jours
-            stats = user.obtenir_statistiques(periode="30j")
-
-            # THEN - Les statistiques sont filtrées par période
-            assert stats["nombre_activites"] == 20
-            assert stats["kilometres"] == 150.0
-            assert stats["heures"] == 15.0
-            mock_stats_class.nombre_activites.assert_called_once_with(mock_utilisateur, "30j", None)_value = 10
+            mock_stats_class.nombre_activites.return_value = 10
             mock_stats_class.kilometres.return_value = 50.5
             mock_stats_class.heures_activite.return_value = 8.5
 
@@ -693,18 +653,60 @@ class TestObtenerStatistiques:
             mock_stats_class.kilometres.assert_called_once_with(mock_utilisateur, None, None)
             mock_stats_class.heures_activite.assert_called_once_with(mock_utilisateur, None, None)
 
-    def test_obtenir_statistiques_avec_filtres(self):
-        # GIVEN - Un utilisateur connecté et des filtres
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.Statistiques") as mock_stats_class:
-            
+    def test_obtenir_statistiques_avec_periode(self):
+        # GIVEN - Un utilisateur et un filtre de période 30 jours
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.Statistiques") as mock_stats_class:
+
             user = Utilisateur(1, "User", "user@test.fr", "pass")
-            
+
             # Mock de Session
             mock_utilisateur = Mock()
             mock_session_instance = Mock()
             mock_session_instance.utilisateur = mock_utilisateur
             mock_session_class.return_value = mock_session_instance
-            
+
             # Mock des statistiques
-            mock_stats_class.nombre_activites.return
+            mock_stats_class.nombre_activites.return_value = 20
+            mock_stats_class.kilometres.return_value = 150.0
+            mock_stats_class.heures_activite.return_value = 15.0
+
+            # WHEN - On obtient les statistiques sur 30 jours
+            stats = user.obtenir_statistiques(periode="30j")
+
+            # THEN - Les statistiques sont filtrées par période
+            assert stats["nombre_activites"] == 20
+            assert stats["kilometres"] == 150.0
+            assert stats["heures"] == 15.0
+            mock_stats_class.nombre_activites.assert_called_once_with(mock_utilisateur, "30j", None)
+            mock_stats_class.kilometres.assert_called_once_with(mock_utilisateur, "30j", None)
+            mock_stats_class.heures_activite.assert_called_once_with(mock_utilisateur, "30j", None)
+
+    def test_obtenir_statistiques_avec_sport(self):
+        # GIVEN - Un utilisateur et un filtre par sport
+        with patch("business_object.user_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.user_object.utilisateur.Statistiques") as mock_stats_class:
+
+            user = Utilisateur(1, "User", "user@test.fr", "pass")
+
+            # Mock de Session
+            mock_utilisateur = Mock()
+            mock_session_instance = Mock()
+            mock_session_instance.utilisateur = mock_utilisateur
+            mock_session_class.return_value = mock_session_instance
+
+            # Mock des statistiques
+            mock_stats_class.nombre_activites.return_value = 5
+            mock_stats_class.kilometres.return_value = 25.0
+            mock_stats_class.heures_activite.return_value = 4.0
+
+            # WHEN - On obtient les statistiques avec filtre sport
+            stats = user.obtenir_statistiques(sport="course")
+
+            # THEN - Les statistiques sont filtrées par sport
+            assert stats["nombre_activites"] == 5
+            assert stats["kilometres"] == 25.0
+            assert stats["heures"] == 4.0
+            mock_stats_class.nombre_activites.assert_called_once_with(mock_utilisateur, None, "course")
+            mock_stats_class.kilometres.assert_called_once_with(mock_utilisateur, None, "course")
+            mock_stats_class.heures_activite.assert_called_once_with(mock_utilisateur, None, "course")

@@ -7,6 +7,9 @@ from business_object.Activity_object.course_a_pieds import CoursePied
 from business_object.Activity_object.cyclisme import Cyclisme
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
+from utils.session import Session
+from dao.commentaire_dao import CommentaireDAO
+from business_object.like_comment_object.commentaire import Commentaire
 from dao.activite_dao import ActivityDAO
 
 class Utilisateur:
@@ -87,6 +90,7 @@ class Utilisateur:
                 titre=titre,
                 description=description,
                 date_activite=datetime.now(),
+                lieu=lieu,
                 duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,
@@ -95,9 +99,12 @@ class Utilisateur:
         elif type_activite == "cyclisme":
             type_velo = kwargs.get("type_velo", "route")
             return Cyclisme(
+                id_activite=id_activite,
                 titre=titre,
                 description=description,
                 date_activite=datetime.now().date(),
+                lieu=lieu,
+                duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,
                 type_velo=type_velo,
@@ -110,6 +117,7 @@ class Utilisateur:
                 titre=titre,
                 description=description,
                 date_activite=datetime.now(),
+                lieu=lieu,
                 duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,
@@ -123,6 +131,7 @@ class Utilisateur:
                 titre=titre,
                 description=description,
                 date_activite=datetime.now(),
+                lieu=lieu,
                 duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,

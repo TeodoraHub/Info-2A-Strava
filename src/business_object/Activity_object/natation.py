@@ -10,12 +10,23 @@ class Natation(AbstractActivity):
         titre,
         description,
         date_activite,
-        duree,
-        distance,
-        id_user,
+        lieu: str,
+        distance: float,
+        id_user: int,
         type_nage: str,
+        duree: float = None,
     ):
-        super().__init__(id_activite, titre, description, date_activite, duree, distance, id_user)
+        super().__init__(
+            id=id_activite,
+            titre=titre,
+            description=description,
+            sport="natation",
+            date_activite=date_activite,
+            lieu=lieu,
+            distance=distance,
+            id_user=id_user,
+            duree=duree
+        )
         self.type_nage = type_nage
 
     def vitesse(self):
