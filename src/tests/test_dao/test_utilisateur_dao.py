@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from src.dao.utilisateur_dao import UtilisateurDAO
-from src.business_object.User_object.utilisateur import Utilisateur  # Adaptez l'import selon votre structure
+from src.business_object.user_object.utilisateur import Utilisateur
 
 @pytest.fixture
 def mock_utilisateur():
