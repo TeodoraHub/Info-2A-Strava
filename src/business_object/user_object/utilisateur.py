@@ -110,6 +110,7 @@ class Utilisateur:
                 titre=titre,
                 description=description,
                 date_activite=datetime.now(),
+                lieu=lieu,
                 duree=duree,
                 distance=distance_m,
                 id_user=self.id_user,
