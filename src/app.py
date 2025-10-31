@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 
-from service import ActivityService
-from dao.activite_dao import AcitivityDAO
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+
+from dao.activite_dao import ActiviteDAO
 from dao.utilisateur_dao import UtilisateurDAO
+from service import ActivityService
 
 # ------------- Authentification Basique ------------------
 
@@ -13,8 +14,9 @@ security = HTTPBasic()
 
 USERS = {
     "alice": {"password": "wonderland", "roles": ["admin"]},
-    "bob":   {"password": "builder",    "roles": ["user"]},
+    "bob": {"password": "builder", "roles": ["user"]},
 }
+
 
 def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
     username = credentials.username
@@ -28,15 +30,19 @@ def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
         )
     return {"username": username, "roles": user["roles"]}
 
+
 @app.get("/f1")
-def me(user = Depends(get_current_user)):
+def me(user=Depends(get_current_user)):
     return {"user": user}
+
+
 # ----------------------------------------------------------
 
 
 # Jamais de DAO dans les méthodes des objets métiers
 # Les services orchestrent l'utilisation des objets métiers et de la DAO
 # On peut aussi se passer des services et orchestrer directement dans le endpoint
+
 
 @app.post("users/{user_id}/activities")
 def create_activity(user_id):
@@ -45,6 +51,7 @@ def create_activity(user_id):
     ActiviteDAO().save(activity)
     # OU
     # UtilisateurService().create_activity(user_id)
+
 
 @app.get("users/{user_id}/feed")
 def get_feed(user_id):
