@@ -18,7 +18,7 @@ sys.modules['business_object.statistiques'] = MagicMock()
 sys.modules['business_object.like'] = MagicMock()
 sys.modules['business_object.commentaire'] = MagicMock()
 
-from business_object.User_object.utilisateur import Utilisateur
+from business_object.user_object.utilisateur import Utilisateur
 
 
 class TestUtilisateurInit:
@@ -621,64 +621,24 @@ class TestCommenterActivite:
             mock_dao.ajouter_commentaire.assert_called_once_with(mock_commentaire)
 
 
-class TestObtenerStatistiques:
+class TestObtenirStatistiques:
     """Tests de la méthode obtenir_statistiques"""
 
     def test_obtenir_statistiques_sans_filtre(self):
         # GIVEN - Un utilisateur connecté
         with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
              patch("business_object.User_object.utilisateur.Statistiques") as mock_stats_class:
-            
+
             user = Utilisateur(1, "User", "user@test.fr", "pass")
-            
+
             # Mock de Session
             mock_utilisateur = Mock()
             mock_session_instance = Mock()
             mock_session_instance.utilisateur = mock_utilisateur
             mock_session_class.return_value = mock_session_instance
-            
+
             # Mock des statistiques
-            mock_stats_class.nombre_activites.return_value = 5
-            mock_stats_class.kilometres.return_value = 25.0
-            mock_stats_class.heures_activite.return_value = 4.0
-
-            # WHEN - On obtient les statistiques avec filtres
-            stats = user.obtenir_statistiques(periode="7j", sport="course")
-
-            # THEN - Les statistiques filtrées sont calculées et retournées
-            assert stats["nombre_activites"] == 5
-            assert stats["kilometres"] == 25.0
-            assert stats["heures"] == 4.0
-            mock_stats_class.nombre_activites.assert_called_once_with(mock_utilisateur, "7j", "course")
-            mock_stats_class.kilometres.assert_called_once_with(mock_utilisateur, "7j", "course")
-            mock_stats_class.heures_activite.assert_called_once_with(mock_utilisateur, "7j", "course")
-
-    def test_obtenir_statistiques_periode_30j(self):
-        # GIVEN - Un utilisateur et un filtre de période 30 jours
-        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
-             patch("business_object.User_object.utilisateur.Statistiques") as mock_stats_class:
-            
-            user = Utilisateur(1, "User", "user@test.fr", "pass")
-            
-            # Mock de Session
-            mock_utilisateur = Mock()
-            mock_session_instance = Mock()
-            mock_session_instance.utilisateur = mock_utilisateur
-            mock_session_class.return_value = mock_session_instance
-            
-            # Mock des statistiques
-            mock_stats_class.nombre_activites.return_value = 20
-            mock_stats_class.kilometres.return_value = 150.0
-            mock_stats_class.heures_activite.return_value = 15.0
-
-            # WHEN - On obtient les statistiques sur 30 jours
-            stats = user.obtenir_statistiques(periode="30j")
-
-            # THEN - Les statistiques sont filtrées par période
-            assert stats["nombre_activites"] == 20
-            assert stats["kilometres"] == 150.0
-            assert stats["heures"] == 15.0
-            mock_stats_class.nombre_activites.assert_called_once_with(mock_utilisateur, "30j", None)_value = 10
+            mock_stats_class.nombre_activites.return_value = 10
             mock_stats_class.kilometres.return_value = 50.5
             mock_stats_class.heures_activite.return_value = 8.5
 
@@ -693,18 +653,60 @@ class TestObtenerStatistiques:
             mock_stats_class.kilometres.assert_called_once_with(mock_utilisateur, None, None)
             mock_stats_class.heures_activite.assert_called_once_with(mock_utilisateur, None, None)
 
-    def test_obtenir_statistiques_avec_filtres(self):
-        # GIVEN - Un utilisateur connecté et des filtres
+    def test_obtenir_statistiques_avec_periode(self):
+        # GIVEN - Un utilisateur et un filtre de période 30 jours
         with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
              patch("business_object.User_object.utilisateur.Statistiques") as mock_stats_class:
-            
+
             user = Utilisateur(1, "User", "user@test.fr", "pass")
-            
+
             # Mock de Session
             mock_utilisateur = Mock()
             mock_session_instance = Mock()
             mock_session_instance.utilisateur = mock_utilisateur
             mock_session_class.return_value = mock_session_instance
-            
+
             # Mock des statistiques
-            mock_stats_class.nombre_activites.return
+            mock_stats_class.nombre_activites.return_value = 20
+            mock_stats_class.kilometres.return_value = 150.0
+            mock_stats_class.heures_activite.return_value = 15.0
+
+            # WHEN - On obtient les statistiques sur 30 jours
+            stats = user.obtenir_statistiques(periode="30j")
+
+            # THEN - Les statistiques sont filtrées par période
+            assert stats["nombre_activites"] == 20
+            assert stats["kilometres"] == 150.0
+            assert stats["heures"] == 15.0
+            mock_stats_class.nombre_activites.assert_called_once_with(mock_utilisateur, "30j", None)
+            mock_stats_class.kilometres.assert_called_once_with(mock_utilisateur, "30j", None)
+            mock_stats_class.heures_activite.assert_called_once_with(mock_utilisateur, "30j", None)
+
+    def test_obtenir_statistiques_avec_sport(self):
+        # GIVEN - Un utilisateur et un filtre par sport
+        with patch("business_object.User_object.utilisateur.Session") as mock_session_class, \
+             patch("business_object.User_object.utilisateur.Statistiques") as mock_stats_class:
+
+            user = Utilisateur(1, "User", "user@test.fr", "pass")
+
+            # Mock de Session
+            mock_utilisateur = Mock()
+            mock_session_instance = Mock()
+            mock_session_instance.utilisateur = mock_utilisateur
+            mock_session_class.return_value = mock_session_instance
+
+            # Mock des statistiques
+            mock_stats_class.nombre_activites.return_value = 5
+            mock_stats_class.kilometres.return_value = 25.0
+            mock_stats_class.heures_activite.return_value = 4.0
+
+            # WHEN - On obtient les statistiques avec filtre sport
+            stats = user.obtenir_statistiques(sport="course")
+
+            # THEN - Les statistiques sont filtrées par sport
+            assert stats["nombre_activites"] == 5
+            assert stats["kilometres"] == 25.0
+            assert stats["heures"] == 4.0
+            mock_stats_class.nombre_activites.assert_called_once_with(mock_utilisateur, None, "course")
+            mock_stats_class.kilometres.assert_called_once_with(mock_utilisateur, None, "course")
+            mock_stats_class.heures_activite.assert_called_once_with(mock_utilisateur, None, "course")
