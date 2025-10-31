@@ -7,6 +7,9 @@ from business_object.Activity_object.course_a_pieds import CoursePied
 from business_object.Activity_object.cyclisme import Cyclisme
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
+from utils.session import Session
+from dao.commentaire_dao import CommentaireDAO
+from business_object.like_comment_object.commentaire import Commentaire
 from dao.activite_dao import ActivityDAO
 
 class Utilisateur:
