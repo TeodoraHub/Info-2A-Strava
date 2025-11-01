@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List, Optional
-from dao.utilisateur_dao import UtilisateurDAO
+
 
 class ActivityDAO:
     """
@@ -43,6 +43,8 @@ class ActivityDAO:
 
     def get_feed(self, user_id: int) -> List[object]:
         """Récupère le fil d'activités d'un utilisateur (ses activités + celles des suivis)."""
+        from dao.utilisateur_dao import UtilisateurDAO
+        
         user_dao = UtilisateurDAO(self.db)
         user = user_dao.get(user_id)
         following_ids = getattr(user, "following", []) + [user_id]
