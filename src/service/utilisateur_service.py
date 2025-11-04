@@ -4,6 +4,7 @@ from business_object.user_object.utilisateur import Utilisateur
 from dao.utilisateur_dao import UtilisateurDao
 from utils.log_decorator import log
 from utils.securite import hash_password
+from dao.utilisateur_dao import UtilisateurDAO as UtilisateurDao
 
 
 class UtilisateurService:
