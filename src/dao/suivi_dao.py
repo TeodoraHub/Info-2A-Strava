@@ -3,7 +3,7 @@ import logging
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 
-from business_object.user_object.suivi.py import Suivi
+from business_object.suivi import Suivi
 from dao.db_connection import DBConnection
 from utils.log_decorator import log
 from utils.singleton import Singleton
@@ -14,8 +14,21 @@ class SuiviDAO(metaclass=Singleton):
 
     @log
     def creer_suivi(self, id_suiveur, id_suivi) -> bool:
-        """Création d'une relation de suivi dans la base de données"""
+        """Création d'une relation de suivi dans la base de données
 
+        Parameters
+        ----------
+        id_suiveur : int
+            identifiant de l'utilisateur qui suit
+        id_suivi : int
+            identifiant de l'utilisateur suivi
+
+        Returns
+        -------
+        created : bool
+            True si la création est un succès
+            False sinon
+        """
         # Vérifier qu'un utilisateur ne se suit pas lui-même
         if id_suiveur == id_suivi:
             logging.info("Un utilisateur ne peut pas se suivre lui-même")
@@ -43,8 +56,21 @@ class SuiviDAO(metaclass=Singleton):
 
     @log
     def supprimer_suivi(self, id_suiveur, id_suivi) -> bool:
-        """Suppression d'une relation de suivi dans la base de données"""
+        """Suppression d'une relation de suivi dans la base de données
 
+        Parameters
+        ----------
+        id_suiveur : int
+            identifiant de l'utilisateur qui suit
+        id_suivi : int
+            identifiant de l'utilisateur suivi
+
+        Returns
+        -------
+        deleted : bool
+            True si la suppression est un succès
+            False sinon
+        """
         try:
             Session = sessionmaker(bind=DBConnection().engine)
             session = Session()
@@ -69,9 +95,21 @@ class SuiviDAO(metaclass=Singleton):
 
     @log
     def get_followers(self, id_user) -> list[int]:
-        """Récupère la liste des followers d'un utilisateur"""
+        """Récupère la liste des followers d'un utilisateur
+
+        Parameters
+        ----------
+        id_user : int
+            identifiant de l'utilisateur
+
+        Returns
+        -------
+        followers : list[int]
+            liste des id des utilisateurs qui suivent cet utilisateur
+        """
 
         try:
+            # Création de la session SQLAlchemy
             Session = sessionmaker(bind=DBConnection().engine)
             session = Session()
 
@@ -81,15 +119,27 @@ class SuiviDAO(metaclass=Singleton):
         except SQLAlchemyError as e:
             logging.error(f"Erreur lors de la récupération des followers : {str(e)}")
             return []
+
         finally:
             session.close()
 
         # Retourne la liste des id des suiveurs
-        return [follower[0] for follower in followers]
+        return [follower[0] for follower in followers] if followers else []
 
     @log
     def get_following(self, id_user) -> list[int]:
-        """Récupère la liste des utilisateurs suivis par un utilisateur"""
+        """Récupère la liste des utilisateurs suivis par un utilisateur
+
+        Parameters
+        ----------
+        id_user : int
+            identifiant de l'utilisateur
+
+        Returns
+        -------
+        following : list[int]
+            liste des id des utilisateurs suivis par cet utilisateur
+        """
 
         try:
             Session = sessionmaker(bind=DBConnection().engine)
@@ -109,8 +159,21 @@ class SuiviDAO(metaclass=Singleton):
 
     @log
     def user_suit(self, id_suiveur, id_suivi) -> bool:
-        """Vérifie si un utilisateur en suit un autre"""
+        """Vérifie si un utilisateur en suit un autre
 
+        Parameters
+        ----------
+        id_suiveur : int
+            identifiant de l'utilisateur qui suit
+        id_suivi : int
+            identifiant de l'utilisateur potentiellement suivi
+
+        Returns
+        -------
+        suit : bool
+            True si id_suiveur suit id_suivi
+            False sinon
+        """
         try:
             Session = sessionmaker(bind=DBConnection().engine)
             session = Session()
@@ -128,7 +191,18 @@ class SuiviDAO(metaclass=Singleton):
 
     @log
     def count_followers(self, id_user) -> int:
-        """Compte le nombre de followers d'un utilisateur"""
+        """Compte le nombre de followers d'un utilisateur
+
+        Parameters
+        ----------
+        id_user : int
+            identifiant de l'utilisateur
+
+        Returns
+        -------
+        count : int
+            nombre de followers
+        """
 
         try:
             Session = sessionmaker(bind=DBConnection().engine)
@@ -147,7 +221,18 @@ class SuiviDAO(metaclass=Singleton):
 
     @log
     def count_following(self, id_user) -> int:
-        """Compte le nombre d'utilisateurs suivis par un utilisateur"""
+        """Compte le nombre d'utilisateurs suivis par un utilisateur
+
+        Parameters
+        ----------
+        id_user : int
+            identifiant de l'utilisateur
+
+        Returns
+        -------
+        count : int
+            nombre d'utilisateurs suivis
+        """
 
         try:
             Session = sessionmaker(bind=DBConnection().engine)

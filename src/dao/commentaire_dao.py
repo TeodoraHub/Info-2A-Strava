@@ -20,11 +20,33 @@ class CommentaireDAO(metaclass=Singleton):
     """Classe contenant les méthodes pour accéder aux Commentaires de la base de données"""
 
     def __init__(self, session: Session):
+        """Initialise la classe avec une session SQLAlchemy.
+
+        Parameters
+        ----------
+        session : Session
+            La session SQLAlchemy pour interagir avec la base de données.
+        """
         self.session = session  # Session SQLAlchemy
 
     @log
     def creer_commentaire(self, id_user: int, id_activite: int, contenu: str) -> Commentaire:
-        """Création d'un commentaire dans la base de données."""
+        """Création d'un commentaire dans la base de données.
+
+        Parameters
+        ----------
+        id_user : int
+            Identifiant de l'utilisateur qui crée le commentaire.
+        id_activite : int
+            Identifiant de l'activité associée au commentaire.
+        contenu : str
+            Contenu du commentaire.
+
+        Returns
+        -------
+        Commentaire
+            L'instance du commentaire créé, ou None en cas d'erreur.
+        """
         try:
             commentaire = Commentaire(
                 id_user=id_user,
@@ -42,7 +64,18 @@ class CommentaireDAO(metaclass=Singleton):
 
     @log
     def supprimer_commentaire(self, id_comment: int) -> bool:
-        """Suppression d'un commentaire dans la base de données."""
+        """Suppression d'un commentaire dans la base de données.
+
+        Parameters
+        ----------
+        id_comment : int
+            Identifiant du commentaire à supprimer.
+
+        Returns
+        -------
+        bool
+            True si la suppression est réussie, False sinon.
+        """
         try:
             commentaire = self.session.query(Commentaire).filter_by(id_comment=id_comment).first()
             if commentaire:
@@ -57,7 +90,18 @@ class CommentaireDAO(metaclass=Singleton):
 
     @log
     def get_commentaires_by_activity(self, id_activite: int) -> list[Commentaire]:
-        """Récupère tous les commentaires d'une activité."""
+        """Récupère tous les commentaires d'une activité.
+
+        Parameters
+        ----------
+        id_activite : int
+            Identifiant de l'activité pour laquelle on récupère les commentaires.
+
+        Returns
+        -------
+        list[Commentaire]
+            Liste des commentaires associés à l'activité, triés par date décroissante.
+        """
         try:
             commentaires = (
                 self.session.query(Commentaire)
@@ -72,7 +116,18 @@ class CommentaireDAO(metaclass=Singleton):
 
     @log
     def get_commentaires_by_user(self, id_user: int) -> list[Commentaire]:
-        """Récupère tous les commentaires d'un utilisateur."""
+        """Récupère tous les commentaires d'un utilisateur.
+
+        Parameters
+        ----------
+        id_user : int
+            Identifiant de l'utilisateur pour lequel on récupère les commentaires.
+
+        Returns
+        -------
+        list[Commentaire]
+            Liste des commentaires créés par l'utilisateur, triés par date décroissante.
+        """
         try:
             commentaires = (
                 self.session.query(Commentaire)
@@ -87,7 +142,18 @@ class CommentaireDAO(metaclass=Singleton):
 
     @log
     def count_commentaires_by_activity(self, id_activite: int) -> int:
-        """Compte le nombre de commentaires d'une activité."""
+        """Compte le nombre de commentaires d'une activité.
+
+        Parameters
+        ----------
+        id_activite : int
+            Identifiant de l'activité pour laquelle on compte les commentaires.
+
+        Returns
+        -------
+        int
+            Nombre de commentaires associés à l'activité.
+        """
         try:
             count = self.session.query(Commentaire).filter_by(id_activite=id_activite).count()
             return count
@@ -97,7 +163,20 @@ class CommentaireDAO(metaclass=Singleton):
 
     @log
     def modifier_commentaire(self, id_comment: int, nouveau_contenu: str) -> bool:
-        """Modification d'un commentaire dans la base de données."""
+        """Modification d'un commentaire dans la base de données.
+
+        Parameters
+        ----------
+        id_comment : int
+            Identifiant du commentaire à modifier.
+        nouveau_contenu : str
+            Nouveau contenu du commentaire.
+
+        Returns
+        -------
+        bool
+            True si la modification est réussie, False sinon.
+        """
         try:
             commentaire = self.session.query(Commentaire).filter_by(id_comment=id_comment).first()
             if commentaire:
@@ -107,7 +186,5 @@ class CommentaireDAO(metaclass=Singleton):
             return False
         except Exception as e:
             self.session.rollback()
-            logging.error(f"Erreur lors de la modification du commentaire: {e}")
-            return False
             logging.error(f"Erreur lors de la modification du commentaire: {e}")
             return False
