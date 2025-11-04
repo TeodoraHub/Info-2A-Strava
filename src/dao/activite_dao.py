@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from session import Session
+from utils.session import Session
 
 
 class ActivityDAO:

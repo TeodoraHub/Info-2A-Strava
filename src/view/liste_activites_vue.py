@@ -2,7 +2,7 @@ from InquirerPy import prompt
 
 from view.vue_abstraite import VueAbstraite
 from service.activity_service import ActivityService
-from session import Session
+from utils.session import Session
 
 
 class ListeActivitesVue(VueAbstraite):
@@ -28,7 +28,7 @@ class ListeActivitesVue(VueAbstraite):
 
         # Cas où il n'y a aucune activité
         if not activites:
-            print("📭 Vous n'avez encore aucune activité enregistrée.\n")
+            print("Vous n'avez encore aucune activité enregistrée.\n")
             choix = prompt([
                 {
                     'type': 'list',
@@ -66,8 +66,8 @@ class ListeActivitesVue(VueAbstraite):
 
         # Ajouter les options de menu
         choix_activites.extend([
-            {'name': '➕ Créer une nouvelle activité', 'value': 'creer'},
-            {'name': '⬅️  Retour au menu principal', 'value': 'retour'}
+            {'name': 'Créer une nouvelle activité', 'value': 'creer'},
+            {'name': 'Retour au menu principal', 'value': 'retour'}
         ])
 
         # Demander l'action à effectuer
@@ -97,7 +97,7 @@ class ListeActivitesVue(VueAbstraite):
     def _afficher_resume(self, activites):
         """Affiche un résumé statistique des activités"""
         print(f"\n{'='*60}")
-        print(f"📊 VOS ACTIVITÉS ({len(activites)} au total)")
+        print(f"VOS ACTIVITÉS ({len(activites)} au total)")
         print(f"{'='*60}\n")
 
         # Calculer quelques statistiques
@@ -118,15 +118,15 @@ class ListeActivitesVue(VueAbstraite):
                 duree_totale += act.duree
 
         # Afficher les statistiques
-        print("📈 Résumé :")
+        print("Résumé :")
         for type_act, count in types_activites.items():
             print(f"  • {type_act}: {count} activité(s)")
         
         if distance_totale > 0:
-            print(f"\n🏃 Distance totale : {distance_totale:.2f} km")
+            print(f"Distance totale : {distance_totale:.2f} km")
         if duree_totale > 0:
             heures = duree_totale // 60
             minutes = duree_totale % 60
-            print(f"⏱️  Durée totale : {heures}h {minutes}min")
+            print(f"Durée totale : {heures}h {minutes}min")
         
         print(f"\n{'='*60}\n")
