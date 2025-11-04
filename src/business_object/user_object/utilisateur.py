@@ -8,9 +8,7 @@ from business_object.Activity_object.cyclisme import Cyclisme
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
 from utils.session import Session
-from dao.commentaire_dao import CommentaireDAO
 from business_object.like_comment_object.commentaire import Commentaire
-from dao.activite_dao import ActivityDAO
 
 class Utilisateur:
     """
@@ -140,20 +138,6 @@ class Utilisateur:
 
         else:
             raise ValueError(f"Type d’activité inconnu: {type_activite}")
-
-
-    def consulter_activites(self):
-        """
-        Liste toutes les activités appartenant à l'utilisateur,
-        en interrogeant la base via ActivityDAO.
-        """
-        utilisateur = Session().utilisateur
-        if not utilisateur or utilisateur.db_session is None:
-            raise RuntimeError("Aucun utilisateur connecté.")
-
-        a = ActivityDAO(session)
-        activites = dao.get_by_user(self.id_user)
-        return activites
 
 
     def obtenir_statistiques(self, periode: str = None, sport: str = None):
