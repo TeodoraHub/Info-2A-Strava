@@ -3,7 +3,7 @@ import logging
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 
-from business_object.user_object.suivi.py import Suivi
+from business_object.suivi import Suivi
 from dao.db_connection import DBConnection
 from utils.log_decorator import log
 from utils.singleton import Singleton
