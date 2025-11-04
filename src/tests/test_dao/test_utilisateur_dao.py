@@ -11,6 +11,8 @@ def mock_utilisateur():
     # Ajouter id_user=None pour un utilisateur non encore créé en base
     return Utilisateur(nom_user="Test", mail_user="test@example.com", mdp="password", id_user=None)
 
+    return Utilisateur(nom_user="Test", mail_user="test@example.com", mdp="password", id_user=None)
+
 
 def test_creer_utilisateur_success(mock_utilisateur):
     # Mock de la connexion et du curseur
@@ -24,11 +26,15 @@ def test_creer_utilisateur_success(mock_utilisateur):
         mock_db_instance.connection.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
+        # Simuler le retour de fetchone (comme si l'INSERT a réussi)
+
         # Simuler le retour de fetchone (comme si l'INSERT avait réussi)
         mock_cursor.fetchone.return_value = {"id_user": 1}
 
         # Instanciation du DAO
         dao = UtilisateurDAO()
+
+        # Appel de la méthode
 
         # Appel de la méthode à tester
         result = dao.creer(mock_utilisateur)
@@ -78,6 +84,9 @@ def test_creer_utilisateur_no_return(mock_utilisateur):
         # Appel de la méthode
         result = dao.creer(mock_utilisateur)
 
+        # Vérifications
+        assert result is False
+        assert mock_utilisateur.id_user is None
         # Vérifications
         assert result is False
         assert mock_utilisateur.id_user is None
