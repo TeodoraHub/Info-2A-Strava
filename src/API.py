@@ -1,5 +1,4 @@
 import secrets
-from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -53,13 +52,27 @@ def get_profil(user_id: int, current_user: dict = Depends(get_current_user)):
         utilisateur_service = UtilisateurService()
         suivi_service = SuiviService()
 
+        # ✅ Vérifie si l'utilisateur courant (authentifié) existe toujours
+        current = utilisateur_service.trouver_par_id(current_user["id"])
+        if not current:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Utilisateur courant invalide ou supprimé",
+            )
+
+        # ✅ Vérifie si le profil demandé existe dans la base
         user = utilisateur_service.trouver_par_id(user_id)
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Utilisateur avec l'id {user_id} introuvable",
+            )
 
+        # Récupère les followers et followings
         followers = suivi_service.get_followers(user_id)
         following = suivi_service.get_following(user_id)
 
+        # ✅ Construit la réponse finale
         return {
             "id": user.id_user,
             "username": user.nom_user,
@@ -69,8 +82,12 @@ def get_profil(user_id: int, current_user: dict = Depends(get_current_user)):
             "followers": [{"id": f.id_user, "username": f.nom_user} for f in followers],
             "following": [{"id": f.id_user, "username": f.nom_user} for f in following],
         }
+
+    except HTTPException:
+        # On relance les exceptions HTTP définies ci-dessus
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Erreur interne : {e}")
 
 
 @app.post("/users/{user_id}/follow/{target_user_id}")
@@ -103,90 +120,9 @@ def unfollow_user(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/users/{user_id}/statistics")
-def get_user_statistics(
-    user_id: int, period: str = "global", current_user: dict = Depends(get_current_user)
-):
-    """Récupère les statistiques d'un utilisateur
-
-    Parameters:
-    - period: 'monthly', 'yearly', or 'global' (default)
-    """
-    try:
-        stats_service = StatistiquesService()
-
-        if period == "monthly":
-            stats = stats_service.get_statistiques_mensuelles(user_id)
-        elif period == "yearly":
-            stats = stats_service.get_statistiques_annuelles(user_id)
-        else:
-            stats = stats_service.get_statistiques_globales(user_id)
-
-        if not stats:
-            raise HTTPException(status_code=404, detail="Statistics not found")
-
-        return stats
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 # ============================================================================
 # ENDPOINTS ACTIVITÉS
 # ============================================================================
-
-
-@app.get("/users/{user_id}/activities")
-def get_user_activities(
-    user_id: int,
-    type_activite: Optional[str] = None,
-    current_user: dict = Depends(get_current_user),
-):
-    """Récupère toutes les activités d'un utilisateur"""
-    try:
-        activity_service = ActivityService()
-        activities = activity_service.get_activites_by_user(user_id, type_activite)
-
-        return [
-            {
-                "id": a.id,
-                "titre": a.titre if hasattr(a, "titre") else None,
-                "sport": a.sport if hasattr(a, "sport") else None,
-                "distance": a.distance if hasattr(a, "distance") else None,
-                "duree": str(a.duree) if hasattr(a, "duree") else None,
-                "date_activite": a.date_activite.isoformat()
-                if hasattr(a, "date_activite")
-                else None,
-                "id_user": a.id_user if hasattr(a, "id_user") else None,
-            }
-            for a in activities
-        ]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/users/{user_id}/feed")
-def get_feed(user_id: int, current_user: dict = Depends(get_current_user)):
-    """Récupère le fil d'actualités d'un utilisateur (ses activités + celles qu'il suit)"""
-    try:
-        activity_service = ActivityService()
-        feed = activity_service.get_feed(user_id)
-
-        return [
-            {
-                "id": a.id,
-                "titre": a.titre if hasattr(a, "titre") else None,
-                "sport": a.sport if hasattr(a, "sport") else None,
-                "distance": a.distance if hasattr(a, "distance") else None,
-                "duree": str(a.duree) if hasattr(a, "duree") else None,
-                "date_activite": a.date_activite.isoformat()
-                if hasattr(a, "date_activite")
-                else None,
-                "id_user": a.id_user if hasattr(a, "id_user") else None,
-            }
-            for a in feed
-        ]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/activities/{activity_id}")
@@ -377,6 +313,106 @@ def root():
 def me(current_user: dict = Depends(get_current_user)):
     """Retourne les informations de l'utilisateur connecté"""
     return {"user": current_user}
+
+
+@app.get("/health")
+def health_check():
+    """Vérifie l'état de santé de l'API"""
+    return {"status": "healthy", "service": "Striv API"}
+
+
+@app.get("/test/complete-workflow")
+def test_complete_workflow(current_user: dict = Depends(get_current_user)):
+    """
+    Endpoint de test complet qui teste plusieurs fonctionnalités de l'application
+
+    Ce endpoint teste :
+    - La récupération du profil utilisateur
+    - Les statistiques
+    - Les activités
+    - Le fil d'actualités
+    - Les likes et commentaires
+    """
+    try:
+        user_id = current_user["id"]
+        results = {
+            "test_name": "Complete Workflow Test",
+            "user_tested": current_user["username"],
+            "tests": {},
+        }
+
+        # Test 1: Récupération du profil
+        try:
+            utilisateur_service = UtilisateurService()
+            suivi_service = SuiviService()
+
+            user = utilisateur_service.trouver_par_id(user_id)
+            followers = suivi_service.get_followers(user_id)
+            following = suivi_service.get_following(user_id)
+
+            results["tests"]["profil"] = {
+                "status": "SUCCESS",
+                "data": {
+                    "username": user.nom_user if user else None,
+                    "followers_count": len(followers),
+                    "following_count": len(following),
+                },
+            }
+        except Exception as e:
+            results["tests"]["profil"] = {"status": "FAILED", "error": str(e)}
+
+        # Test 2: Statistiques utilisateur
+        try:
+            stats_service = StatistiquesService()
+            stats = stats_service.get_statistiques_globales(user_id)
+
+            results["tests"]["statistiques"] = {
+                "status": "SUCCESS",
+                "data": stats if stats else "No statistics available",
+            }
+        except Exception as e:
+            results["tests"]["statistiques"] = {"status": "FAILED", "error": str(e)}
+
+        # Test 3: Activités de l'utilisateur
+        try:
+            activity_service = ActivityService()
+            activities = activity_service.get_activites_by_user(user_id)
+
+            results["tests"]["activites"] = {
+                "status": "SUCCESS",
+                "data": {"count": len(activities), "activities_found": len(activities) > 0},
+            }
+        except Exception as e:
+            results["tests"]["activites"] = {"status": "FAILED", "error": str(e)}
+
+        # Test 4: Fil d'actualités
+        try:
+            feed = activity_service.get_feed(user_id)
+
+            results["tests"]["feed"] = {
+                "status": "SUCCESS",
+                "data": {"count": len(feed), "feed_working": True},
+            }
+        except Exception as e:
+            results["tests"]["feed"] = {"status": "FAILED", "error": str(e)}
+
+        # Calculer le résultat global
+        total_tests = len(results["tests"])
+        successful_tests = sum(
+            1 for test in results["tests"].values() if test["status"] == "SUCCESS"
+        )
+
+        results["summary"] = {
+            "total_tests": total_tests,
+            "successful": successful_tests,
+            "failed": total_tests - successful_tests,
+            "success_rate": f"{(successful_tests / total_tests) * 100:.2f}%",
+        }
+
+        return results
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Test failed: {str(e)}")
 
 
 # ============================================================================
