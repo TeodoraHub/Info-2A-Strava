@@ -2,15 +2,15 @@ from datetime import datetime
 
 import gpxpy
 
-from business_object.Activity_object.abstract_activity import AbstractActivity
 from business_object.Activity_object.course_a_pieds import CoursePied
 from business_object.Activity_object.cyclisme import Cyclisme
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
-from utils.session import Session
-from dao.commentaire_dao import CommentaireDAO
 from business_object.like_comment_object.commentaire import Commentaire
 from dao.activite_dao import ActivityDAO
+from dao.commentaire_dao import CommentaireDAO
+from utils.session import Session
+
 
 class Utilisateur:
     """
@@ -141,7 +141,6 @@ class Utilisateur:
         else:
             raise ValueError(f"Type d’activité inconnu: {type_activite}")
 
-
     def consulter_activites(self):
         """
         Liste toutes les activités appartenant à l'utilisateur,
@@ -154,7 +153,6 @@ class Utilisateur:
         dao = ActivityDAO(session)
         activites = dao.get_by_user(self.id_user)
         return activites
-
 
     def modifier_activite(self):
         """
@@ -196,14 +194,15 @@ class Utilisateur:
 
         # Demande les champs à modifier
         nouveau_titre = input(f"Titre ({activite.titre}): ") or activite.titre
-        nouvelle_description = input(f"Description ({activite.description}): ") or activite.description
+        nouvelle_description = (
+            input(f"Description ({activite.description}): ") or activite.description
+        )
 
         activite.titre = nouveau_titre
         activite.description = nouvelle_description
 
         self.db_session.commit()
         print("Activité modifiée.")
-
 
     def supprimer_activite(self):
         """
@@ -245,32 +244,6 @@ class Utilisateur:
         self.db_session.commit()
         print("Activité supprimée.")
 
-    def suivre_utilisateur(self, utilisateur_a_suivre):
-        """
-        Permet à l'utilisateur connecté de suivre un autre utilisateur.
-
-        Parameters
-        ----------
-        utilisateur_a_suivre : Utilisateur
-            instance de l'utilisateur à suivre
-
-        Raises
-        ------
-        ValueError
-            si l'utilisateur se suit lui-même ou est déjà suivi
-        """
-        utilisateur = Session().utilisateur
-        if utilisateur.id_user == utilisateur_a_suivre.id_user:
-            raise ValueError("Impossible de se suivre soi-même.")
-
-        dao = SuiviDAO(utilisateur.db_session)
-        suivi_existant = dao.existe_suivi(utilisateur.id_user, utilisateur_a_suivre.id_user)
-        if suivi_existant:
-            raise ValueError("Utilisateur déjà suivi.")
-
-        dao.ajouter_suivi(utilisateur.id_user, utilisateur_a_suivre.id_user)
-
-
     def liker_activite(self, activite):
         """
         Permet à l'utilisateur connecté de liker une activité,
@@ -295,14 +268,9 @@ class Utilisateur:
             return None
 
         # Crée le like dans la base
-        like = Like(
-            id_activite=activite.id,
-            id_user=utilisateur.id_user,
-            date_like=datetime.now()
-        )
+        like = Like(id_activite=activite.id, id_user=utilisateur.id_user, date_like=datetime.now())
         dao.ajouter_like(like)
         return like
-
 
     def commenter_activite(self, activite, contenu: str):
         """
@@ -328,12 +296,11 @@ class Utilisateur:
             id_activite=activite.id,
             contenu=contenu,
             date_commentaire=datetime.now(),
-            id_user=utilisateur.id_user
+            id_user=utilisateur.id_user,
         )
 
         dao.ajouter_commentaire(commentaire)
         return commentaire
-
 
     def obtenir_statistiques(self, periode: str = None, sport: str = None):
         """
@@ -355,6 +322,7 @@ class Utilisateur:
         stats = {
             "nombre_activites": Statistiques.nombre_activites(utilisateur, periode, sport),
             "kilometres": Statistiques.kilometres(utilisateur, periode, sport),
-            "heures": Statistiques.heures_activite(utilisateur, periode, sport)
+            "heures": Statistiques.heures_activite(utilisateur, periode, sport),
         }
+        return stats
         return stats

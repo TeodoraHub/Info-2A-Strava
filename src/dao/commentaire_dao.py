@@ -1,55 +1,84 @@
 import logging
+from datetime import datetime
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, MetaData, String, Table, create_engine
+from sqlalchemy.sql import delete, func, insert, select, update
 
 from business_object.like_comment_object.commentaire import Commentaire
-from dao.db_connection import DBConnection
 from utils.log_decorator import log
 from utils.singleton import Singleton
+
+# URL de la base de données (à adapter selon votre configuration)
+DATABASE_URL = "postgresql://user:password@localhost/dbname"
+
+# Création du moteur de connexion
+engine = create_engine(DATABASE_URL)
+
+# Création d'une instance de MetaData
+metadata = MetaData()
+
+# Définition de la table `commentaire`
+commentaire_table = Table(
+    "commentaire",
+    metadata,
+    Column("id_comment", Integer, primary_key=True, autoincrement=True),
+    Column("id_user", Integer, ForeignKey("utilisateur.id_user"), nullable=False),
+    Column("id", Integer, ForeignKey("activite.id"), nullable=False),  # id_activite
+    Column("contenu", String, nullable=False),
+    Column("date_comment", DateTime, nullable=False),
+)
 
 
 class CommentaireDAO(metaclass=Singleton):
     """Classe contenant les méthodes pour accéder aux Commentaires de la base de données"""
 
     @log
-    def creer_commentaire(self, id_user, id_activite, contenu) -> bool:
-        """Creation d'un commentaire dans la base de données
+    def creer_commentaire(self, id_user: int, id_activite: int, contenu: str) -> Commentaire:
+        """Création d'un commentaire dans la base de données.
 
         Parameters
         ----------
         id_user : int
+            Identifiant de l'utilisateur.
         id_activite : int
+            Identifiant de l'activité.
         contenu : str
+            Contenu du commentaire.
 
         Returns
         -------
-        created : bool
-            True si la création est un succès
-            False sinon
+        Commentaire
+            Objet Commentaire créé.
         """
-
-        res = None
-
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "INSERT INTO commentaire(id_user, id, contenu) VALUES        "
-                        "(%(id_user)s, %(id_activite)s, %(contenu)s)             "
-                        "  RETURNING id_comment;                                                ",
-                        {
-                            "id_user": id_user,
-                            "id_activite": id_activite,
-                            "contenu": contenu,
-                        },
-                    )
-                    res = cursor.fetchone()
+            # Création de la requête d'insertion
+            stmt = (
+                insert(commentaire_table)
+                .values(
+                    id_user=id_user, id=id_activite, contenu=contenu, date_comment=datetime.now()
+                )
+                .returning(commentaire_table.c.id_comment)
+            )
+
+            # Exécution de la requête
+            with engine.connect() as connection:
+                result = connection.execute(stmt)
+                id_comment = result.fetchone()[0]  # Récupère l'id_comment généré
+                connection.commit()
+
+            # Récupération du commentaire nouvellement créé
+            commentaire = Commentaire(
+                id_activite=id_activite,
+                contenu=contenu,
+                date_commentaire=datetime.now(),
+                id_user=id_user,
+                id_comment=id_comment,
+            )
+
+            return commentaire
         except Exception as e:
-            logging.info(e)
-
-        created = False
-        if res:
-            created = True
-
-        return created
+            logging.error(f"Erreur lors de la création du commentaire: {e}")
+            return None
 
     @log
     def supprimer_commentaire(self, id_comment) -> bool:
@@ -66,21 +95,15 @@ class CommentaireDAO(metaclass=Singleton):
             True si la suppression est un succès
             False sinon
         """
-
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "DELETE FROM commentaire                  "
-                        " WHERE id_comment=%(id_comment)s;        ",
-                        {"id_comment": id_comment},
-                    )
-                    res = cursor.rowcount
+            stmt = delete(commentaire_table).where(commentaire_table.c.id_comment == id_comment)
+            with engine.connect() as connection:
+                result = connection.execute(stmt)
+                connection.commit()
+            return result.rowcount > 0
         except Exception as e:
-            logging.info(e)
+            logging.error(f"Erreur lors de la suppression du commentaire: {e}")
             return False
-
-        return res > 0
 
     @log
     def get_commentaires_by_activity(self, id_activite) -> list[Commentaire]:
@@ -96,35 +119,30 @@ class CommentaireDAO(metaclass=Singleton):
         liste_commentaires : list[Commentaire]
             liste des commentaires de l'activité
         """
-
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT *                              "
-                        "  FROM commentaire                    "
-                        " WHERE id = %(id_activite)s           "
-                        " ORDER BY date_comment DESC;          ",
-                        {"id_activite": id_activite},
-                    )
-                    res = cursor.fetchall()
-        except Exception as e:
-            logging.info(e)
-            return []
+            stmt = (
+                select(commentaire_table)
+                .where(commentaire_table.c.id == id_activite)
+                .order_by(commentaire_table.c.date_comment.desc())
+            )
+            with engine.connect() as connection:
+                result = connection.execute(stmt)
+                rows = result.fetchall()
 
-        liste_commentaires = []
-        if res:
-            for row in res:
+            liste_commentaires = []
+            for row in rows:
                 commentaire = Commentaire(
                     id_comment=row["id_comment"],
                     id_user=row["id_user"],
                     id_activite=row["id"],
                     contenu=row["contenu"],
-                    date_comment=row["date_comment"],
+                    date_commentaire=row["date_comment"],
                 )
                 liste_commentaires.append(commentaire)
-
-        return liste_commentaires
+            return liste_commentaires
+        except Exception as e:
+            logging.error(f"Erreur lors de la récupération des commentaires: {e}")
+            return []
 
     @log
     def get_commentaires_by_user(self, id_user) -> list[Commentaire]:
@@ -142,33 +160,29 @@ class CommentaireDAO(metaclass=Singleton):
         """
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT *                              "
-                        "  FROM commentaire                    "
-                        " WHERE id_user = %(id_user)s          "
-                        " ORDER BY date_comment DESC;          ",
-                        {"id_user": id_user},
-                    )
-                    res = cursor.fetchall()
-        except Exception as e:
-            logging.info(e)
-            return []
+            stmt = (
+                select(commentaire_table)
+                .where(commentaire_table.c.id_user == id_user)
+                .order_by(commentaire_table.c.date_comment.desc())
+            )
+            with engine.connect() as connection:
+                result = connection.execute(stmt)
+                rows = result.fetchall()
 
-        liste_commentaires = []
-        if res:
-            for row in res:
+            liste_commentaires = []
+            for row in rows:
                 commentaire = Commentaire(
                     id_comment=row["id_comment"],
                     id_user=row["id_user"],
                     id_activite=row["id"],
                     contenu=row["contenu"],
-                    date_comment=row["date_comment"],
+                    date_commentaire=row["date_comment"],
                 )
                 liste_commentaires.append(commentaire)
-
-        return liste_commentaires
+            return liste_commentaires
+        except Exception as e:
+            logging.error(f"Erreur lors de la récupération des commentaires: {e}")
+            return []
 
     @log
     def count_commentaires_by_activity(self, id_activite) -> int:
@@ -186,20 +200,18 @@ class CommentaireDAO(metaclass=Singleton):
         """
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT COUNT(*) as nb_comments        "
-                        "  FROM commentaire                    "
-                        " WHERE id = %(id_activite)s;          ",
-                        {"id_activite": id_activite},
-                    )
-                    res = cursor.fetchone()
+            stmt = (
+                select([func.count()])
+                .select_from(commentaire_table)
+                .where(commentaire_table.c.id == id_activite)
+            )
+            with engine.connect() as connection:
+                result = connection.execute(stmt)
+                count = result.scalar()
+            return count if count is not None else 0
         except Exception as e:
-            logging.info(e)
+            logging.error(f"Erreur lors du comptage des commentaires: {e}")
             return 0
-
-        return res["nb_comments"] if res else 0
 
     @log
     def modifier_commentaire(self, id_comment, nouveau_contenu) -> bool:
@@ -220,17 +232,15 @@ class CommentaireDAO(metaclass=Singleton):
         """
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "UPDATE commentaire                    "
-                        "   SET contenu = %(contenu)s          "
-                        " WHERE id_comment = %(id_comment)s;   ",
-                        {"contenu": nouveau_contenu, "id_comment": id_comment},
-                    )
-                    res = cursor.rowcount
+            stmt = (
+                update(commentaire_table)
+                .where(commentaire_table.c.id_comment == id_comment)
+                .values(contenu=nouveau_contenu)
+            )
+            with engine.connect() as connection:
+                result = connection.execute(stmt)
+                connection.commit()
+            return result.rowcount == 1
         except Exception as e:
-            logging.info(e)
+            logging.error(f"Erreur lors de la modification du commentaire: {e}")
             return False
-
-        return res == 1
