@@ -11,7 +11,7 @@ from service.statistiques_service import StatistiquesService
 from service.suivi_service import SuiviService
 from service.utilisateur_service import UtilisateurService
 
-app = FastAPI(title="Striv API - Application de sport connectée")
+app = FastAPI(title="Striv API - Application de sport connectée",root_path="/proxy/8000")
 security = HTTPBasic()
 
 # ============================================================================
