@@ -1,11 +1,9 @@
 import logging
 
-from utils.singleton import Singleton
-from utils.log_decorator import log
-
+from business_object.User_object.utilisateur import Utilisateur
 from dao.db_connection import DBConnection
-
-from business_object.user_object.utilisateur import Utilisateur
+from utils.log_decorator import log
+from utils.singleton import Singleton
 
 
 class UtilisateurDAO(metaclass=Singleton):
@@ -125,7 +123,7 @@ class UtilisateurDAO(metaclass=Singleton):
                     id_user=row["id_user"],
                     nom_user=row["nom_user"],
                     mdp=row["mdp"],
-                    mail_user=row["mail_user"]
+                    mail_user=row["mail_user"],
                 )
 
                 liste_utilisateurs.append(utilisateur)
@@ -190,8 +188,7 @@ class UtilisateurDAO(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     # Supprimer le compte d'un utilisateur
                     cursor.execute(
-                        "DELETE FROM utilisateur                  "
-                        " WHERE id_user=%(id_user)s      ",
+                        "DELETE FROM utilisateur                   WHERE id_user=%(id_user)s      ",
                         {"id_user": utilisateur.id_user},
                     )
                     res = cursor.rowcount
@@ -239,7 +236,7 @@ class UtilisateurDAO(metaclass=Singleton):
                 nom_user=res["nom_user"],
                 mdp=res["mdp"],
                 mail_user=res["mail_user"],
-                id_user=res["id_user"]
+                id_user=res["id_user"],
             )
 
         return utilisateur
