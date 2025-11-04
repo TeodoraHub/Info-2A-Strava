@@ -11,3 +11,6 @@ regex
 requests
 tabulate
 uvicorn
+gpxpy
+pytest
+sqlalchemy

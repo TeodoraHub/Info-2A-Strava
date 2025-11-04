@@ -44,16 +44,16 @@ def me(user=Depends(get_current_user)):
 # On peut aussi se passer des services et orchestrer directement dans le endpoint
 
 
-@app.post("users/{user_id}/activities")
+@app.post("/users/{user_id}/activities")
 def create_activity(user_id):
-    user = UtilisateurDAO().get(user_id)
+    user = UtilisateurDAO().trouver_par_id(user_id)
     activity = user.creer_activite()
     ActivityDAO().save(activity)
     # OU
     # UtilisateurService().create_activity(user_id)
 
 
-@app.get("users/{user_id}/feed")
+@app.get("/users/{user_id}/feed")
 def get_feed(user_id):
     activities = ActivityService().get_feed(user_id)
     return activities
