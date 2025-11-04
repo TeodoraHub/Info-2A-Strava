@@ -5,16 +5,16 @@ class CoursePied(AbstractActivity):
     """Activité de course à pied"""
 
     def __init__(
-        self, 
-        id_activite, 
-        titre, 
-        description, 
+        self,
+        id_activite,
+        titre,
+        description,
         date_activite,
-        lieu: str, 
-        distance, 
+        lieu: str,
+        distance,
         id_user,
         duree: float = None,
-        ):
+    ):
         super().__init__(
             id=id_activite,
             titre=titre,
@@ -24,11 +24,11 @@ class CoursePied(AbstractActivity):
             lieu=lieu,
             distance=distance,
             id_user=id_user,
-            duree=duree
-            )
+            duree=duree,
+        )
 
     def __str__(self):
-        return f" {self.get_type_activite()} - {super().__str__()}"
+        return f" {self.titre} - {super().__str__()}"
 
     def vitesse(self) -> float:
         """Calculer et retourner la vitesse de l'activité en km/h.
