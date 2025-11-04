@@ -2,7 +2,7 @@ from InquirerPy import prompt
 
 from view.vue_abstraite import VueAbstraite
 from service.activity_service import ActivityService
-from session import Session
+from utils.session import Session
 
 
 class ListeActivitesVue(VueAbstraite):
