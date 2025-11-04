@@ -1,5 +1,9 @@
 import logging
 
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
+
+from business_object.user_object.suivi.py import Suivi
 from dao.db_connection import DBConnection
 from utils.log_decorator import log
 from utils.singleton import Singleton
@@ -10,21 +14,7 @@ class SuiviDAO(metaclass=Singleton):
 
     @log
     def creer_suivi(self, id_suiveur, id_suivi) -> bool:
-        """Création d'une relation de suivi dans la base de données
-
-        Parameters
-        ----------
-        id_suiveur : int
-            identifiant de l'utilisateur qui suit
-        id_suivi : int
-            identifiant de l'utilisateur suivi
-
-        Returns
-        -------
-        created : bool
-            True si la création est un succès
-            False sinon
-        """
+        """Création d'une relation de suivi dans la base de données"""
 
         # Vérifier qu'un utilisateur ne se suit pas lui-même
         if id_suiveur == id_suivi:
@@ -32,220 +22,146 @@ class SuiviDAO(metaclass=Singleton):
             return False
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "INSERT INTO suivi(id_suiveur, id_suivi) VALUES        "
-                        "(%(id_suiveur)s, %(id_suivi)s);                       ",
-                        {
-                            "id_suiveur": id_suiveur,
-                            "id_suivi": id_suivi,
-                        },
-                    )
-                    res = cursor.rowcount
-        except Exception as e:
-            logging.info(e)
-            return False
+            Session = sessionmaker(bind=DBConnection().engine)
+            session = Session()
 
-        return res > 0
+            # Créer une instance de la relation Suivi
+            suivi = Suivi(id_suiveur=id_suiveur, id_suivi=id_suivi)
+
+            # Ajouter et commit la session
+            session.add(suivi)
+            session.commit()
+
+        except SQLAlchemyError as e:
+            session.rollback()
+            logging.error(f"Erreur lors de la création du suivi : {str(e)}")
+            return False
+        finally:
+            session.close()
+
+        return True
 
     @log
     def supprimer_suivi(self, id_suiveur, id_suivi) -> bool:
-        """Suppression d'une relation de suivi dans la base de données
-
-        Parameters
-        ----------
-        id_suiveur : int
-            identifiant de l'utilisateur qui suit
-        id_suivi : int
-            identifiant de l'utilisateur suivi
-
-        Returns
-        -------
-        deleted : bool
-            True si la suppression est un succès
-            False sinon
-        """
+        """Suppression d'une relation de suivi dans la base de données"""
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "DELETE FROM suivi                       "
-                        " WHERE id_suiveur=%(id_suiveur)s        "
-                        "   AND id_suivi=%(id_suivi)s;           ",
-                        {"id_suiveur": id_suiveur, "id_suivi": id_suivi},
-                    )
-                    res = cursor.rowcount
-        except Exception as e:
-            logging.info(e)
-            return False
+            Session = sessionmaker(bind=DBConnection().engine)
+            session = Session()
 
-        return res > 0
+            # Trouver la relation Suivi
+            suivi = session.query(Suivi).filter_by(id_suiveur=id_suiveur, id_suivi=id_suivi).first()
+
+            if suivi:
+                session.delete(suivi)
+                session.commit()
+                return True
+            else:
+                logging.info("La relation de suivi n'existe pas.")
+                return False
+
+        except SQLAlchemyError as e:
+            session.rollback()
+            logging.error(f"Erreur lors de la suppression du suivi : {str(e)}")
+            return False
+        finally:
+            session.close()
 
     @log
     def get_followers(self, id_user) -> list[int]:
-        """Récupère la liste des followers d'un utilisateur
-
-        Parameters
-        ----------
-        id_user : int
-            identifiant de l'utilisateur
-
-        Returns
-        -------
-        followers : list[int]
-            liste des id des utilisateurs qui suivent cet utilisateur
-        """
+        """Récupère la liste des followers d'un utilisateur"""
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT id_suiveur                        "
-                        "  FROM suivi                             "
-                        " WHERE id_suivi = %(id_user)s;           ",
-                        {"id_user": id_user},
-                    )
-                    res = cursor.fetchall()
-        except Exception as e:
-            logging.info(e)
+            Session = sessionmaker(bind=DBConnection().engine)
+            session = Session()
+
+            # Récupérer les suiveurs de l'utilisateur
+            followers = session.query(Suivi.id_suiveur).filter(Suivi.id_suivi == id_user).all()
+
+        except SQLAlchemyError as e:
+            logging.error(f"Erreur lors de la récupération des followers : {str(e)}")
             return []
+        finally:
+            session.close()
 
-        followers = []
-        if res:
-            followers = [row["id_suiveur"] for row in res]
-
-        return followers
+        # Retourne la liste des id des suiveurs
+        return [follower[0] for follower in followers]
 
     @log
     def get_following(self, id_user) -> list[int]:
-        """Récupère la liste des utilisateurs suivis par un utilisateur
-
-        Parameters
-        ----------
-        id_user : int
-            identifiant de l'utilisateur
-
-        Returns
-        -------
-        following : list[int]
-            liste des id des utilisateurs suivis par cet utilisateur
-        """
+        """Récupère la liste des utilisateurs suivis par un utilisateur"""
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT id_suivi                          "
-                        "  FROM suivi                             "
-                        " WHERE id_suiveur = %(id_user)s;         ",
-                        {"id_user": id_user},
-                    )
-                    res = cursor.fetchall()
-        except Exception as e:
-            logging.info(e)
+            Session = sessionmaker(bind=DBConnection().engine)
+            session = Session()
+
+            # Récupérer les utilisateurs suivis
+            following = session.query(Suivi.id_suivi).filter(Suivi.id_suiveur == id_user).all()
+
+        except SQLAlchemyError as e:
+            logging.error(f"Erreur lors de la récupération des utilisateurs suivis : {str(e)}")
             return []
+        finally:
+            session.close()
 
-        following = []
-        if res:
-            following = [row["id_suivi"] for row in res]
-
-        return following
+        # Retourne la liste des id des utilisateurs suivis
+        return [follow[0] for follow in following]
 
     @log
     def user_suit(self, id_suiveur, id_suivi) -> bool:
-        """Vérifie si un utilisateur en suit un autre
-
-        Parameters
-        ----------
-        id_suiveur : int
-            identifiant de l'utilisateur qui suit
-        id_suivi : int
-            identifiant de l'utilisateur potentiellement suivi
-
-        Returns
-        -------
-        suit : bool
-            True si id_suiveur suit id_suivi
-            False sinon
-        """
+        """Vérifie si un utilisateur en suit un autre"""
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT COUNT(*) as nb                    "
-                        "  FROM suivi                             "
-                        " WHERE id_suiveur = %(id_suiveur)s       "
-                        "   AND id_suivi = %(id_suivi)s;          ",
-                        {"id_suiveur": id_suiveur, "id_suivi": id_suivi},
-                    )
-                    res = cursor.fetchone()
-        except Exception as e:
-            logging.info(e)
-            return False
+            Session = sessionmaker(bind=DBConnection().engine)
+            session = Session()
 
-        return res["nb"] > 0 if res else False
+            # Vérifier si la relation de suivi existe
+            suit = session.query(Suivi).filter_by(id_suiveur=id_suiveur, id_suivi=id_suivi).first()
+
+        except SQLAlchemyError as e:
+            logging.error(f"Erreur lors de la vérification du suivi : {str(e)}")
+            return False
+        finally:
+            session.close()
+
+        return bool(suit)
 
     @log
     def count_followers(self, id_user) -> int:
-        """Compte le nombre de followers d'un utilisateur
-
-        Parameters
-        ----------
-        id_user : int
-            identifiant de l'utilisateur
-
-        Returns
-        -------
-        count : int
-            nombre de followers
-        """
+        """Compte le nombre de followers d'un utilisateur"""
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT COUNT(*) as nb_followers          "
-                        "  FROM suivi                             "
-                        " WHERE id_suivi = %(id_user)s;           ",
-                        {"id_user": id_user},
-                    )
-                    res = cursor.fetchone()
-        except Exception as e:
-            logging.info(e)
-            return 0
+            Session = sessionmaker(bind=DBConnection().engine)
+            session = Session()
 
-        return res["nb_followers"] if res else 0
+            # Compter le nombre de suiveurs
+            count = session.query(Suivi).filter(Suivi.id_suivi == id_user).count()
+
+        except SQLAlchemyError as e:
+            logging.error(f"Erreur lors du comptage des followers : {str(e)}")
+            return 0
+        finally:
+            session.close()
+
+        return count
 
     @log
     def count_following(self, id_user) -> int:
-        """Compte le nombre d'utilisateurs suivis par un utilisateur
-
-        Parameters
-        ----------
-        id_user : int
-            identifiant de l'utilisateur
-
-        Returns
-        -------
-        count : int
-            nombre d'utilisateurs suivis
-        """
+        """Compte le nombre d'utilisateurs suivis par un utilisateur"""
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT COUNT(*) as nb_following          "
-                        "  FROM suivi                             "
-                        " WHERE id_suiveur = %(id_user)s;         ",
-                        {"id_user": id_user},
-                    )
-                    res = cursor.fetchone()
-        except Exception as e:
-            logging.info(e)
-            return 0
+            Session = sessionmaker(bind=DBConnection().engine)
+            session = Session()
 
-        return res["nb_following"] if res else 0
+            # Compter le nombre d'utilisateurs suivis
+            count = session.query(Suivi).filter(Suivi.id_suiveur == id_user).count()
+
+        except SQLAlchemyError as e:
+            logging.error(f"Erreur lors du comptage des suivis : {str(e)}")
+            return 0
+        finally:
+            session.close()
+
+        return count
+
+        return count

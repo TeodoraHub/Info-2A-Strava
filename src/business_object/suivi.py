@@ -1,10 +1,16 @@
-from datetime import date
+from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+
+Base = declarative_base()
 
 
-class Suivi:
-    """Classe pour gérer les relations de suivi entre utilisateurs"""
+class Suivi(Base):
+    __tablename__ = "suivi"
 
-    def __init__(self, id_user_suiveur: int, id_user_suivi: int, date_suivi: date):
-        self.id_user_suiveur = id_user_suiveur
-        self.id_user_suivi = id_user_suivi
-        self.date_suivi = date_suivi
+    id_suiveur = Column(Integer, ForeignKey("utilisateur.id_user"), primary_key=True)
+    id_suivi = Column(Integer, ForeignKey("utilisateur.id_user"), primary_key=True)
+
+    # Relation inverse, pour accéder aux suiveurs d'un utilisateur
+    suiveur = relationship("Utilisateur", foreign_keys=[id_suiveur], backref="suivis")
+    suivi = relationship("Utilisateur", foreign_keys=[id_suivi], backref="suiveurs")
