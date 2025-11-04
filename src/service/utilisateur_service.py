@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from business_object.User_object.utilisateur import Utilisateur
+from business_object.user_object.utilisateur import Utilisateur
 from utils.log_decorator import log
 from utils.securite import hash_password
 
