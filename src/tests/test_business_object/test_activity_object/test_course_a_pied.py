@@ -1,5 +1,7 @@
 from datetime import datetime
+
 import pytest
+
 from business_object.Activity_object.course_a_pieds import CoursePied
 
 
@@ -19,7 +21,7 @@ class TestCoursePiedCreation:
             lieu="Parc de la Tête d'Or",
             distance=10.0,  # km
             id_user=2,
-            duree=1.0  # heures
+            duree=1.0,  # heures
         )
 
         # THEN - L'objet est correctement initialisé
@@ -43,7 +45,7 @@ class TestCoursePiedCreation:
             lieu="Lyon",
             distance=12.0,
             id_user=1,
-            duree=1.0
+            duree=1.0,
         )
 
         # WHEN - On calcule la vitesse
@@ -62,7 +64,7 @@ class TestCoursePiedCreation:
             lieu="Paris",
             distance=5.0,
             id_user=3,
-            duree=0
+            duree=0,
         )
 
         # WHEN

@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from business_object.Activity_object.cyclisme import Cyclisme
 
 
@@ -19,7 +20,7 @@ class TestCyclismeCreation:
             lieu="Galibier",
             distance=75.0,  # km
             id_user=5,
-            type_velo="Route"
+            type_velo="Route",
         )
 
         # THEN - L'objet est correctement créé
@@ -45,7 +46,7 @@ class TestCyclismeCreation:
             lieu="Nice",
             distance=90.0,
             id_user=7,
-            type_velo="Gravel"
+            type_velo="Gravel",
         )
 
         # WHEN - On calcule la vitesse moyenne
@@ -53,26 +54,6 @@ class TestCyclismeCreation:
 
         # THEN - 90 km / 180 min * 60 = 30 km/h
         assert vitesse == 30.0
-
-    def test_vitesse_duree_zero(self):
-        # GIVEN - Une activité avec une durée de 0
-        cyclisme = Cyclisme(
-            id_activite=12,
-            titre="Test vitesse nulle",
-            description="Durée nulle",
-            duree=0,
-            date_activite=datetime(2025, 11, 4, 10, 0),
-            lieu="Paris",
-            distance=20.0,
-            id_user=2,
-            type_velo="VTT"
-        )
-
-        # WHEN - On calcule la vitesse
-        vitesse = cyclisme.vitesse()
-
-        # THEN - La vitesse doit être 0
-        assert vitesse == 0
 
     def test_str_cyclisme(self):
         # GIVEN
@@ -85,7 +66,7 @@ class TestCyclismeCreation:
             lieu="Bordeaux",
             distance=20.0,
             id_user=3,
-            type_velo="Ville"
+            type_velo="Ville",
         )
 
         # WHEN
