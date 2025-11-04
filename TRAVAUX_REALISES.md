@@ -194,3 +194,5 @@ Créer des tests pour les nouveaux fichiers:
 - `src/tests/test_dao/test_commentaire_dao.py`
 - `src/tests/test_service/test_activity_service.py`
 - `src/tests/test_service/test_like_service.py`
+
+### Env pour db_connection

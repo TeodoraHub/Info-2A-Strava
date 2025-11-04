@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from src.business_object.user_object.statistiques import Statistiques
+from business_object.user_object.statistiques import Statistiques
 
 
 class FakeActivity:

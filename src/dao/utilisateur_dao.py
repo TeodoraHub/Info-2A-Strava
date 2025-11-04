@@ -1,6 +1,6 @@
 import logging
 
-from business_object.User_object.utilisateur import Utilisateur
+from business_object.user_object.utilisateur import Utilisateur
 from dao.db_connection import DBConnection
 from utils.log_decorator import log
 from utils.singleton import Singleton
