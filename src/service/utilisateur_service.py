@@ -1,9 +1,8 @@
 from tabulate import tabulate
 
+from business_object.User_object.utilisateur import Utilisateur
 from utils.log_decorator import log
 from utils.securite import hash_password
-
-from business_object.utilisateur import Utilisateur
 
 
 class UtilisateurService:
@@ -14,13 +13,13 @@ class UtilisateurService:
         """Création d'un utilisateur"""
 
         nouvel_utilisateur = Utilisateur(
-            id_user = id_user,
-            nom_user = nom_user,
-            mail_user = mail_user,
-            mdp = hash_password(mdp, nom_user)
+            id_user=id_user,
+            nom_user=nom_user,
+            mail_user=mail_user,
+            mdp=hash_password(mdp, nom_user),
         )
 
-        return nouvel_utilisateur  if UtilisateurDao().creer(nouvel_utilisateur) else None
+        return nouvel_utilisateur if UtilisateurDao().creer(nouvel_utilisateur) else None
 
     @log
     def trouver_par_id(self, id_user) -> Utilisateur:

@@ -1,6 +1,6 @@
-from sqlalchemy.orm import Session
-from datetime import datetime
 from typing import List, Optional
+
+from session import Session
 
 
 class ActivityDAO:
@@ -32,11 +32,17 @@ class ActivityDAO:
 
     def get_by_id(self, activity_id: int) -> Optional[object]:
         """Récupère une activité par son ID."""
-        return self.db.query(self.activity_base_cls).filter(self.activity_base_cls.id == activity_id).first()
+        return (
+            self.db.query(self.activity_base_cls)
+            .filter(self.activity_base_cls.id == activity_id)
+            .first()
+        )
 
     def get_by_user(self, user_id: int, type_activite: str = None) -> List[object]:
         """Récupère toutes les activités d'un utilisateur, optionnellement filtrées par type."""
-        query = self.db.query(self.activity_base_cls).filter(self.activity_base_cls.user_id == user_id)
+        query = self.db.query(self.activity_base_cls).filter(
+            self.activity_base_cls.user_id == user_id
+        )
         if type_activite:
             query = query.filter(self.activity_base_cls.type == type_activite)
         return query.all()
@@ -44,7 +50,7 @@ class ActivityDAO:
     def get_feed(self, user_id: int) -> List[object]:
         """Récupère le fil d'activités d'un utilisateur (ses activités + celles des suivis)."""
         from dao.utilisateur_dao import UtilisateurDAO
-        
+
         user_dao = UtilisateurDAO(self.db)
         user = user_dao.get(user_id)
         following_ids = getattr(user, "following", []) + [user_id]
@@ -56,12 +62,14 @@ class ActivityDAO:
             .all()
         )
 
-    def get_monthly_activities(self, user_id: int, year: int, month: int, type_activite: str = None) -> List[object]:
+    def get_monthly_activities(
+        self, user_id: int, year: int, month: int, type_activite: str = None
+    ) -> List[object]:
         """Récupère les activités d'un utilisateur pour un mois spécifique et optionnellement par type."""
         query = self.db.query(self.activity_base_cls).filter(
             self.activity_base_cls.user_id == user_id,
-            self.activity_base_cls.date_activite.extract('year') == year,
-            self.activity_base_cls.date_activite.extract('month') == month
+            self.activity_base_cls.date_activite.extract("year") == year,
+            self.activity_base_cls.date_activite.extract("month") == month,
         )
         if type_activite:
             query = query.filter(self.activity_base_cls.type == type_activite)
@@ -74,4 +82,5 @@ class ActivityDAO:
             self.db.delete(activity)
             self.db.commit()
             return True
+        return False
         return False
