@@ -12,7 +12,7 @@ class InscriptionVue(VueAbstraite):
         # Demande à l'utilisateur de saisir nom, mot de passe...
         nom = inquirer.text(message="Entrez votre nom : ").execute()
 
-        if UtilisateurService().nom_deja_utilise(nom):
+        if UtilisateurService().nom_user_deja_utilise(nom):
             from view.accueil.accueil_vue import AccueilVue
 
             return AccueilVue(f"Le nom {nom} est déjà utilisé.")
