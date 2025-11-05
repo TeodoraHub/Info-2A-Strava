@@ -34,6 +34,7 @@ class UtilisateurDAO(metaclass=Singleton):
         try:
             session.add(utilisateur)  # Ajoute l'utilisateur à la session
             session.commit()  # Valide la transaction
+            session.refresh(utilisateur)
             return True
         except SQLAlchemyError as e:
             session.rollback()  # Annule la transaction en cas d'erreur

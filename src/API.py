@@ -73,23 +73,12 @@ def create_user(nom_user: str, mail_user: str, mdp: str):
             )
 
         # Créer l'utilisateur (id_user=None car auto-généré par la base)
-        nouvel_utilisateur = utilisateur_service.creer(
-            id_user=None, nom_user=nom_user, mail_user=mail_user, mdp=mdp
-        )
+        nouvel_utilisateur = utilisateur_service.creer(nom_user=nom_user, mail_user=mail_user, mdp=mdp)
 
         if not nouvel_utilisateur:
-            raise HTTPException(
-                status_code=500, detail="Erreur lors de la création de l'utilisateur"
-            )
+            raise HTTPException(status_code=500, detail="Erreur lors de la création de l'utilisateur")
 
-        return {
-            "message": "Utilisateur créé avec succès",
-            "user": {
-                "id": nouvel_utilisateur.id_user,
-                "username": nouvel_utilisateur.nom_user,
-                "email": nouvel_utilisateur.mail_user,
-            },
-        }
+        return {"message": "Utilisateur créé avec succès","user": nouvel_utilisateur}
 
     except HTTPException:
         raise

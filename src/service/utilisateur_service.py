@@ -9,7 +9,7 @@ class UtilisateurService:
     """Classe contenant les méthodes de service des Utilisateurs"""
 
     @log
-    def creer(self, nom_user, mail_user, mdp) -> Utilisateur:
+    def creer(self, nom_user, mail_user, mdp) -> dict | None:
         """Création d'un utilisateur"""
         # Générer automatiquement l'ID
         utilisateurs = UtilisateurDAO().lister_tous()
@@ -17,14 +17,23 @@ class UtilisateurService:
             nouvel_id = max([u.id_user for u in utilisateurs]) + 1
         else:
             nouvel_id = 1
-        
+
         nouvel_utilisateur = Utilisateur(
             id_user=nouvel_id,
             nom_user=nom_user,
             mail_user=mail_user,
             mdp=hash_password(mdp, nom_user),
         )
-        return nouvel_utilisateur if UtilisateurDAO().creer(nouvel_utilisateur) else None
+
+        success = UtilisateurDAO().creer(nouvel_utilisateur)
+        if success:
+            # Retourner un dict simple au lieu de l'objet SQLAlchemy
+            return {
+                "id_user": nouvel_utilisateur.id_user,
+                "nom_user": nouvel_utilisateur.nom_user,
+                "mail_user": nouvel_utilisateur.mail_user
+            }
+        return None
 
     @log
     def trouver_par_id(self, id_user) -> Utilisateur:

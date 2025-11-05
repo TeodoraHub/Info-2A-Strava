@@ -45,7 +45,6 @@ class DBConnection(metaclass=Singleton):
         :return: the opened connection.
         """
         return self.__connection
-        return self.__connection
 
     @property
     def engine(self):
