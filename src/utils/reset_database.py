@@ -1,7 +1,9 @@
 import os
-from utils.singleton import Singleton
+import sys 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(project_root)
+from utils.singleton import Singleton 
 from dao.db_connection import DBConnection
-
 
 class ResetDatabase(metaclass=Singleton):
     """
@@ -15,7 +17,7 @@ class ResetDatabase(metaclass=Singleton):
         base_dir = os.path.dirname(os.path.abspath(__file__))
 
         # Aller dans ../data (si data est à la racine du projet)
-        data_dir = os.path.join(base_dir, "..","..", "data")
+        data_dir = os.path.join(base_dir, "..", "..", "data")
 
         init_db_path = os.path.join(data_dir, "init_db.sql")
         pop_db_path = os.path.join(data_dir, "pop_db.sql")
