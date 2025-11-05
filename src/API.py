@@ -1,6 +1,7 @@
 import secrets
+import gpxpy
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status, UploadFile, File
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 # Imports des services
@@ -8,6 +9,28 @@ from service.activity_service import ActivityService
 
 app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8000")
 security = HTTPBasic()
+
+
+def parse_strava_gpx(content):
+    """Parse un fichier GPX et extrait les données principales."""
+    gpx = gpxpy.parse(content)
+    # Distance totale en 3D (mètres)
+    distance_m = gpx.length_3d()
+    # Durée totale (secondes)
+    duration_s = gpx.get_duration()
+    # Temps/distance/vitesse en mouvement
+    moving = gpx.get_moving_data()
+    return {
+        "nom": gpx.tracks[0].name if gpx.tracks else None,
+        "type": gpx.tracks[0].type if gpx.tracks else None,
+        "distance totale (km)": distance_m/1000,
+        "durée totale (min)": duration_s/60,
+        "temps en mouvement (min)": moving.moving_time/60,
+        "distance en mouvement (km)": moving.moving_distance/1000,
+        "vitesse moyenne (km/h)": (moving.moving_distance/moving.moving_time)*3.6 if moving.moving_time > 0 else 0,
+        "vitesse max (km/h)": moving.max_speed*3.6
+    }
+
 
 # ============================================================================
 # AUTHENTIFICATION
@@ -19,6 +42,63 @@ USERS = {
     "alice": {"password": "wonderland", "roles": ["admin"], "id": 1},
     "bob": {"password": "builder", "roles": ["user"], "id": 2},
 }
+FAKE_ACTIVITIES = [
+    {
+        "id": 1,
+        "titre": "Footing matinal",
+        "description": "Course tranquille au parc",
+        "sport": "course",
+        "date_activite": "2025-11-01",
+        "lieu": "Parc Central",
+        "distance": 5.0,
+        "duree": 0.5,
+        "id_user": 1,
+    },
+    {
+        "id": 2,
+        "titre": "Balade à vélo",
+        "description": "Tour de la ville en vélo",
+        "sport": "cyclisme",
+        "date_activite": "2025-11-03",
+        "lieu": "Centre-ville",
+        "distance": 20.0,
+        "duree": 1.0,
+        "id_user": 2,
+    },
+    {
+        "id": 3,
+        "titre": "Séance natation",
+        "description": "Entraînement intensif 1000m",
+        "sport": "natation",
+        "date_activite": "2025-11-05",
+        "lieu": "Piscine municipale",
+        "distance": 1.0,
+        "duree": 0.4,
+        "id_user": 1,
+    },
+    {
+        "id": 4,
+        "titre": "Randonnée en montagne",
+        "description": "Montée et descente du sentier rouge",
+        "sport": "randonnee",
+        "date_activite": "2025-11-07",
+        "lieu": "Montagne Bleue",
+        "distance": 10.0,
+        "duree": 2.0,
+        "id_user": 2,
+    },
+    {
+        "id": 5,
+        "titre": "Course rapide",
+        "description": "Sprint sur 3 km",
+        "sport": "course",
+        "date_activite": "2025-11-09",
+        "lieu": "Stade municipal",
+        "distance": 3.0,
+        "duree": 0.25,
+        "id_user": 1,
+    },
+]
 
 
 def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
@@ -258,6 +338,12 @@ def delete_activity(activity_id: int, current_user: dict = Depends(get_current_u
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/upload-gpx")
+async def upload_gpx(file: UploadFile = File(...)):
+    # Lecture du contenu du fichier (texte)
+    content = await file.read()
+    # Parsing
+    return parse_strava_gpx(content)
 
 # ============================================================================
 # LANCEMENT DE L'APPLICATION

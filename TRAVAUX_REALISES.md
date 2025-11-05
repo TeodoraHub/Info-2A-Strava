@@ -196,3 +196,4 @@ Créer des tests pour les nouveaux fichiers:
 - `src/tests/test_service/test_like_service.py`
 
 ### Env pour db_connection
+### il faut dans le code connecter à la base de données pour les endpoints api (user activités, comme la liste actuelle)
