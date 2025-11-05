@@ -1,6 +1,7 @@
 from tabulate import tabulate
 
 from business_object.user_object.utilisateur import Utilisateur
+from dao.utilisateur_dao import UtilisateurDAO
 from utils.log_decorator import log
 from utils.securite import hash_password
 
@@ -19,24 +20,24 @@ class UtilisateurService:
             mdp=hash_password(mdp, nom_user),
         )
 
-        return nouvel_utilisateur if UtilisateurDao().creer(nouvel_utilisateur) else None
+        return nouvel_utilisateur if UtilisateurDAO().creer(nouvel_utilisateur) else None
 
     @log
     def trouver_par_id(self, id_user) -> Utilisateur:
         """Trouver un utilisateur à partir de son id"""
-        return UtilisateurDao().trouver_par_id(id_user)
+        return UtilisateurDAO().trouver_par_id(id_user)
 
     @log
     def modifier(self, utilisateur) -> Utilisateur:
         """Modification d'un utilisateur"""
 
         utilisateur.mdp = hash_password(utilisateur.mdp, utilisateur.nom_user)
-        return utilisateur if UtilisateurDao().modifier(utilisateur) else None
+        return utilisateur if UtilisateurDAO().modifier(utilisateur) else None
 
     @log
     def supprimer(self, utilisateur) -> bool:
         """Supprimer le compte d'un utilisateur"""
-        return UtilisateurDao().supprimer(utilisateur)
+        return UtilisateurDAO().supprimer(utilisateur)
 
     @log
     def afficher_tous(self) -> str:
@@ -45,7 +46,7 @@ class UtilisateurService:
         """
         entetes = ["nom", "mail"]
 
-        utilisateurs = UtilisateurDao().lister_tous()
+        utilisateurs = UtilisateurDAO().lister_tous()
 
         for j in utilisateurs:
             if j.nom_user == "admin":
@@ -70,11 +71,11 @@ class UtilisateurService:
     @log
     def se_connecter(self, nom_user, mdp) -> Utilisateur:
         """Se connecter à partir de nom_user et mdp"""
-        return UtilisateurDao().se_connecter(nom_user, hash_password(mdp, nom_user))
+        return UtilisateurDAO().se_connecter(nom_user, hash_password(mdp, nom_user))
 
     @log
     def nom_user_deja_utilise(self, nom_user) -> bool:
         """Vérifie si le nom_user est déjà utilisé
         Retourne True si le nom_user existe déjà en BDD"""
-        utilisateurs = UtilisateurDao().lister_tous()
+        utilisateurs = UtilisateurDAO().lister_tous()
         return nom_user in [j.nom_user for j in utilisateurs]

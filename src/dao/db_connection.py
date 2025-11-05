@@ -4,6 +4,8 @@ import dotenv
 import psycopg2
 from dotenv import load_dotenv
 from psycopg2.extras import RealDictCursor
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 from utils.singleton import Singleton
 
@@ -17,7 +19,7 @@ class DBConnection(metaclass=Singleton):
 
     def __init__(self):
         dotenv.load_dotenv(override=True)
-        # Open the connection.
+        # Open the connection with psycopg2
         self.__connection = psycopg2.connect(
             host=os.environ["POSTGRES_HOST"],
             port=os.environ["POSTGRES_PORT"],
@@ -26,6 +28,14 @@ class DBConnection(metaclass=Singleton):
             password=os.environ["POSTGRES_PASSWORD"],
             cursor_factory=RealDictCursor,
         )
+
+        # Create SQLAlchemy engine for ORM operations
+        db_url = f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@{os.environ['POSTGRES_HOST']}:{os.environ['POSTGRES_PORT']}/{os.environ['POSTGRES_DATABASE']}"
+        self.__engine = create_engine(db_url)
+
+        # Create a scoped session factory
+        session_factory = sessionmaker(bind=self.__engine)
+        self.__Session = scoped_session(session_factory)
 
     @property
     def connection(self):
@@ -36,3 +46,21 @@ class DBConnection(metaclass=Singleton):
         """
         return self.__connection        """
         return self.__connection
+
+    @property
+    def engine(self):
+        """
+        return the SQLAlchemy engine.
+
+        :return: the SQLAlchemy engine.
+        """
+        return self.__engine
+
+    @property
+    def session(self):
+        """
+        return a SQLAlchemy session.
+
+        :return: the SQLAlchemy session.
+        """
+        return self.__Session()

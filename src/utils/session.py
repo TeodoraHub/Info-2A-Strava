@@ -33,3 +33,7 @@ class Session(metaclass=Singleton):
             res += f"{att[0]} : {att[1]}\n"
 
         return res
+
+    def reset(self):
+        """Réinitialise la session à son état initial."""
+        self.__init__()

@@ -1,30 +1,40 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 
 from business_object.like_comment_object.commentaire import Commentaire
+from dao.db_connection import DBConnection
 from utils.log_decorator import log
 from utils.singleton import Singleton
 
-# URL de la base de données (à adapter selon votre configuration)
-DATABASE_URL = "postgresql://user:password@localhost/dbname"
 
-# Création du moteur de connexion
-engine = create_engine(DATABASE_URL)
-
-
-# Classe CommentaireDAO avec Singleton
 class CommentaireDAO(metaclass=Singleton):
     """Classe contenant les méthodes pour accéder aux Commentaires de la base de données"""
 
-    def __init__(self, session: Session):
-        self.session = session  # Session SQLAlchemy
+    def __init__(self):
+        """Initialise la classe avec la connexion à la base de données."""
+        self.Session = sessionmaker(bind=DBConnection().engine)
 
     @log
     def creer_commentaire(self, id_user: int, id_activite: int, contenu: str) -> Commentaire:
-        """Création d'un commentaire dans la base de données."""
+        """Création d'un commentaire dans la base de données.
+
+        Parameters
+        ----------
+        id_user : int
+            Identifiant de l'utilisateur qui crée le commentaire.
+        id_activite : int
+            Identifiant de l'activité associée au commentaire.
+        contenu : str
+            Contenu du commentaire.
+
+        Returns
+        -------
+        Commentaire
+            L'instance du commentaire créé, ou None en cas d'erreur.
+        """
+        session = self.Session()
         try:
             commentaire = Commentaire(
                 id_user=id_user,
@@ -32,35 +42,63 @@ class CommentaireDAO(metaclass=Singleton):
                 contenu=contenu,
                 date_commentaire=datetime.now(),
             )
-            self.session.add(commentaire)
-            self.session.commit()  # Validation de la transaction
+            session.add(commentaire)
+            session.commit()  # Validation de la transaction
             return commentaire
         except Exception as e:
-            self.session.rollback()  # Annuler en cas d'erreur
+            session.rollback()  # Annuler en cas d'erreur
             logging.error(f"Erreur lors de la création du commentaire: {e}")
             return None
+        finally:
+            session.close()
 
     @log
     def supprimer_commentaire(self, id_comment: int) -> bool:
-        """Suppression d'un commentaire dans la base de données."""
+        """Suppression d'un commentaire dans la base de données.
+
+        Parameters
+        ----------
+        id_comment : int
+            Identifiant du commentaire à supprimer.
+
+        Returns
+        -------
+        bool
+            True si la suppression est réussie, False sinon.
+        """
+        session = self.Session()
         try:
-            commentaire = self.session.query(Commentaire).filter_by(id_comment=id_comment).first()
+            commentaire = session.query(Commentaire).filter_by(id_comment=id_comment).first()
             if commentaire:
-                self.session.delete(commentaire)
-                self.session.commit()
+                session.delete(commentaire)
+                session.commit()
                 return True
             return False
         except Exception as e:
-            self.session.rollback()
+            session.rollback()
             logging.error(f"Erreur lors de la suppression du commentaire: {e}")
             return False
+        finally:
+            session.close()
 
     @log
     def get_commentaires_by_activity(self, id_activite: int) -> list[Commentaire]:
-        """Récupère tous les commentaires d'une activité."""
+        """Récupère tous les commentaires d'une activité.
+
+        Parameters
+        ----------
+        id_activite : int
+            Identifiant de l'activité pour laquelle on récupère les commentaires.
+
+        Returns
+        -------
+        list[Commentaire]
+            Liste des commentaires associés à l'activité, triés par date décroissante.
+        """
+        session = self.Session()
         try:
             commentaires = (
-                self.session.query(Commentaire)
+                session.query(Commentaire)
                 .filter_by(id_activite=id_activite)
                 .order_by(Commentaire.date_commentaire.desc())
                 .all()
@@ -69,13 +107,27 @@ class CommentaireDAO(metaclass=Singleton):
         except Exception as e:
             logging.error(f"Erreur lors de la récupération des commentaires: {e}")
             return []
+        finally:
+            session.close()
 
     @log
     def get_commentaires_by_user(self, id_user: int) -> list[Commentaire]:
-        """Récupère tous les commentaires d'un utilisateur."""
+        """Récupère tous les commentaires d'un utilisateur.
+
+        Parameters
+        ----------
+        id_user : int
+            Identifiant de l'utilisateur pour lequel on récupère les commentaires.
+
+        Returns
+        -------
+        list[Commentaire]
+            Liste des commentaires créés par l'utilisateur, triés par date décroissante.
+        """
+        session = self.Session()
         try:
             commentaires = (
-                self.session.query(Commentaire)
+                session.query(Commentaire)
                 .filter_by(id_user=id_user)
                 .order_by(Commentaire.date_commentaire.desc())
                 .all()
@@ -84,30 +136,60 @@ class CommentaireDAO(metaclass=Singleton):
         except Exception as e:
             logging.error(f"Erreur lors de la récupération des commentaires: {e}")
             return []
+        finally:
+            session.close()
 
     @log
     def count_commentaires_by_activity(self, id_activite: int) -> int:
-        """Compte le nombre de commentaires d'une activité."""
+        """Compte le nombre de commentaires d'une activité.
+
+        Parameters
+        ----------
+        id_activite : int
+            Identifiant de l'activité pour laquelle on compte les commentaires.
+
+        Returns
+        -------
+        int
+            Nombre de commentaires associés à l'activité.
+        """
+        session = self.Session()
         try:
-            count = self.session.query(Commentaire).filter_by(id_activite=id_activite).count()
+            count = session.query(Commentaire).filter_by(id_activite=id_activite).count()
             return count
         except Exception as e:
             logging.error(f"Erreur lors du comptage des commentaires: {e}")
             return 0
+        finally:
+            session.close()
 
     @log
     def modifier_commentaire(self, id_comment: int, nouveau_contenu: str) -> bool:
-        """Modification d'un commentaire dans la base de données."""
+        """Modification d'un commentaire dans la base de données.
+
+        Parameters
+        ----------
+        id_comment : int
+            Identifiant du commentaire à modifier.
+        nouveau_contenu : str
+            Nouveau contenu du commentaire.
+
+        Returns
+        -------
+        bool
+            True si la modification est réussie, False sinon.
+        """
+        session = self.Session()
         try:
-            commentaire = self.session.query(Commentaire).filter_by(id_comment=id_comment).first()
+            commentaire = session.query(Commentaire).filter_by(id_comment=id_comment).first()
             if commentaire:
                 commentaire.contenu = nouveau_contenu
-                self.session.commit()
+                session.commit()
                 return True
             return False
         except Exception as e:
-            self.session.rollback()
+            session.rollback()
             logging.error(f"Erreur lors de la modification du commentaire: {e}")
             return False
-            logging.error(f"Erreur lors de la modification du commentaire: {e}")
-            return False
+        finally:
+            session.close()
