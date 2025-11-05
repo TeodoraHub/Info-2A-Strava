@@ -25,7 +25,7 @@ def main():
     # 1. Initialisation de la base de données (Optionnel)
     # Décommenter si vous souhaitez réinitialiser la BDD à chaque lancement
     try:
-        ResetDatabase().reset()
+        ResetDatabase().lancer()
         print("Base de données réinitialisée avec succès.")
     except Exception as e:
         # Ceci est courant si la BDD n'est pas encore configurée ou si le reset_database n'existe pas encore
