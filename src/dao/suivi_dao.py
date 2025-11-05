@@ -248,5 +248,3 @@ class SuiviDAO(metaclass=Singleton):
             session.close()
 
         return count
-
-        return count

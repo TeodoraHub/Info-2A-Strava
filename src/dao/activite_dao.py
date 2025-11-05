@@ -83,4 +83,3 @@ class ActivityDAO:
             self.db.commit()
             return True
         return False
-        return False
