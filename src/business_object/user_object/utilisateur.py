@@ -161,5 +161,3 @@ class Utilisateur:
             "heures": Statistiques.heures_activite(utilisateur, periode, sport),
         }
         return stats
-        return stats
-        return stats
