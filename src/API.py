@@ -42,6 +42,63 @@ USERS = {
     "alice": {"password": "wonderland", "roles": ["admin"], "id": 1},
     "bob": {"password": "builder", "roles": ["user"], "id": 2},
 }
+FAKE_ACTIVITIES = [
+    {
+        "id": 1,
+        "titre": "Footing matinal",
+        "description": "Course tranquille au parc",
+        "sport": "course",
+        "date_activite": "2025-11-01",
+        "lieu": "Parc Central",
+        "distance": 5.0,
+        "duree": 0.5,
+        "id_user": 1,
+    },
+    {
+        "id": 2,
+        "titre": "Balade à vélo",
+        "description": "Tour de la ville en vélo",
+        "sport": "cyclisme",
+        "date_activite": "2025-11-03",
+        "lieu": "Centre-ville",
+        "distance": 20.0,
+        "duree": 1.0,
+        "id_user": 2,
+    },
+    {
+        "id": 3,
+        "titre": "Séance natation",
+        "description": "Entraînement intensif 1000m",
+        "sport": "natation",
+        "date_activite": "2025-11-05",
+        "lieu": "Piscine municipale",
+        "distance": 1.0,
+        "duree": 0.4,
+        "id_user": 1,
+    },
+    {
+        "id": 4,
+        "titre": "Randonnée en montagne",
+        "description": "Montée et descente du sentier rouge",
+        "sport": "randonnee",
+        "date_activite": "2025-11-07",
+        "lieu": "Montagne Bleue",
+        "distance": 10.0,
+        "duree": 2.0,
+        "id_user": 2,
+    },
+    {
+        "id": 5,
+        "titre": "Course rapide",
+        "description": "Sprint sur 3 km",
+        "sport": "course",
+        "date_activite": "2025-11-09",
+        "lieu": "Stade municipal",
+        "distance": 3.0,
+        "duree": 0.25,
+        "id_user": 1,
+    },
+]
 
 
 def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
