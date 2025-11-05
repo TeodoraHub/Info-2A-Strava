@@ -9,12 +9,12 @@ class Cyclisme(AbstractActivity):
         id_activite,
         titre,
         description,
-        duree,
-        date_activite: date,
+        date_activite,
         lieu: str,
         distance,
         id_user,
-        type_velo: str,
+        duree: float = None,
+        type_velo: str = None,  # <-- devient optionnel
     ):
         super().__init__(
             id=id_activite,

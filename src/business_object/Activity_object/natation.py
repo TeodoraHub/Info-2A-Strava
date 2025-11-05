@@ -2,8 +2,6 @@ from business_object.Activity_object.abstract_activity import AbstractActivity
 
 
 class Natation(AbstractActivity):
-    """Activité de natation"""
-
     def __init__(
         self,
         id_activite,
@@ -11,10 +9,10 @@ class Natation(AbstractActivity):
         description,
         date_activite,
         lieu: str,
-        distance: float,
-        id_user: int,
-        type_nage: str,
+        distance,
+        id_user,
         duree: float = None,
+        type_nage: str = None,  # <-- devient optionnel
     ):
         super().__init__(
             id=id_activite,
@@ -28,7 +26,6 @@ class Natation(AbstractActivity):
             duree=duree
         )
         self.type_nage = type_nage
-
     def vitesse(self):
         """
         Dans la nage, la vitesse est souvent mesurée en mètres par seconde (m/s).

@@ -1,5 +1,5 @@
 from typing import List, Optional
-
+from db.db_connection import DBConnection
 from utils.session import Session
 
 
@@ -9,18 +9,15 @@ class ActivityDAO:
     La table doit contenir un champ 'type' pour différencier les sous-classes.
     """
 
-    def __init__(self, db: Session, activity_base_cls):
+    def __init__(self, activity_base_cls=None):
         """
-        Initialise le DAO avec une session SQLAlchemy et la classe mappée.
+        Initialise le DAO avec une connexion récupérée auto via Singleton
+        """
 
-        Parameters
-        ----------
-        db : Session
-            session SQLAlchemy
-        activity_base_cls : class
-            classe représentant la table des activités
-        """
-        self.db = db
+        # ✅ Récupération automatique de la connexion PostgreSQL
+        self.db = DBConnection().connection
+
+        # ✅ Classe activité pour le mapping ORM (CoursePied, Cyclisme, etc.)
         self.activity_base_cls = activity_base_cls
 
     def save(self, activity) -> object:

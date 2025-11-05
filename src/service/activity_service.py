@@ -10,7 +10,6 @@ class ActivityService(metaclass=Singleton):
     """Service pour gérer les opérations liées aux activités"""
 
     def __init__(self):
-        self.activity_dao = ActivityDAO()
         self.suivi_dao = SuiviDAO()
 
     @log
