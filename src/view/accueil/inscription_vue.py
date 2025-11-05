@@ -30,7 +30,7 @@ class InscriptionVue(VueAbstraite):
         mail = inquirer.text(message="Entrez votre mail : ", validate=MailValidator()).execute()
 
         # Appel du service pour créer l'utilisateur
-        utilisateur = UtilisateurService().creer(nom, mdp, mail)
+        utilisateur = UtilisateurService().creer(nom, mail, mdp)
 
         # Si l'utilisateur a été créé
         if utilisateur:
