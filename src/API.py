@@ -7,7 +7,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 # Imports des services
 from service.activity_service import ActivityService
 
-app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8000")
+app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8001")
 security = HTTPBasic()
 
 
@@ -164,6 +164,12 @@ def create_user(nom_user: str, mail_user: str, mdp: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la création: {str(e)}")
+
+
+
+
+
+
 
 
 # ============================================================================
@@ -337,6 +343,34 @@ def delete_activity(activity_id: int, current_user: dict = Depends(get_current_u
         return {"message": f"Activity {activity_id} deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================================================
+# ENDPOINTS COMMENTAIRES
+# ============================================================================
+
+
+@app.post("/activities/{activity_id}/comment")
+def comment_activity(
+    activity_id: int, contenu: str, current_user: dict = Depends(get_current_user)
+):
+    """Commenter une activité"""
+    try:
+        commentaire_service = CommentaireService()
+        user_id = current_user["id"]
+
+        success = commentaire_service.creer_commentaire(user_id, activity_id, contenu)
+        if not success:
+            raise HTTPException(status_code=400, detail="Cannot create comment")
+
+        return {"message": f"Comment added to activity {activity_id}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================================================
+# ENDPOINTS ParserGPX
+# ============================================================================
+
+
 
 @app.post("/upload-gpx")
 async def upload_gpx(file: UploadFile = File(...)):
