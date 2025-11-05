@@ -11,14 +11,15 @@ Pour le développement avec rechargement automatique:
     python main.py --dev
 """
 
-import sys
+import sys, os
 from pathlib import Path
 
 import uvicorn
 
 # Ajouter le dossier src au PYTHONPATH
-src_path = Path(__file__).parent / "src"
-sys.path.insert(0, str(src_path))
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
 
 
 def main():

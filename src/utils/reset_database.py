@@ -1,5 +1,6 @@
 import os
 from utils.singleton import Singleton
+
 from dao.db_connection import DBConnection
 
 

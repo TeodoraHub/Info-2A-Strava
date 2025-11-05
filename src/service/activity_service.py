@@ -1,6 +1,7 @@
 import logging
 
 from dao.activite_dao import ActivityDAO
+
 from dao.suivi_dao import SuiviDAO
 from utils.log_decorator import log
 from utils.singleton import Singleton
