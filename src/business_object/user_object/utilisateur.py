@@ -9,7 +9,12 @@ from business_object.Activity_object.randonnee import Randonnee
 from utils.session import Session
 
 
-class Utilisateur:
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String
+
+Base = declarative_base()
+
+class Utilisateur(Base):
     """
     Classe représentant un Utilisateur
 
@@ -24,15 +29,17 @@ class Utilisateur:
     mdp : str
         le mot de passe de l'utilisateur
     """
+    __tablename__ = "utilisateur"
+    id_user = Column(Integer, primary_key=True)
+    nom_user = Column(String)
+    mail_user = Column(String)
+    mdp = Column(String)
 
     def __init__(self, id_user, nom_user, mail_user, mdp):
-        """Constructeur"""
         self.id_user = id_user
         self.nom_user = nom_user
         self.mail_user = mail_user
         self.mdp = mdp
-        # On fait une fausse liste d'activité pour l'instant mais on devra la relier à la base de données après
-        self.activites: list[Activite] = []
 
     def __str__(self):
         """Permet d'afficher les informations de l'utilisateur"""

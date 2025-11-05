@@ -171,9 +171,12 @@ class UtilisateurDAO(metaclass=Singleton):
         session = self.Session()
         try:
             utilisateur = session.query(Utilisateur).filter_by(nom_user=nom_user, mdp=mdp).first()
+            if utilisateur:
+                session.expunge(utilisateur)  # détache explicitement l’objet de la session
             return utilisateur
         except SQLAlchemyError as e:
             logging.error(f"Erreur lors de la connexion de l'utilisateur : {e}")
             return None
         finally:
             session.close()
+
