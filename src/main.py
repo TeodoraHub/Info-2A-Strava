@@ -58,7 +58,7 @@ def main():
             break
         except Exception as e:
             # Gestion des erreurs inattendues non gérées dans les vues
-            print(f"\n--- ERREUR CRITIQUE ---")
+            print("\n--- ERREUR CRITIQUE ---")
             print(f"Une erreur inattendue s'est produite : {e}")
             break
 

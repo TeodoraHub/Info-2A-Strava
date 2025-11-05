@@ -6,6 +6,7 @@ from business_object.Activity_object.course_a_pieds import CoursePied
 from business_object.Activity_object.cyclisme import Cyclisme
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
+from business_object.user_object.statistiques import Statistiques
 from utils.session import Session
 
 
