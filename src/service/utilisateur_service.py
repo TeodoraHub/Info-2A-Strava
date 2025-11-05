@@ -47,7 +47,7 @@ class UtilisateurService:
         """Afficher tous les utilisateurs
         Sortie : Une chaine de caractères mise sous forme de tableau
         """
-        entetes = ["nom", "mail"]
+        entetes = ["id", "nom", "mail"]
         utilisateurs = UtilisateurDAO().lister_tous()
         
         # ✅ Filtrer sans modifier la liste pendant l'itération
