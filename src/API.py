@@ -1,6 +1,7 @@
 import secrets
+import gpxpy
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status, UploadFile, File
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 # Imports des services
@@ -8,6 +9,28 @@ from service.activity_service import ActivityService
 
 app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8000")
 security = HTTPBasic()
+
+
+def parse_strava_gpx(content):
+    """Parse un fichier GPX et extrait les données principales."""
+    gpx = gpxpy.parse(content)
+    # Distance totale en 3D (mètres)
+    distance_m = gpx.length_3d()
+    # Durée totale (secondes)
+    duration_s = gpx.get_duration()
+    # Temps/distance/vitesse en mouvement
+    moving = gpx.get_moving_data()
+    return {
+        "nom": gpx.tracks[0].name if gpx.tracks else None,
+        "type": gpx.tracks[0].type if gpx.tracks else None,
+        "distance totale (km)": distance_m/1000,
+        "durée totale (min)": duration_s/60,
+        "temps en mouvement (min)": moving.moving_time/60,
+        "distance en mouvement (km)": moving.moving_distance/1000,
+        "vitesse moyenne (km/h)": (moving.moving_distance/moving.moving_time)*3.6 if moving.moving_time > 0 else 0,
+        "vitesse max (km/h)": moving.max_speed*3.6
+    }
+
 
 # ============================================================================
 # AUTHENTIFICATION
@@ -258,6 +281,12 @@ def delete_activity(activity_id: int, current_user: dict = Depends(get_current_u
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/upload-gpx")
+async def upload_gpx(file: UploadFile = File(...)):
+    # Lecture du contenu du fichier (texte)
+    content = await file.read()
+    # Parsing
+    return parse_strava_gpx(content)
 
 # ============================================================================
 # LANCEMENT DE L'APPLICATION
