@@ -1,5 +1,5 @@
 from typing import List, Optional
-from db.db_connection import DBConnection
+from dao.db_connection import DBConnection
 from utils.session import Session
 
 
