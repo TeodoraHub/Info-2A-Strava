@@ -7,7 +7,6 @@ from business_object.Activity_object.cyclisme import Cyclisme
 from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
 from business_object.user_object.statistiques import Statistiques
-from utils.session import Session
 
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -146,7 +145,7 @@ class Utilisateur(Base):
         else:
             raise ValueError(f"Type d’activité inconnu: {type_activite}")
 
-    def obtenir_statistiques(self, periode: str = None, sport: str = None):
+def obtenir_statistiques(self, periode: str = None, sport: str = None):
         """
         Retourne les statistiques de l'utilisateur connecté.
 
@@ -162,10 +161,9 @@ class Utilisateur(Base):
         dict
             dictionnaire avec nombre d'activités, kilomètres et heures
         """
-        utilisateur = Session().utilisateur
         stats = {
-            "nombre_activites": Statistiques.nombre_activites(utilisateur, periode, sport),
-            "kilometres": Statistiques.kilometres(utilisateur, periode, sport),
-            "heures": Statistiques.heures_activite(utilisateur, periode, sport),
+            "nombre_activites": Statistiques.nombre_activites(self, periode, sport),
+            "kilometres": Statistiques.kilometres(self, periode, sport),
+            "heures": Statistiques.heures_activite(self, periode, sport),
         }
         return stats
