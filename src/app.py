@@ -57,3 +57,4 @@ def create_activity(user_id):
 def get_feed(user_id):
     activities = ActivityService().get_feed(user_id)
     return activities
+    return activities

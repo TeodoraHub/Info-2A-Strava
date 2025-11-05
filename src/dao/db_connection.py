@@ -2,11 +2,14 @@ import os
 
 import dotenv
 import psycopg2
+from dotenv import load_dotenv
 from psycopg2.extras import RealDictCursor
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from utils.singleton import Singleton
+
+load_dotenv(dotenv_path="P:/Projet info 2A/Info-2A-Strava/.env")
 
 
 class DBConnection(metaclass=Singleton):
@@ -41,6 +44,7 @@ class DBConnection(metaclass=Singleton):
 
         :return: the opened connection.
         """
+        return self.__connection        """
         return self.__connection
 
     @property
