@@ -45,10 +45,10 @@ class ActivityDAO:
     def get_by_user(self, user_id: int, type_activite: str = None) -> List[object]:
         """Récupère toutes les activités d'un utilisateur, optionnellement filtrées par type."""
         query = self.db.query(self.activity_base_cls).filter(
-            self.activity_base_cls.user_id == user_id
+            self.activity_base_cls.id_user == user_id
         )
         if type_activite:
-            query = query.filter(self.activity_base_cls.type == type_activite)
+            query = query.filter(self.activity_base_cls.sport == type_activite)
         return query.all()
 
     def get_feed(self, user_id: int) -> List[object]:
@@ -61,7 +61,7 @@ class ActivityDAO:
 
         return (
             self.db.query(self.activity_base_cls)
-            .filter(self.activity_base_cls.user_id.in_(following_ids))
+            .filter(self.activity_base_cls.id_user.in_(following_ids))
             .order_by(self.activity_base_cls.date_activite.desc())
             .all()
         )
@@ -71,12 +71,12 @@ class ActivityDAO:
     ) -> List[object]:
         """Récupère les activités d'un utilisateur pour un mois spécifique et optionnellement par type."""
         query = self.db.query(self.activity_base_cls).filter(
-            self.activity_base_cls.user_id == user_id,
+            self.activity_base_cls.id_user == user_id,
             self.activity_base_cls.date_activite.extract("year") == year,
             self.activity_base_cls.date_activite.extract("month") == month,
         )
         if type_activite:
-            query = query.filter(self.activity_base_cls.type == type_activite)
+            query = query.filter(self.activity_base_cls.sport == type_activite)
         return query.all()
 
     def delete(self, activity_id: int) -> bool:
