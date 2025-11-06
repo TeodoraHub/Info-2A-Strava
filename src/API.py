@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI, HTTPException, status, UploadFile, File
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from service.utilisateur_service import UtilisateurService
-
+from datetime import time
 # Imports des services
 from service.activity_service import ActivityService
 from service.commentaire_service import CommentaireService
@@ -155,7 +155,13 @@ def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
 # ============================================================================
 # ENDPOINTS ACTIVITÉS
 # ============================================================================
-
+def convert_to_time(duree):
+    """Convertir la durée en heures décimales (ex: 5.5) en un objet `time`."""
+    if duree is None:
+        return None
+    hours = int(duree)  # Récupérer la partie entière (heures)
+    minutes = int((duree - hours) * 60)  # Convertir la partie décimale en minutes
+    return time(hours, minutes)
 
 @app.post("/activities")
 async def create_activity(
@@ -184,7 +190,7 @@ async def create_activity(
             sport = sport or gpx_data.get("type") or "course"
             distance = distance if distance is not None else gpx_data.get("distance totale (km)")
             duree = duree if duree is not None else gpx_data.get("temps en mouvement (min)")
-            
+
             # Si pas de date fournie, utiliser la date du jour
             if not date_activite:
                 date_obj = date.today()
@@ -225,6 +231,9 @@ async def create_activity(
         if duree is not None and duree <= 0:
             raise HTTPException(status_code=400, detail="La durée doit être positive")
 
+        # Convertir la durée en `time` avant de l'ajouter à l'activité
+        duree_formatee = convert_to_time(duree)
+
         # Création d'un dictionnaire au lieu d'objets métier
         activity_data = {
             "titre": titre,
@@ -233,7 +242,7 @@ async def create_activity(
             "date_activite": date_obj,
             "lieu": lieu or "",
             "distance": distance,
-            "duree": duree,
+            "duree": duree_formatee,  # Utilisation de la durée formatée en `time`
             "id_user": current_user["id"]
         }
 
@@ -251,7 +260,7 @@ async def create_activity(
                 "sport": sport,
                 "date_activite": date_obj.isoformat(),
                 "distance": distance,
-                "duree": duree,
+                "duree": str(duree_formatee),  # On affiche la durée au format 'HH:MM:00'
                 "lieu": lieu,
             },
         }
