@@ -1,46 +1,9 @@
-from datetime import date
-
 from business_object.Activity_object.abstract_activity import AbstractActivity
 
-
 class Cyclisme(AbstractActivity):
-    def __init__(
-        self,
-        id_activite,
-        titre,
-        description,
-        date_activite,
-        lieu: str,
-        distance,
-        id_user,
-        duree: float = None,
-        type_velo: str = None,  # <-- devient optionnel
-    ):
-        super().__init__(
-            id=id_activite,
-            titre=titre,
-            description=description,
-            sport="cyclisme",
-            date_activite=date_activite,
-            lieu=lieu,
-            distance=distance,
-            id_user=id_user,
-            duree=duree
-        )
-        self.type_velo = type_velo
+    __mapper_args__ = {'polymorphic_identity': 'cyclisme'}
 
-    def vitesse(self):
-        """
-        Calcule la vitesse en km/h
-        Return:
-            float: vitesse en km/h
-        """
-        if self.duree > 0:
-            # pour une distance en km et une durée en minutes
-            return (self.distance / self.duree) * 60
+    def vitesse(self) -> float:
+        if self.duree and self.duree > 0:
+            return (self.distance / self.duree) * 60  # km/h
         return 0
-
-    def __str__(self):
-        return (
-            f"{self.type_velo} - {super().__str__()} - Vitesse moyenne: {self.vitesse():.2f} km/h"
-        )

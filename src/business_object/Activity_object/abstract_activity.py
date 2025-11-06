@@ -1,14 +1,11 @@
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from abc import abstractmethod
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
-
 class AbstractActivity(Base):
-    __abstract__ = True
-
-    id_activite = Column(Integer, primary_key=True, autoincrement=True, name='id')
+    __tablename__ = "activities"  # une seule table pour tout
+    id_activite = Column(Integer, primary_key=True, autoincrement=True)
     titre = Column(String, nullable=False)
     description = Column(String)
     sport = Column(String, nullable=False)
@@ -16,20 +13,12 @@ class AbstractActivity(Base):
     lieu = Column(String)
     distance = Column(Float, nullable=False)
     duree = Column(Float)
-    id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
+    id_user = Column(Integer, ForeignKey("users.id_user"), nullable=False)  # assumes table users
 
-    def __init__(self, id_activite, titre, description, sport, date_activite, 
-                 lieu, distance, id_user, duree=None):
-        self.id_activite = id_activite
-        self.titre = titre
-        self.description = description
-        self.sport = sport
-        self.date_activite = date_activite
-        self.lieu = lieu
-        self.distance = distance
-        self.id_user = id_user
-        self.duree = duree
+    __mapper_args__ = {
+        'polymorphic_on': sport,
+        'polymorphic_identity': 'abstract_activity'
+    }
 
-    @abstractmethod
     def vitesse(self) -> float:
-        pass
+        raise NotImplementedError("Chaque sous-classe doit définir sa méthode vitesse")
