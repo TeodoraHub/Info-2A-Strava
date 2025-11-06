@@ -120,7 +120,6 @@ def create_user(nom_user: str, mail_user: str, mdp: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la création: {str(e)}")
 
-security = HTTPBasic()
 
 def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
     """
