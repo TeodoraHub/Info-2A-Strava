@@ -1,36 +1,24 @@
-from abc import ABC, abstractmethod
-from datetime import date
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy.orm import declarative_base
 
+Base = declarative_base()
 
-class AbstractActivity(ABC):
-    def __init__(
-        self,
-        id: int,
-        titre: str,
-        description: str,
-        sport: str,
-        date_activite: date,
-        lieu: str,
-        distance: float,
-        id_user: int,
-        duree: float = None,
-    ):
-        self.id = id
-        self.titre = titre
-        self.description = description
-        self.sport = sport
-        self.date_activite = date_activite
-        self.lieu = lieu
-        self.distance = distance
-        self.id_user = id_user
-        self.duree = duree
+class AbstractActivity(Base):
+    __tablename__ = "activities"  # une seule table pour tout
+    id_activite = Column(Integer, primary_key=True, autoincrement=True)
+    titre = Column(String, nullable=False)
+    description = Column(String)
+    sport = Column(String, nullable=False)
+    date_activite = Column(Date, nullable=False)
+    lieu = Column(String)
+    distance = Column(Float, nullable=False)
+    duree = Column(Float)
+    id_user = Column(Integer, ForeignKey("users.id_user"), nullable=False)  # assumes table users
 
-    def __str__(self):
-        return f"{self.titre} - {self.date_activite} - {self.distance}km"
+    __mapper_args__ = {
+        'polymorphic_on': sport,
+        'polymorphic_identity': 'abstract_activity'
+    }
 
-    @abstractmethod
     def vitesse(self) -> float:
-        """
-        calculer et retourner la vitesse de l'activité.
-        """
-        pass
+        raise NotImplementedError("Chaque sous-classe doit définir sa méthode vitesse")

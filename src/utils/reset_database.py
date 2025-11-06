@@ -22,23 +22,16 @@ class ResetDatabase(metaclass=Singleton):
         data_dir = os.path.join(base_dir, "..", "..", "data")
 
         init_db_path = os.path.join(data_dir, "init_db.sql")
-        pop_db_path = os.path.join(data_dir, "pop_db.sql")
 
         # Chargement des fichiers
         with open(init_db_path, encoding="utf-8") as init_db:
             init_db_as_string = init_db.read()
-
-        with open(pop_db_path, encoding="utf-8") as pop_db:
-            pop_db_as_string = pop_db.read()
 
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     print("📝 Exécution de init_db.sql...")
                     cursor.execute(init_db_as_string)
-
-                    print("📝 Exécution de pop_db.sql...")
-                    cursor.execute(pop_db_as_string)
 
                 connection.commit()
                 print("✅ Base de données réinitialisée avec succès!")   
