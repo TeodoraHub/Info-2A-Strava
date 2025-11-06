@@ -1,6 +1,6 @@
 import secrets
 import gpxpy
-
+from service.commentaire_service import CommentaireService
 from fastapi import Depends, FastAPI, HTTPException, status, UploadFile, File
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
