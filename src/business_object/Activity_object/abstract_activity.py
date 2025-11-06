@@ -4,7 +4,7 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 class AbstractActivity(Base):
-    __tablename__ = "activities"  # une seule table pour tout
+    __tablename__ = "activite"  # une seule table pour tout
     id_activite = Column(Integer, primary_key=True, autoincrement=True)
     titre = Column(String, nullable=False)
     description = Column(String)
