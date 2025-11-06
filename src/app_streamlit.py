@@ -121,18 +121,87 @@ else:
     elif menu == "➕ Nouvelle activité":
         st.title("Créer une nouvelle activité")
         
+        # Option d'import GPX
+        st.subheader("📁 Option 1: Importer depuis un fichier GPX")
+        uploaded_file = st.file_uploader("Charger un fichier GPX pour pré-remplir le formulaire", type=["gpx"], key="gpx_upload")
+        
+        # Initialiser les valeurs par défaut
+        if "gpx_data" not in st.session_state:
+            st.session_state.gpx_data = None
+        
+        if uploaded_file is not None:
+            try:
+                files = {"file": (uploaded_file.name, uploaded_file, "application/gpx+xml")}
+                response = requests.post(f"{API_URL}/upload-gpx", files=files)
+                
+                if response.status_code == 200:
+                    st.session_state.gpx_data = response.json()
+                    st.success("✅ Fichier GPX analysé! Les données ont été extraites.")
+                    
+                    # Afficher un aperçu des données
+                    with st.expander("📊 Aperçu des données GPX", expanded=True):
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Distance", f"{st.session_state.gpx_data.get('distance totale (km)', 0):.2f} km")
+                        with col2:
+                            st.metric("Durée", f"{st.session_state.gpx_data.get('temps en mouvement (min)', 0):.1f} min")
+                        with col3:
+                            st.metric("Vitesse moy.", f"{st.session_state.gpx_data.get('vitesse moyenne (km/h)', 0):.2f} km/h")
+                else:
+                    st.error("Erreur lors de l'analyse du fichier GPX")
+            except Exception as e:
+                st.error(f"Erreur: {str(e)}")
+        
+        st.divider()
+        st.subheader("✏️ Option 2: Remplir manuellement le formulaire")
+        
+        # Pré-remplir avec les données GPX si disponibles
+        gpx_data = st.session_state.gpx_data
+        default_titre = gpx_data.get("nom", "") if gpx_data and gpx_data.get("nom") else ""
+        default_sport = "course"  # Par défaut
+        if gpx_data and gpx_data.get("type"):
+            sport_map = {
+                "running": "course",
+                "cycling": "cyclisme",
+                "ride": "cyclisme",
+                "swimming": "natation",
+                "hiking": "randonnee"
+            }
+            default_sport = sport_map.get(gpx_data.get("type", "").lower(), "course")
+        
+        default_distance = gpx_data.get("distance totale (km)", 0.0) if gpx_data else 0.0
+        default_duree = gpx_data.get("temps en mouvement (min)", 0.0) if gpx_data else 0.0
+        
         with st.form("activity_form"):
             col1, col2 = st.columns(2)
             
             with col1:
-                titre = st.text_input("Titre de l'activité*", placeholder="Ex: Course matinale")
-                sport = st.selectbox("Type de sport*", ["course", "cyclisme", "natation", "randonnee"])
+                titre = st.text_input(
+                    "Titre de l'activité*", 
+                    value=default_titre,
+                    placeholder="Ex: Course matinale"
+                )
+                sport = st.selectbox(
+                    "Type de sport*", 
+                    ["course", "cyclisme", "natation", "randonnee"],
+                    index=["course", "cyclisme", "natation", "randonnee"].index(default_sport)
+                )
                 date_activite = st.date_input("Date*", value=date.today())
-                distance = st.number_input("Distance (km)*", min_value=0.1, step=0.1)
+                distance = st.number_input(
+                    "Distance (km)*", 
+                    min_value=0.1, 
+                    step=0.1,
+                    value=float(default_distance) if default_distance > 0 else 0.1
+                )
             
             with col2:
                 lieu = st.text_input("Lieu*", placeholder="Ex: Parc de la ville")
-                duree = st.number_input("Durée (minutes)", min_value=0.0, step=1.0, value=None)
+                duree = st.number_input(
+                    "Durée (minutes)", 
+                    min_value=0.0, 
+                    step=1.0, 
+                    value=float(default_duree) if default_duree > 0 else 0.0
+                )
                 description = st.text_area("Description", placeholder="Décrivez votre activité...")
             
             submit = st.form_submit_button("Créer l'activité")
@@ -158,6 +227,8 @@ else:
                         if response.status_code == 200:
                             st.success("✅ Activité créée avec succès!")
                             st.balloons()
+                            # Réinitialiser les données GPX
+                            st.session_state.gpx_data = None
                         else:
                             st.error(f"Erreur: {response.json().get('detail', 'Erreur inconnue')}")
                     except Exception as e:
