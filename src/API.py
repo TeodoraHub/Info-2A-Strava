@@ -9,6 +9,7 @@ from service.utilisateur_service import UtilisateurService
 # Imports des services
 from service.activity_service import ActivityService
 from service.commentaire_service import CommentaireService
+from service.like_service import LikeService
 
 app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8001")
 security = HTTPBasic()
@@ -341,15 +342,42 @@ def like_activity(activity_id: int, current_user: dict = Depends(get_current_use
     """Liker une activité"""
     try:
         like_service = LikeService()
+        activity_service = ActivityService()
         user_id = current_user["id"]
 
-        success = like_service.liker_activite(user_id, activity_id)
-        if not success:
-            raise HTTPException(status_code=400, detail="Cannot like activity (already liked)")
+        # 1. Vérifier si l'activité existe
+        activity = activity_service.get_activite_by_id(activity_id)
+        if not activity:
+            raise HTTPException(status_code=404, detail="Activity not found")
 
-        return {"message": f"Activity {activity_id} liked successfully"}
+        # 2. Vérifier si déjà liké
+        existing_likes = like_service.get_likes_activite(activity_id)
+        already_liked = any(like.id_user == user_id for like in existing_likes)
+        
+        if already_liked:
+            return {
+                "message": f"Activity {activity_id} already liked",
+                "already_liked": True
+            }
+
+        # 3. Liker l'activité
+        success = like_service.liker_activite(user_id, activity_id)
+        
+        if not success:
+            # Ceci attrape le cas où le service retourne False (échec DAO/DB)
+            raise HTTPException(status_code=500, detail="Cannot like activity")
+
+        return {
+            "message": f"Activity {activity_id} liked successfully",
+            "already_liked": False
+        }
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Ceci attrape les erreurs non gérées dans les services (la cause du 500 dans vos logs)
+        print(f"Erreur critique lors du like de l'activité {activity_id}: {e}")
+        # Optionnel: traceback.print_exc() ici pour le débogage
+        raise HTTPException(status_code=500, detail=f"Erreur interne: {str(e)}")
 
 
 @app.delete("/activities/{activity_id}/like")
@@ -391,7 +419,6 @@ def get_activity_likes(activity_id: int, current_user: dict = Depends(get_curren
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 # ============================================================================
