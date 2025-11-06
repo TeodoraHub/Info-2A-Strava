@@ -51,6 +51,7 @@ class SuiviDAO(metaclass=Singleton):
             return False
         finally:
             session.close()
+        logging.info(f"Suivi créé : {id_suiveur} -> {id_suivi}")
 
         return True
 

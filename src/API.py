@@ -8,6 +8,7 @@ from service.utilisateur_service import UtilisateurService
 
 # Imports des services
 from service.activity_service import ActivityService
+from service.commentaire_service import CommentaireService
 
 app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8001")
 security = HTTPBasic()
@@ -156,19 +157,58 @@ def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 @app.post("/activities")
-def create_activity(
-    titre: str,
-    description: str,
-    sport: str,
-    date_activite: str,
-    lieu: str,
-    distance: float,
+async def create_activity(
+    titre: str = None,
+    description: str = None,
+    sport: str = None,
+    date_activite: str = None,
+    lieu: str = None,
+    distance: float = None,
     duree: float = None,
+    gpx_file: UploadFile = File(None),
     current_user: dict = Depends(get_current_user),
 ):
-    """Créer une nouvelle activité"""
+    """Créer une nouvelle activité (manuellement ou via fichier GPX)"""
     try:
-        from datetime import datetime
+        from datetime import datetime, date
+
+        # Si un fichier GPX est fourni, on extrait les données
+        if gpx_file:
+            content = await gpx_file.read()
+            gpx_data = parse_strava_gpx(content)
+            
+            # Utiliser les données du GPX comme valeurs par défaut
+            # Les paramètres fournis manuellement ont la priorité
+            titre = titre or gpx_data.get("nom") or "Activité importée"
+            sport = sport or gpx_data.get("type") or "course"
+            distance = distance if distance is not None else gpx_data.get("distance totale (km)")
+            duree = duree if duree is not None else gpx_data.get("temps en mouvement (min)")
+            
+            # Si pas de date fournie, utiliser la date du jour
+            if not date_activite:
+                date_obj = date.today()
+            else:
+                try:
+                    date_obj = datetime.strptime(date_activite, "%Y-%m-%d").date()
+                except ValueError:
+                    raise HTTPException(
+                        status_code=400, detail="Format de date invalide. Utilisez YYYY-MM-DD"
+                    )
+        else:
+            # Mode manuel : tous les champs sont obligatoires
+            if not all([titre, sport, date_activite, distance]):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Les champs titre, sport, date_activite et distance sont obligatoires en mode manuel"
+                )
+            
+            # Conversion de la date
+            try:
+                date_obj = datetime.strptime(date_activite, "%Y-%m-%d").date()
+            except ValueError:
+                raise HTTPException(
+                    status_code=400, detail="Format de date invalide. Utilisez YYYY-MM-DD"
+                )
 
         # Validation du type de sport
         sports_valides = ["course", "cyclisme", "natation", "randonnee"]
@@ -178,16 +218,8 @@ def create_activity(
                 detail=f"Type de sport invalide. Valeurs acceptées: {', '.join(sports_valides)}",
             )
 
-        # Conversion de la date
-        try:
-            date_obj = datetime.strptime(date_activite, "%Y-%m-%d").date()
-        except ValueError:
-            raise HTTPException(
-                status_code=400, detail="Format de date invalide. Utilisez YYYY-MM-DD"
-            )
-
         # Validation des valeurs numériques
-        if distance <= 0:
+        if distance is None or distance <= 0:
             raise HTTPException(status_code=400, detail="La distance doit être positive")
         if duree is not None and duree <= 0:
             raise HTTPException(status_code=400, detail="La durée doit être positive")
@@ -195,20 +227,19 @@ def create_activity(
         # Création d'un dictionnaire au lieu d'objets métier
         activity_data = {
             "titre": titre,
-            "description": description,
+            "description": description or "",
             "sport": sport,
             "date_activite": date_obj,
-            "lieu": lieu,
+            "lieu": lieu or "",
             "distance": distance,
             "duree": duree,
             "id_user": current_user["id"]
         }
 
-
         # Enregistrement de l'activité
         activity_service = ActivityService()
         success = activity_service.creer_activite_from_dict(activity_data)
-        print(success)
+        
         if not success:
             raise HTTPException(status_code=500, detail="Erreur lors de la création de l'activité")
 
@@ -273,6 +304,8 @@ def delete_activity(activity_id: int, current_user: dict = Depends(get_current_u
 
     return {"message": f"Activité {activity_id} supprimée avec succès"}
 
+
+
 # ============================================================================
 # ENDPOINTS COMMENTAIRES
 # ============================================================================
@@ -288,12 +321,78 @@ def comment_activity(
         user_id = current_user["id"]
 
         success = commentaire_service.creer_commentaire(user_id, activity_id, contenu)
+        print(success)
         if not success:
             raise HTTPException(status_code=400, detail="Cannot create comment")
 
         return {"message": f"Comment added to activity {activity_id}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# ============================================================================
+# ENDPOINTS LIKES
+# ============================================================================
+
+
+@app.post("/activities/{activity_id}/like")
+def like_activity(activity_id: int, current_user: dict = Depends(get_current_user)):
+    """Liker une activité"""
+    try:
+        like_service = LikeService()
+        user_id = current_user["id"]
+
+        success = like_service.liker_activite(user_id, activity_id)
+        if not success:
+            raise HTTPException(status_code=400, detail="Cannot like activity (already liked)")
+
+        return {"message": f"Activity {activity_id} liked successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/activities/{activity_id}/like")
+def unlike_activity(activity_id: int, current_user: dict = Depends(get_current_user)):
+    """Retirer un like d'une activité"""
+    try:
+        like_service = LikeService()
+        user_id = current_user["id"]
+
+        success = like_service.unliker_activite(user_id, activity_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Like not found")
+
+        return {"message": f"Like removed from activity {activity_id}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/activities/{activity_id}/likes")
+def get_activity_likes(activity_id: int, current_user: dict = Depends(get_current_user)):
+    """Récupère les likes d'une activité"""
+    try:
+        like_service = LikeService()
+        likes = like_service.get_likes_activite(activity_id)
+        count = like_service.count_likes_activite(activity_id)
+
+        return {
+            "activity_id": activity_id,
+            "likes_count": count,
+            "likes": [
+                {
+                    "id_user": like.id_user,
+                    "date_like": like.date_like.isoformat()
+                    if hasattr(like.date_like, "isoformat")
+                    else str(like.date_like),
+                }
+                for like in likes
+            ],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 # ============================================================================
 # ENDPOINTS ParserGPX
