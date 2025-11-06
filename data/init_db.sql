@@ -15,7 +15,7 @@ CREATE TABLE utilisateur (
 -----------------------------------------------------
 DROP TABLE IF EXISTS activite CASCADE ;
 CREATE TABLE activite (
-    id          INTEGER PRIMARY KEY,
+    id          SERIAL PRIMARY KEY,
     titre       VARCHAR(256) NOT NULL,
     description VARCHAR(256),
     date_activite DATE NOT NULL,
