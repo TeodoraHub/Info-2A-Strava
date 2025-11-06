@@ -22,6 +22,8 @@ if "password" not in st.session_state:
     st.session_state.password = None
 if "user_info" not in st.session_state:
     st.session_state.user_info = None
+if "gpx_data" not in st.session_state:
+    st.session_state.gpx_data = None
 
 # Fonction d'authentification
 def get_auth():
@@ -104,13 +106,14 @@ else:
             st.session_state.username = None
             st.session_state.password = None
             st.session_state.user_info = None
+            st.session_state.gpx_data = None
             st.rerun()
         
         st.divider()
         
         menu = st.radio(
             "Navigation",
-            ["📊 Tableau de bord", "➕ Nouvelle activité", "📁 Upload GPX", "🔍 Mes activités"]
+            ["📊 Tableau de bord", "➕ Nouvelle activité", "🔍 Mes activités"]
         )
     
     # Contenu principal
@@ -121,56 +124,47 @@ else:
     elif menu == "➕ Nouvelle activité":
         st.title("Créer une nouvelle activité")
         
-        # Option d'import GPX
-        st.subheader("📁 Option 1: Importer depuis un fichier GPX")
-        uploaded_file = st.file_uploader("Charger un fichier GPX pour pré-remplir le formulaire", type=["gpx"], key="gpx_upload")
-        
-        # Initialiser les valeurs par défaut
-        if "gpx_data" not in st.session_state:
-            st.session_state.gpx_data = None
+        # Section d'import GPX
+        st.subheader("📁 Importer un fichier GPX (optionnel)")
+        uploaded_file = st.file_uploader("Choisir un fichier GPX pour pré-remplir le formulaire", type=["gpx"])
         
         if uploaded_file is not None:
             try:
-                files = {"file": (uploaded_file.name, uploaded_file, "application/gpx+xml")}
+                files = {"file": (uploaded_file.name, uploaded_file.getvalue(), "application/gpx+xml")}
                 response = requests.post(f"{API_URL}/upload-gpx", files=files)
                 
                 if response.status_code == 200:
                     st.session_state.gpx_data = response.json()
-                    st.success("✅ Fichier GPX analysé! Les données ont été extraites.")
-                    
-                    # Afficher un aperçu des données
-                    with st.expander("📊 Aperçu des données GPX", expanded=True):
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("Distance", f"{st.session_state.gpx_data.get('distance totale (km)', 0):.2f} km")
-                        with col2:
-                            st.metric("Durée", f"{st.session_state.gpx_data.get('temps en mouvement (min)', 0):.1f} min")
-                        with col3:
-                            st.metric("Vitesse moy.", f"{st.session_state.gpx_data.get('vitesse moyenne (km/h)', 0):.2f} km/h")
+                    st.success("✅ Fichier GPX analysé! Les données ont été chargées dans le formulaire ci-dessous.")
                 else:
                     st.error("Erreur lors de l'analyse du fichier GPX")
+                    st.session_state.gpx_data = None
             except Exception as e:
                 st.error(f"Erreur: {str(e)}")
+                st.session_state.gpx_data = None
+        
+        if st.session_state.gpx_data and st.button("🗑️ Effacer les données GPX"):
+            st.session_state.gpx_data = None
+            st.rerun()
         
         st.divider()
-        st.subheader("✏️ Option 2: Remplir manuellement le formulaire")
         
-        # Pré-remplir avec les données GPX si disponibles
-        gpx_data = st.session_state.gpx_data
-        default_titre = gpx_data.get("nom", "") if gpx_data and gpx_data.get("nom") else ""
-        default_sport = "course"  # Par défaut
-        if gpx_data and gpx_data.get("type"):
-            sport_map = {
-                "running": "course",
-                "cycling": "cyclisme",
-                "ride": "cyclisme",
-                "swimming": "natation",
-                "hiking": "randonnee"
-            }
-            default_sport = sport_map.get(gpx_data.get("type", "").lower(), "course")
+        # Pré-remplir les valeurs avec les données GPX si disponibles
+        gpx = st.session_state.gpx_data or {}
         
-        default_distance = gpx_data.get("distance totale (km)", 0.0) if gpx_data else 0.0
-        default_duree = gpx_data.get("temps en mouvement (min)", 0.0) if gpx_data else 0.0
+        # Mapping du type GPX vers les types de sport
+        type_mapping = {
+            "running": "course",
+            "cycling": "cyclisme",
+            "swimming": "natation",
+            "hiking": "randonnee"
+        }
+        
+        default_titre = gpx.get("nom") or ""
+        default_sport_gpx = gpx.get("type", "").lower()
+        default_sport = type_mapping.get(default_sport_gpx, "course")
+        default_distance = gpx.get("distance totale (km)", 0.1)
+        default_duree = gpx.get("temps en mouvement (min)", 0.0)
         
         with st.form("activity_form"):
             col1, col2 = st.columns(2)
@@ -181,12 +175,14 @@ else:
                     value=default_titre,
                     placeholder="Ex: Course matinale"
                 )
-                sport = st.selectbox(
-                    "Type de sport*", 
-                    ["course", "cyclisme", "natation", "randonnee"],
-                    index=["course", "cyclisme", "natation", "randonnee"].index(default_sport)
-                )
+                
+                # Index du sport par défaut
+                sports_list = ["course", "cyclisme", "natation", "randonnee"]
+                sport_index = sports_list.index(default_sport) if default_sport in sports_list else 0
+                sport = st.selectbox("Type de sport*", sports_list, index=sport_index)
+                
                 date_activite = st.date_input("Date*", value=date.today())
+                
                 distance = st.number_input(
                     "Distance (km)*", 
                     min_value=0.1, 
@@ -196,77 +192,61 @@ else:
             
             with col2:
                 lieu = st.text_input("Lieu*", placeholder="Ex: Parc de la ville")
+                
                 duree = st.number_input(
                     "Durée (minutes)", 
                     min_value=0.0, 
-                    step=1.0, 
+                    step=1.0,
                     value=float(default_duree) if default_duree > 0 else 0.0
                 )
+                
                 description = st.text_area("Description", placeholder="Décrivez votre activité...")
             
-            submit = st.form_submit_button("Créer l'activité")
+            # Afficher un résumé des données GPX si disponibles
+            if st.session_state.gpx_data:
+                st.info(f"""
+                📊 **Données du fichier GPX:**
+                - Vitesse moyenne: {gpx.get('vitesse moyenne (km/h)', 0):.2f} km/h
+                - Vitesse max: {gpx.get('vitesse max (km/h)', 0):.2f} km/h
+                - Distance en mouvement: {gpx.get('distance en mouvement (km)', 0):.2f} km
+                """)
+            
+            submit = st.form_submit_button("Créer l'activité", type="primary")
             
             if submit:
                 if not titre or not lieu:
                     st.error("Veuillez remplir tous les champs obligatoires (*)")
                 else:
                     try:
+                        # Préparer les paramètres
+                        params = {
+                            "titre": titre,
+                            "description": description or "",
+                            "sport": sport,
+                            "date_activite": date_activite.strftime("%Y-%m-%d"),
+                            "lieu": lieu,
+                            "distance": distance,
+                        }
+                        
+                        # Ajouter la durée seulement si elle est définie
+                        if duree and duree > 0:
+                            params["duree"] = duree
+                        
                         response = requests.post(
                             f"{API_URL}/activities",
-                            params={
-                                "titre": titre,
-                                "description": description or "",
-                                "sport": sport,
-                                "date_activite": date_activite.strftime("%Y-%m-%d"),
-                                "lieu": lieu,
-                                "distance": distance,
-                                "duree": duree if duree and duree > 0 else None
-                            },
+                            params=params,
                             auth=get_auth()
                         )
+                        
                         if response.status_code == 200:
                             st.success("✅ Activité créée avec succès!")
                             st.balloons()
-                            # Réinitialiser les données GPX
+                            # Réinitialiser les données GPX après création
                             st.session_state.gpx_data = None
                         else:
                             st.error(f"Erreur: {response.json().get('detail', 'Erreur inconnue')}")
                     except Exception as e:
                         st.error(f"Erreur lors de la création: {str(e)}")
-    
-    elif menu == "📁 Upload GPX":
-        st.title("Importer un fichier GPX")
-        st.write("Uploadez un fichier GPX pour extraire automatiquement les données de votre activité")
-        
-        uploaded_file = st.file_uploader("Choisir un fichier GPX", type=["gpx"])
-        
-        if uploaded_file is not None:
-            try:
-                files = {"file": (uploaded_file.name, uploaded_file, "application/gpx+xml")}
-                response = requests.post(f"{API_URL}/upload-gpx", files=files)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    st.success("Fichier GPX analysé avec succès!")
-                    
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.metric("Nom", data.get("nom", "N/A"))
-                        st.metric("Type", data.get("type", "N/A"))
-                        st.metric("Distance totale", f"{data.get('distance totale (km)', 0):.2f} km")
-                        st.metric("Durée totale", f"{data.get('durée totale (min)', 0):.1f} min")
-                    
-                    with col2:
-                        st.metric("Temps en mouvement", f"{data.get('temps en mouvement (min)', 0):.1f} min")
-                        st.metric("Distance en mouvement", f"{data.get('distance en mouvement (km)', 0):.2f} km")
-                        st.metric("Vitesse moyenne", f"{data.get('vitesse moyenne (km/h)', 0):.2f} km/h")
-                        st.metric("Vitesse max", f"{data.get('vitesse max (km/h)', 0):.2f} km/h")
-                    
-                    st.info("💡 Vous pouvez maintenant créer une activité avec ces données dans l'onglet 'Nouvelle activité'")
-                else:
-                    st.error("Erreur lors de l'analyse du fichier GPX")
-            except Exception as e:
-                st.error(f"Erreur: {str(e)}")
     
     elif menu == "🔍 Mes activités":
         st.title("Mes activités")
