@@ -4,6 +4,7 @@ import gpxpy
 from fastapi import Depends, FastAPI, HTTPException, status, UploadFile, File
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
+from service.utilisateur_service import UtilisateurService
 
 # Imports des services
 from service.activity_service import ActivityService
@@ -39,121 +40,34 @@ def parse_strava_gpx(content):
 
 # ATTENTION: Ceci est une authentification basique pour le développement
 # En production, utiliser JWT tokens et base de données réelle
-USERS = {
-    "alice": {"password": "wonderland", "roles": ["admin"], "id": 1},
-    "bob": {"password": "builder", "roles": ["user"], "id": 2},
-}
 
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-class LoginResponse(BaseModel):
-    message: str
-    user: dict
-    access_token: str = "dummy_token"  # Pour compatibilité Swagger
-
-@app.post("/login", response_model=LoginResponse)
-def login(credentials: LoginRequest):
+@app.post("/login")
+def login(username: str, password: str):
     """
-    Endpoint de connexion
-    
-    Parameters:
-    - username: Nom d'utilisateur (alice ou bob)
-    - password: Mot de passe (wonderland ou builder)
+    Authentifie un utilisateur via paramètres simples :
     """
-    username = credentials.username
-    password = credentials.password
-    user = USERS.get(username)
-    
-    if not user or not secrets.compare_digest(password, user["password"]):
+
+    user_service = UtilisateurService()
+
+    user = user_service.se_connecter(
+        nom_user=username,
+        mdp=password
+    )
+
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Nom d'utilisateur ou mot de passe incorrect",
+            detail="Nom d'utilisateur ou mot de passe incorrect"
         )
-    
+
     return {
         "message": "Connexion réussie",
         "user": {
-            "username": username,
-            "id": user["id"],
-            "roles": user["roles"]
-        },
-        "access_token": "dummy_token_for_swagger"
+            "id": user.id_user,
+            "username": user.nom_user,
+            "email": user.mail_user,
+        }
     }
-
-
-FAKE_ACTIVITIES = [
-    {
-        "id": 1,
-        "titre": "Footing matinal",
-        "description": "Course tranquille au parc",
-        "sport": "course",
-        "date_activite": "2025-11-01",
-        "lieu": "Parc Central",
-        "distance": 5.0,
-        "duree": 0.5,
-        "id_user": 1,
-    },
-    {
-        "id": 2,
-        "titre": "Balade à vélo",
-        "description": "Tour de la ville en vélo",
-        "sport": "cyclisme",
-        "date_activite": "2025-11-03",
-        "lieu": "Centre-ville",
-        "distance": 20.0,
-        "duree": 1.0,
-        "id_user": 2,
-    },
-    {
-        "id": 3,
-        "titre": "Séance natation",
-        "description": "Entraînement intensif 1000m",
-        "sport": "natation",
-        "date_activite": "2025-11-05",
-        "lieu": "Piscine municipale",
-        "distance": 1.0,
-        "duree": 0.4,
-        "id_user": 1,
-    },
-    {
-        "id": 4,
-        "titre": "Randonnée en montagne",
-        "description": "Montée et descente du sentier rouge",
-        "sport": "randonnee",
-        "date_activite": "2025-11-07",
-        "lieu": "Montagne Bleue",
-        "distance": 10.0,
-        "duree": 2.0,
-        "id_user": 2,
-    },
-    {
-        "id": 5,
-        "titre": "Course rapide",
-        "description": "Sprint sur 3 km",
-        "sport": "course",
-        "date_activite": "2025-11-09",
-        "lieu": "Stade municipal",
-        "distance": 3.0,
-        "duree": 0.25,
-        "id_user": 1,
-    },
-]
-
-
-def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
-    """Authentification basique de l'utilisateur"""
-    username = credentials.username
-    password = credentials.password
-    user = USERS.get(username)
-    if not user or not secrets.compare_digest(password, user["password"]):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return user
 
 
 # ============================================================================
@@ -206,7 +120,31 @@ def create_user(nom_user: str, mail_user: str, mdp: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la création: {str(e)}")
 
+security = HTTPBasic()
 
+def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
+    """
+    Authentifie un utilisateur via Authorization: Basic ... sur chaque requête
+    """
+    user_service = UtilisateurService()
+
+    user = user_service.se_connecter(
+        nom_user=credentials.username,
+        mdp=credentials.password
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Identifiants invalides",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return {
+        "id": user.id_user,
+        "username": user.nom_user,
+        "email": user.mail_user
+    }
 
 
 
@@ -373,17 +311,20 @@ def get_activity(activity_id: int, current_user: dict = Depends(get_current_user
 
 @app.delete("/activities/{activity_id}")
 def delete_activity(activity_id: int, current_user: dict = Depends(get_current_user)):
-    """Supprime une activité"""
-    try:
-        activity_service = ActivityService()
-        success = activity_service.supprimer_activite(activity_id)
+    activity_service = ActivityService()
+    activity = activity_service.get_activite_by_id(activity_id)
 
-        if not success:
-            raise HTTPException(status_code=404, detail="Activity not found or cannot be deleted")
+    if not activity:
+        raise HTTPException(status_code=404, detail="Activity not found")
 
-        return {"message": f"Activity {activity_id} deleted successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    if activity.id_user != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Vous n'êtes pas le propriétaire de cette activité")
+
+    success = activity_service.supprimer_activite(activity_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="Impossible de supprimer l'activité")
+
+    return {"message": f"Activité {activity_id} supprimée avec succès"}
 
 # ============================================================================
 # ENDPOINTS COMMENTAIRES
