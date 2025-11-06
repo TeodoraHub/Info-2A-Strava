@@ -1,3 +1,4 @@
+#streamlit run app_streamlit.py --server.port=8501 --server.address=0.0.0.0
 import streamlit as st
 import requests
 from datetime import date
