@@ -1,5 +1,5 @@
 import os
-
+from pathlib import Path
 import dotenv
 import psycopg2
 from dotenv import load_dotenv
@@ -9,17 +9,23 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 from utils.singleton import Singleton
 
-load_dotenv(dotenv_path="P:/Projet info 2A/Info-2A-Strava/.env")
+# Charger le .env depuis la racine du projet
+dotenv_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(dotenv_path=dotenv_path, override=True)
+
+# load_dotenv(dotenv_path="P:/Projet info 2A/Info-2A-Strava/.env")
 
 
 class DBConnection(metaclass=Singleton):
     """
-    Technical class to open only one connection to the DB.
+    Connexion unique à la base de données PostgreSQL
     """
 
     def __init__(self):
         dotenv.load_dotenv(override=True)
-        # Open the connection with psycopg2
+        # Récupérer le schéma
+        schema = os.environ.get("POSTGRES_SCHEMA", "public")
+        # Connexion avec options pour définir le search_path
         self.__connection = psycopg2.connect(
             host=os.environ["POSTGRES_HOST"],
             port=os.environ["POSTGRES_PORT"],
@@ -27,6 +33,7 @@ class DBConnection(metaclass=Singleton):
             user=os.environ["POSTGRES_USER"],
             password=os.environ["POSTGRES_PASSWORD"],
             cursor_factory=RealDictCursor,
+            options=f"-c search_path={schema}"
         )
 
         # Create SQLAlchemy engine for ORM operations
@@ -63,3 +70,15 @@ class DBConnection(metaclass=Singleton):
         :return: the SQLAlchemy session.
         """
         return self.__Session()
+
+    def close_session(self):
+        """ Ferme la session SQLAlchemy """
+
+        self.__Session.remove()
+
+    def __del__(self):
+        """Nettoyage à la destruction de l'objet"""
+        if hasattr(self, '_DBConnection__connection'):
+            self.__connection.close()
+        if hasattr(self, '_DBConnection__Session'):
+            self.__Session.remove()

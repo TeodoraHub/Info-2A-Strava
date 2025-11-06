@@ -20,8 +20,6 @@ import uvicorn
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
-
-
 def main():
     """Lance le serveur uvicorn avec l'application FastAPI"""
 

@@ -1,9 +1,11 @@
 import os
-import sys 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(project_root)
 from utils.singleton import Singleton 
 from dao.db_connection import DBConnection
+import sys 
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(project_root)
+
 
 class ResetDatabase(metaclass=Singleton):
     """
@@ -32,10 +34,17 @@ class ResetDatabase(metaclass=Singleton):
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
+                    print("📝 Exécution de init_db.sql...")
                     cursor.execute(init_db_as_string)
+
+                    print("📝 Exécution de pop_db.sql...")
                     cursor.execute(pop_db_as_string)
+
+                connection.commit()
+                print("✅ Base de données réinitialisée avec succès!")   
+
         except Exception as e:
-            print(e)
+            print(f"❌ Erreur lors de la réinitialisation: {e}")
             raise
 
         print("Ré-initialisation de la base de données - Terminée")
