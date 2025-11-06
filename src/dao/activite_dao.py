@@ -34,11 +34,13 @@ class ActivityDAO:
 
     def get_by_id(self, activity_id: int) -> Optional[object]:
         """Récupère une activité par son ID."""
-        return (
+        value = (
             self.db.query(self.activity_base_cls)
             .filter(self.activity_base_cls.id == activity_id)
             .first()
         )
+        print(value)
+        return value
 
     def get_by_user(self, user_id: int, type_activite: str = None) -> List[object]:
         """Récupère toutes les activités d'un utilisateur, optionnellement filtrées par type."""

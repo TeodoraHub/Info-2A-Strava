@@ -53,7 +53,7 @@ class ActivityService(metaclass=Singleton):
                 date_activite=activity_data["date_activite"],
                 lieu=activity_data["lieu"],
                 distance=activity_data["distance"],
-                duree=activity_data.get("duree"),
+                duree=activity_data["duree"],
                 id_user=activity_data["id_user"]
             )
 

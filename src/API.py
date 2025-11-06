@@ -205,10 +205,11 @@ def create_activity(
             "id_user": current_user["id"]
         }
 
+
         # Enregistrement de l'activité
         activity_service = ActivityService()
         success = activity_service.creer_activite_from_dict(activity_data)
-
+        print(success)
         if not success:
             raise HTTPException(status_code=500, detail="Erreur lors de la création de l'activité")
 
@@ -235,7 +236,7 @@ def get_activity(activity_id: int, current_user: dict = Depends(get_current_user
     try:
         activity_service = ActivityService()
         activity = activity_service.get_activite_by_id(activity_id)
-
+        print(activity)
         if not activity:
             raise HTTPException(status_code=404, detail="Activity not found")
 

@@ -20,7 +20,7 @@ CREATE TABLE activite (
     description VARCHAR(256),
     date_activite DATE NOT NULL,
     lieu        VARCHAR(256),
-    duree       TIME,
+    duree       FLOAT,
     distance    FLOAT,
     sport       VARCHAR(256),
     detail_sport VARCHAR(256),
