@@ -15,12 +15,27 @@ class ActivityService(metaclass=Singleton):
 
     @log
     def creer_activite(self, activity) -> bool:
-        """Créer une nouvelle activité
+        """Crée une activité à partir d'un business object"""
+        activity_data = {
+            "titre": activity.titre,
+            "description": activity.description,
+            "sport": activity.sport,
+            "date_activite": activity.date_activite,
+            "lieu": activity.lieu,
+            "distance": activity.distance,
+            "duree": activity.duree,
+            "id_user": activity.id_user
+        }
+        return self.creer_activite_from_dict(activity_data)
+
+    @log
+    def creer_activite_from_dict(self, activity_data: dict) -> bool:
+        """Crée une activité à partir d'un dictionnaire
 
         Parameters
         ----------
-        activity : AbstractActivity
-            l'activité à créer
+        activity_data : dict
+            Dictionnaire contenant les données de l'activité
 
         Returns
         -------
@@ -28,7 +43,22 @@ class ActivityService(metaclass=Singleton):
             True si la création est réussie
         """
         try:
-            result = self.activity_dao.save(activity)
+            from dao.activity_model import ActivityModel
+
+            # Créer le modèle ORM
+            activity_model = ActivityModel(
+                titre=activity_data["titre"],
+                description=activity_data["description"],
+                sport=activity_data["sport"],
+                date_activite=activity_data["date_activite"],
+                lieu=activity_data["lieu"],
+                distance=activity_data["distance"],
+                duree=activity_data.get("duree"),
+                id_user=activity_data["id_user"]
+            )
+
+            # Utiliser le DAO existant pour sauvegarder
+            result = self.activity_dao.save(activity_model)
             return result is not None
         except Exception as e:
             logging.error(f"Erreur lors de la création de l'activité: {e}")

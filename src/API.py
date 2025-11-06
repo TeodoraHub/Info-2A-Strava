@@ -167,24 +167,9 @@ def create_activity(
     duree: float = None,
     current_user: dict = Depends(get_current_user),
 ):
-    """Créer une nouvelle activité
-
-    Parameters:
-    - titre: Titre de l'activité
-    - description: Description de l'activité
-    - sport: Type de sport (course, cyclisme, natation, randonnee)
-    - date_activite: Date de l'activité au format YYYY-MM-DD
-    - lieu: Lieu de l'activité
-    - distance: Distance en km
-    - duree: Durée en heures (optionnel)
-    """
+    """Créer une nouvelle activité"""
     try:
         from datetime import datetime
-
-        from business_object.Activity_object.course_a_pieds import CoursePied
-        from business_object.Activity_object.cyclisme import Cyclisme
-        from business_object.Activity_object.natation import Natation
-        from business_object.Activity_object.randonnee import Randonnee
 
         # Validation du type de sport
         sports_valides = ["course", "cyclisme", "natation", "randonnee"]
@@ -208,58 +193,21 @@ def create_activity(
         if duree is not None and duree <= 0:
             raise HTTPException(status_code=400, detail="La durée doit être positive")
 
-        # Création de l'activité selon le type
-        user_id = current_user["id"]
-
-        # Note: id_activite sera None car il sera auto-généré par la base de données
-        if sport == "course":
-            activity = CoursePied(
-                id_activite=None,
-                titre=titre,
-                description=description,
-                date_activite=date_obj,
-                lieu=lieu,
-                distance=distance,
-                id_user=user_id,
-                duree=duree,
-            )
-        elif sport == "cyclisme":
-            activity = Cyclisme(
-                id_activite=None,
-                titre=titre,
-                description=description,
-                date_activite=date_obj,
-                lieu=lieu,
-                distance=distance,
-                id_user=user_id,
-                duree=duree,
-            )
-        elif sport == "natation":
-            activity = Natation(
-                id_activite=None,
-                titre=titre,
-                description=description,
-                date_activite=date_obj,
-                lieu=lieu,
-                distance=distance,
-                id_user=user_id,
-                duree=duree,
-            )
-        elif sport == "randonnee":
-            activity = Randonnee(
-                id_activite=None,
-                titre=titre,
-                description=description,
-                date_activite=date_obj,
-                lieu=lieu,
-                distance=distance,
-                id_user=user_id,
-                duree=duree,
-            )
+        # Création d'un dictionnaire au lieu d'objets métier
+        activity_data = {
+            "titre": titre,
+            "description": description,
+            "sport": sport,
+            "date_activite": date_obj,
+            "lieu": lieu,
+            "distance": distance,
+            "duree": duree,
+            "id_user": current_user["id"]
+        }
 
         # Enregistrement de l'activité
         activity_service = ActivityService()
-        success = activity_service.creer_activite(activity)
+        success = activity_service.creer_activite_from_dict(activity_data)
 
         if not success:
             raise HTTPException(status_code=500, detail="Erreur lors de la création de l'activité")
@@ -267,12 +215,12 @@ def create_activity(
         return {
             "message": "Activité créée avec succès",
             "activity": {
-                "titre": activity.titre,
-                "sport": activity.sport,
-                "date_activite": activity.date_activite.isoformat(),
-                "distance": activity.distance,
-                "duree": activity.duree,
-                "lieu": activity.lieu,
+                "titre": titre,
+                "sport": sport,
+                "date_activite": date_obj.isoformat(),
+                "distance": distance,
+                "duree": duree,
+                "lieu": lieu,
             },
         }
 
@@ -280,7 +228,6 @@ def create_activity(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la création: {str(e)}")
-
 
 @app.get("/activities/{activity_id}")
 def get_activity(activity_id: int, current_user: dict = Depends(get_current_user)):
