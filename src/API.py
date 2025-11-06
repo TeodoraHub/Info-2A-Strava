@@ -8,6 +8,7 @@ from service.utilisateur_service import UtilisateurService
 
 # Imports des services
 from service.activity_service import ActivityService
+from service.commentaire_service import CommentaireService
 
 app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8001")
 security = HTTPBasic()
@@ -274,6 +275,8 @@ def delete_activity(activity_id: int, current_user: dict = Depends(get_current_u
 
     return {"message": f"Activité {activity_id} supprimée avec succès"}
 
+
+
 # ============================================================================
 # ENDPOINTS COMMENTAIRES
 # ============================================================================
@@ -289,12 +292,78 @@ def comment_activity(
         user_id = current_user["id"]
 
         success = commentaire_service.creer_commentaire(user_id, activity_id, contenu)
+        print(success)
         if not success:
             raise HTTPException(status_code=400, detail="Cannot create comment")
 
         return {"message": f"Comment added to activity {activity_id}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# ============================================================================
+# ENDPOINTS LIKES
+# ============================================================================
+
+
+@app.post("/activities/{activity_id}/like")
+def like_activity(activity_id: int, current_user: dict = Depends(get_current_user)):
+    """Liker une activité"""
+    try:
+        like_service = LikeService()
+        user_id = current_user["id"]
+
+        success = like_service.liker_activite(user_id, activity_id)
+        if not success:
+            raise HTTPException(status_code=400, detail="Cannot like activity (already liked)")
+
+        return {"message": f"Activity {activity_id} liked successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/activities/{activity_id}/like")
+def unlike_activity(activity_id: int, current_user: dict = Depends(get_current_user)):
+    """Retirer un like d'une activité"""
+    try:
+        like_service = LikeService()
+        user_id = current_user["id"]
+
+        success = like_service.unliker_activite(user_id, activity_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Like not found")
+
+        return {"message": f"Like removed from activity {activity_id}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/activities/{activity_id}/likes")
+def get_activity_likes(activity_id: int, current_user: dict = Depends(get_current_user)):
+    """Récupère les likes d'une activité"""
+    try:
+        like_service = LikeService()
+        likes = like_service.get_likes_activite(activity_id)
+        count = like_service.count_likes_activite(activity_id)
+
+        return {
+            "activity_id": activity_id,
+            "likes_count": count,
+            "likes": [
+                {
+                    "id_user": like.id_user,
+                    "date_like": like.date_like.isoformat()
+                    if hasattr(like.date_like, "isoformat")
+                    else str(like.date_like),
+                }
+                for like in likes
+            ],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 # ============================================================================
 # ENDPOINTS ParserGPX

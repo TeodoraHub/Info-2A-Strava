@@ -37,10 +37,10 @@ CREATE TABLE commentaire (
     id_comment  INTEGER PRIMARY KEY,
     contenu     VARCHAR(256) NOT NULL,
     date_comment TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    id_user     INTEGER NOT NULL,
-    id          INTEGER NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES utilisateur(id_user),
-    FOREIGN KEY (id) REFERENCES activite(id)
+    id_utilisateur     INTEGER NOT NULL,
+    id_activite      INTEGER NOT NULL,
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_user),
+    FOREIGN KEY (id_activite) REFERENCES activite(id)
 );
 
 

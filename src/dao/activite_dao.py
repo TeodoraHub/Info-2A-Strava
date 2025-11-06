@@ -18,9 +18,6 @@ class ActivityDAO:
         # self.db = DBConnection().connection
         # On Utilise la session SQLAlchemy, pas la connexion psycopg2
         self.db = DBConnection().session  
-        
-        # ✅ Classe activité pour le mapping ORM (CoursePied, Cyclisme, etc.)
-        self.activity_base_cls = activity_base_cls
 
         # ✅ Classe activité pour le mapping ORM (CoursePied, Cyclisme, etc.)
         self.activity_base_cls = activity_base_cls
