@@ -3,6 +3,7 @@ import gpxpy
 
 from fastapi import Depends, FastAPI, HTTPException, status, UploadFile, File
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from pydantic import BaseModel
 
 # Imports des services
 from service.activity_service import ActivityService
@@ -42,6 +43,46 @@ USERS = {
     "alice": {"password": "wonderland", "roles": ["admin"], "id": 1},
     "bob": {"password": "builder", "roles": ["user"], "id": 2},
 }
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    message: str
+    user: dict
+    access_token: str = "dummy_token"  # Pour compatibilité Swagger
+
+@app.post("/login", response_model=LoginResponse)
+def login(credentials: LoginRequest):
+    """
+    Endpoint de connexion
+    
+    Parameters:
+    - username: Nom d'utilisateur (alice ou bob)
+    - password: Mot de passe (wonderland ou builder)
+    """
+    username = credentials.username
+    password = credentials.password
+    user = USERS.get(username)
+    
+    if not user or not secrets.compare_digest(password, user["password"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nom d'utilisateur ou mot de passe incorrect",
+        )
+    
+    return {
+        "message": "Connexion réussie",
+        "user": {
+            "username": username,
+            "id": user["id"],
+            "roles": user["roles"]
+        },
+        "access_token": "dummy_token_for_swagger"
+    }
+
+
 FAKE_ACTIVITIES = [
     {
         "id": 1,

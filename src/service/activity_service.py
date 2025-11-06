@@ -1,7 +1,6 @@
 import logging
 
 from dao.activite_dao import ActivityDAO
-
 from dao.suivi_dao import SuiviDAO
 from utils.log_decorator import log
 from utils.singleton import Singleton
@@ -12,6 +11,7 @@ class ActivityService(metaclass=Singleton):
 
     def __init__(self):
         self.suivi_dao = SuiviDAO()
+        self.activity_dao = ActivityDAO()
 
     @log
     def creer_activite(self, activity) -> bool:
