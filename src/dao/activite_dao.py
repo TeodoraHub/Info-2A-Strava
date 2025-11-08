@@ -1,6 +1,6 @@
 from typing import List, Optional
+from business_object.Activity_object.abstract_activity import AbstractActivity
 from dao.db_connection import DBConnection
-from utils.session import Session
 
 
 class ActivityDAO:
@@ -9,18 +9,14 @@ class ActivityDAO:
     La table doit contenir un champ 'type' pour différencier les sous-classes.
     """
 
-    def __init__(self, activity_base_cls=None):
-        """
-        Initialise le DAO avec une connexion récupérée auto via Singleton
-        """
+    def __init__(self, db_session=None, activity_base_cls=None):
+        """Initialise le DAO avec une session SQLAlchemy."""
 
-        # ✅ Récupération automatique de la connexion PostgreSQL
-        # self.db = DBConnection().connection
-        # On Utilise la session SQLAlchemy, pas la connexion psycopg2
-        self.db = DBConnection().session  
-
-        # ✅ Classe activité pour le mapping ORM (CoursePied, Cyclisme, etc.)
-        self.activity_base_cls = activity_base_cls
+        if db_session is None and activity_base_cls is None:
+            self.db = DBConnection().session
+        else:
+            self.db = db_session
+        self.activity_base_cls = activity_base_cls or AbstractActivity
 
     def save(self, activity) -> object:
         """Enregistre une activité dans la base de données."""
@@ -31,13 +27,17 @@ class ActivityDAO:
 
     def get_by_id(self, activity_id: int) -> Optional[object]:
         """Récupère une activité par son ID."""
-        value = (
+        id_column = getattr(self.activity_base_cls, "id_activite", None)
+        if id_column is None:
+            id_column = getattr(self.activity_base_cls, "id", None)
+        if id_column is None:
+            raise AttributeError("La classe d'activité ne définit pas de colonne d'identifiant")
+
+        return (
             self.db.query(self.activity_base_cls)
-            .filter(self.activity_base_cls.id == activity_id)
+            .filter(id_column == activity_id)
             .first()
         )
-        print(value)
-        return value
 
     def get_by_user(self, user_id: int, type_activite: str = None) -> List[object]:
         """Récupère toutes les activités d'un utilisateur, optionnellement filtrées par type."""

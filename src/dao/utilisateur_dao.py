@@ -1,7 +1,5 @@
 import logging
-
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
+from typing import List, Optional
 
 from business_object.user_object.utilisateur import Utilisateur
 from dao.db_connection import DBConnection
@@ -10,174 +8,157 @@ from utils.singleton import Singleton
 
 
 class UtilisateurDAO(metaclass=Singleton):
-    """Classe contenant les méthodes pour accéder aux Utilisateurs de la base de données via SQLAlchemy"""
-
-    def __init__(self):
-        # Récupération de la session SQLAlchemy via sessionmaker
-        self.Session = sessionmaker(bind=DBConnection().engine)
+    """Accès aux utilisateurs stockés en base via psycopg2."""
 
     @log
-    def creer(self, utilisateur) -> bool:
-        """Création d'un utilisateur dans la base de données
+    def creer(self, utilisateur: Utilisateur) -> bool:
+        """Insère un utilisateur et alimente son identifiant."""
 
-        Parameters
-        ----------
-        utilisateur : Utilisateur
-
-        Returns
-        -------
-        created : bool
-            True si la création est un succès
-            False sinon
-        """
-        session = self.Session()
         try:
-            session.add(utilisateur)  # Ajoute l'utilisateur à la session
-            session.commit()  # Valide la transaction
-            session.refresh(utilisateur)
-            return True
-        except SQLAlchemyError as e:
-            session.rollback()  # Annule la transaction en cas d'erreur
-            logging.error(f"Erreur lors de la création de l'utilisateur : {e}")
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        INSERT INTO utilisateur (nom_user, mail_user, mdp)
+                        VALUES (%s, %s, %s)
+                        RETURNING id_user
+                        """,
+                        (utilisateur.nom_user, utilisateur.mail_user, utilisateur.mdp),
+                    )
+                    row = cursor.fetchone()
+                    if row and row.get("id_user") is not None:
+                        utilisateur.id_user = row["id_user"]
+                        connection.commit()
+                        return True
+                    connection.rollback()
+                    return False
+        except Exception as exc:  # pragma: no cover - log + retour contrôlé
+            logging.error("Erreur lors de la création de l'utilisateur : %s", exc)
             return False
-        finally:
-            session.close()
 
     @log
-    def trouver_par_id(self, id_user) -> Utilisateur:
-        """Trouver un utilisateur grâce à son ID
+    def trouver_par_id(self, id_user: int) -> Optional[Utilisateur]:
+        """Retourne un utilisateur par son identifiant."""
 
-        Parameters
-        ----------
-        id_user : int
-            Identifiant de l'utilisateur à chercher
-
-        Returns
-        -------
-        utilisateur : Utilisateur
-            L'utilisateur trouvé, ou None si non trouvé
-        """
-        session = self.Session()
         try:
-            utilisateur = session.query(Utilisateur).filter_by(id_user=id_user).first()
-            return utilisateur
-        except SQLAlchemyError as e:
-            logging.error(f"Erreur lors de la recherche de l'utilisateur : {e}")
-            return None
-        finally:
-            session.close()
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT id_user, nom_user, mail_user, mdp
+                        FROM utilisateur
+                        WHERE id_user = %s
+                        """,
+                        (id_user,),
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        return Utilisateur(
+                            id_user=row.get("id_user"),
+                            nom_user=row.get("nom_user"),
+                            mail_user=row.get("mail_user"),
+                            mdp=row.get("mdp"),
+                        )
+        except Exception as exc:  # pragma: no cover - log + retour contrôlé
+            logging.error("Erreur lors de la recherche de l'utilisateur : %s", exc)
+        return None
 
     @log
-    def lister_tous(self) -> list[Utilisateur]:
-        """Lister tous les utilisateurs
+    def lister_tous(self) -> List[Utilisateur]:
+        """Liste l'ensemble des utilisateurs."""
 
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        liste_utilisateurs : list[Utilisateur]
-            Liste de tous les utilisateurs dans la base de données
-        """
-        session = self.Session()
         try:
-            utilisateurs = session.query(Utilisateur).all()
-            return utilisateurs
-        except SQLAlchemyError as e:
-            logging.error(f"Erreur lors de la récupération des utilisateurs : {e}")
-            return []
-        finally:
-            session.close()
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT id_user, nom_user, mail_user, mdp FROM utilisateur"
+                    )
+                    rows = cursor.fetchall() or []
+                    return [
+                        Utilisateur(
+                            id_user=row.get("id_user"),
+                            nom_user=row.get("nom_user"),
+                            mail_user=row.get("mail_user"),
+                            mdp=row.get("mdp"),
+                        )
+                        for row in rows
+                    ]
+        except Exception as exc:  # pragma: no cover - log + retour contrôlé
+            logging.error("Erreur lors de la récupération des utilisateurs : %s", exc)
+        return []
 
     @log
-    def modifier(self, utilisateur) -> bool:
-        """Modification d'un utilisateur dans la base de données
+    def modifier(self, utilisateur: Utilisateur) -> bool:
+        """Met à jour un utilisateur existant."""
 
-        Parameters
-        ----------
-        utilisateur : Utilisateur
-
-        Returns
-        -------
-        modified : bool
-            True si la modification a été réussie
-            False sinon
-        """
-        session = self.Session()
         try:
-            existing_user = (
-                session.query(Utilisateur).filter_by(id_user=utilisateur.id_user).first()
-            )
-            if existing_user:
-                existing_user.nom_user = utilisateur.nom_user
-                existing_user.mail_user = utilisateur.mail_user
-                existing_user.mdp = utilisateur.mdp
-                session.commit()
-                return True
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        UPDATE utilisateur
+                        SET nom_user = %s, mail_user = %s, mdp = %s
+                        WHERE id_user = %s
+                        """,
+                        (
+                            utilisateur.nom_user,
+                            utilisateur.mail_user,
+                            utilisateur.mdp,
+                            utilisateur.id_user,
+                        ),
+                    )
+                    if getattr(cursor, "rowcount", 0) > 0:
+                        connection.commit()
+                        return True
+                    connection.rollback()
+                    return False
+        except Exception as exc:  # pragma: no cover - log + retour contrôlé
+            logging.error("Erreur lors de la modification de l'utilisateur : %s", exc)
             return False
-        except SQLAlchemyError as e:
-            session.rollback()
-            logging.error(f"Erreur lors de la modification de l'utilisateur : {e}")
-            return False
-        finally:
-            session.close()
 
     @log
-    def supprimer(self, utilisateur) -> bool:
-        """Suppression d'un utilisateur dans la base de données
+    def supprimer(self, utilisateur: Utilisateur) -> bool:
+        """Supprime un utilisateur."""
 
-        Parameters
-        ----------
-        utilisateur : Utilisateur
-            Utilisateur à supprimer
-
-        Returns
-        -------
-        bool : True si l'utilisateur a été supprimé, False sinon
-        """
-        session = self.Session()
         try:
-            existing_user = (
-                session.query(Utilisateur).filter_by(id_user=utilisateur.id_user).first()
-            )
-            if existing_user:
-                session.delete(existing_user)
-                session.commit()
-                return True
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM utilisateur WHERE id_user = %s",
+                        (utilisateur.id_user,),
+                    )
+                    if getattr(cursor, "rowcount", 0) > 0:
+                        connection.commit()
+                        return True
+                    connection.rollback()
+                    return False
+        except Exception as exc:  # pragma: no cover - log + retour contrôlé
+            logging.error("Erreur lors de la suppression de l'utilisateur : %s", exc)
             return False
-        except SQLAlchemyError as e:
-            session.rollback()
-            logging.error(f"Erreur lors de la suppression de l'utilisateur : {e}")
-            return False
-        finally:
-            session.close()
 
     @log
-    def se_connecter(self, nom_user, mdp) -> Utilisateur:
-        """Se connecter avec le nom d'utilisateur et le mot de passe
+    def se_connecter(self, nom_user: str, mdp: str) -> Optional[Utilisateur]:
+        """Authentifie un utilisateur via son nom et mot de passe."""
 
-        Parameters
-        ----------
-        nom_user : str
-            Nom d'utilisateur de l'utilisateur qui souhaite se connecter
-        mdp : str
-            Mot de passe de l'utilisateur
-
-        Returns
-        -------
-        utilisateur : Utilisateur
-            L'utilisateur trouvé, ou None si l'authentification échoue
-        """
-        session = self.Session()
         try:
-            utilisateur = session.query(Utilisateur).filter_by(nom_user=nom_user, mdp=mdp).first()
-            if utilisateur:
-                session.expunge(utilisateur)  # détache explicitement l’objet de la session
-            return utilisateur
-        except SQLAlchemyError as e:
-            logging.error(f"Erreur lors de la connexion de l'utilisateur : {e}")
-            return None
-        finally:
-            session.close()
-
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT id_user, nom_user, mail_user, mdp
+                        FROM utilisateur
+                        WHERE nom_user = %s AND mdp = %s
+                        """,
+                        (nom_user, mdp),
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        return Utilisateur(
+                            id_user=row.get("id_user"),
+                            nom_user=row.get("nom_user"),
+                            mail_user=row.get("mail_user"),
+                            mdp=row.get("mdp"),
+                        )
+        except Exception as exc:  # pragma: no cover - log + retour contrôlé
+            logging.error("Erreur lors de la connexion de l'utilisateur : %s", exc)
+        return None

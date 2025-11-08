@@ -1,16 +1,17 @@
-from datetime import date
 from business_object.Activity_object.abstract_activity import AbstractActivity
 
+
 class Cyclisme(AbstractActivity):
-    __tablename__ = 'activite'  # Nom de la table dans la base de données
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = "activite"  # Nom de la table dans la base de données
+    __table_args__ = {"extend_existing": True}
     __mapper_args__ = {
-        'polymorphic_identity': 'cyclisme',  # Identifiant pour le polymorphisme
-        'polymorphic_on': 'sport'  # Colonne utilisée pour le polymorphisme
+        "polymorphic_identity": "cyclisme",  # Identifiant pour le polymorphisme
+        "polymorphic_on": "sport",  # Colonne utilisée pour le polymorphisme
     }
 
     def __init__(
         self,
+        *,
         id_activite,
         titre,
         description,
@@ -22,7 +23,7 @@ class Cyclisme(AbstractActivity):
         type_velo: str = None,
     ):
         super().__init__(
-            id=id_activite,
+            id_activite=id_activite,
             titre=titre,
             description=description,
             sport="cyclisme",
@@ -30,7 +31,7 @@ class Cyclisme(AbstractActivity):
             lieu=lieu,
             distance=distance,
             id_user=id_user,
-            duree=duree
+            duree=duree,
         )
         self.type_velo = type_velo
 

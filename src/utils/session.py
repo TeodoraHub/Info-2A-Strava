@@ -25,5 +25,10 @@ class Session(metaclass=Singleton):
             res += f"{att[0]} : {att[1]}\n"
         return res
 
-    def reset(self):
-        self.__init__()
+    @classmethod
+    def reset(cls):
+        """Réinitialise l'instance Singleton de Session."""
+        instance = Singleton._instances.get(cls)
+        if instance is not None:
+            instance.__init__()
+            del Singleton._instances[cls]

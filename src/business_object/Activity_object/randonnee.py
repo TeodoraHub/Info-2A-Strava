@@ -1,15 +1,16 @@
 from business_object.Activity_object.abstract_activity import AbstractActivity
 
 class Randonnee(AbstractActivity):
-    __tablename__ = 'activite'  # Nom de la table dans la base de données
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = "activite"  # Nom de la table dans la base de données
+    __table_args__ = {"extend_existing": True}
     __mapper_args__ = {
-        'polymorphic_identity': 'randonnee',  # Identifiant pour le polymorphisme
-        'polymorphic_on': 'sport'  # Colonne utilisée pour le polymorphisme
+        "polymorphic_identity": "randonnee",  # Identifiant pour le polymorphisme
+        "polymorphic_on": "sport",  # Colonne utilisée pour le polymorphisme
     }
 
     def __init__(
         self,
+        *,
         id_activite,
         titre,
         description,
@@ -21,7 +22,7 @@ class Randonnee(AbstractActivity):
         type_terrain: str = None,
     ):
         super().__init__(
-            id=id_activite,
+            id_activite=id_activite,
             titre=titre,
             description=description,
             sport="randonnee",
@@ -29,7 +30,7 @@ class Randonnee(AbstractActivity):
             lieu=lieu,
             distance=distance,
             id_user=id_user,
-            duree=duree
+            duree=duree,
         )
         self.type_terrain = type_terrain
 

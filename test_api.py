@@ -8,8 +8,12 @@ Ce script teste l'endpoint de test complet de l'API.
 import json
 import sys
 
+import pytest
 import requests
 from requests.auth import HTTPBasicAuth
+
+
+pytestmark = pytest.mark.skip(reason="Tests d'intégration API nécessitant un serveur actif")
 
 
 def test_health():
