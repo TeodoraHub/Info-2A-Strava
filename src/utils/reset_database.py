@@ -1,4 +1,5 @@
 import os
+import dotenv
 
 import sys 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -14,24 +15,34 @@ class ResetDatabase(metaclass=Singleton):
 
     def lancer(self):
         print("Ré-initialisation de la base de données")
+        pop_data_path = "data/pop_db.sql"
 
-        # Dossier courant = dossier du script utils/
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        dotenv.load_dotenv()
 
-        # Aller dans ../data (si data est à la racine du projet)
-        data_dir = os.path.join(base_dir, "..", "..", "data")
+        schema = os.environ["POSTGRES_SCHEMA"]
 
-        init_db_path = os.path.join(data_dir, "init_db.sql")
+        create_schema = f"DROP SCHEMA IF EXISTS {schema} CASCADE; CREATE SCHEMA {schema};"
+
+        init_db = open("data/init_db.sql", encoding="utf-8")
+        init_db_as_string = init_db.read()
+        init_db.close()
+
+        pop_db = open(pop_data_path, encoding="utf-8")
+        pop_db_as_string = pop_db.read()
+        pop_db.close()
+        
 
         # Chargement des fichiers
-        with open(init_db_path, encoding="utf-8") as init_db:
-            init_db_as_string = init_db.read()
 
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
+                    print("📝 Création du schema")
+                    cursor.execute(create_schema)
                     print("📝 Exécution de init_db.sql...")
                     cursor.execute(init_db_as_string)
+                    print("📝 Exécution de pop_db.sql...")
+                    cursor.execute(pop_db_as_string)
 
                 connection.commit()
                 print("✅ Base de données réinitialisée avec succès!")   

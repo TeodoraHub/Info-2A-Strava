@@ -15,12 +15,12 @@ CREATE TABLE utilisateur (
 -----------------------------------------------------
 DROP TABLE IF EXISTS activite CASCADE ;
 CREATE TABLE activite (
-    id          SERIAL PRIMARY KEY,
+    id_activite          SERIAL PRIMARY KEY,
     titre       VARCHAR(256) NOT NULL,
     description VARCHAR(256),
     date_activite DATE NOT NULL,
     lieu        VARCHAR(256),
-    duree       FLOAT,
+    duree       TIME,
     distance    FLOAT,
     sport       VARCHAR(256),
     detail_sport VARCHAR(256),
@@ -37,10 +37,10 @@ CREATE TABLE commentaire (
     id_comment  INTEGER PRIMARY KEY,
     contenu     VARCHAR(256) NOT NULL,
     date_comment TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    id_utilisateur     INTEGER NOT NULL,
+    id_user     INTEGER NOT NULL,
     id_activite      INTEGER NOT NULL,
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_user),
-    FOREIGN KEY (id_activite) REFERENCES activite(id)
+    FOREIGN KEY (id_user) REFERENCES utilisateur(id_user),
+    FOREIGN KEY (id_activite) REFERENCES activite(id_activite)
 );
 
 
@@ -52,9 +52,9 @@ CREATE TABLE liker (
     id_like     INTEGER PRIMARY KEY,
     date_like   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_user     INTEGER NOT NULL,
-    id          INTEGER NOT NULL,
+    id_activite         INTEGER NOT NULL,
     FOREIGN KEY (id_user) REFERENCES utilisateur(id_user),
-    FOREIGN KEY (id) REFERENCES activite(id)
+    FOREIGN KEY (id_user) REFERENCES activite(id_activite)
 );
 
 
