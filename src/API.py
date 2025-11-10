@@ -11,6 +11,16 @@ from service.activity_service import ActivityService
 from service.commentaire_service import CommentaireService
 from service.like_service import LikeService
 
+
+try:
+    from business_object.user_object.utilisateur import Utilisateur
+    from dao.activity_model import ActivityModel
+    from business_object.like_comment_object.like import Like
+    print("SQLAlchemy Mappers loaded successfully.")
+except ImportError as e:
+    print(f"ATTENTION: Failed to load all SQLAlchemy models: {e}")
+
+
 app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8001")
 security = HTTPBasic()
 
