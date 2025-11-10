@@ -22,7 +22,7 @@ INSERT INTO activite VALUES
 -----------------------------------------------------
 -- Commentaire
 -----------------------------------------------------
-INSERT INTO commentaire (id_comment, contenu, id_user, id) VALUES
+INSERT INTO commentaire (id_comment, contenu, id_user, id_activite) VALUES
 (1, 'Bravo pour ton footing !', 2, 1),
 (2, 'Super rythme sur ta course, bravo !', 2, 4),
 (3, 'Bonne nage, tu progresses !', 4, 3),
@@ -32,7 +32,7 @@ INSERT INTO commentaire (id_comment, contenu, id_user, id) VALUES
 -----------------------------------------------------
 -- Like
 -----------------------------------------------------
-INSERT INTO liker (id_like, id_user, id) VALUES
+INSERT INTO liker (id_like, id_user, id_activite) VALUES
 (1, 2, 1),  -- Bob like footing d'Alice
 (2, 3, 2),  -- Claire like la course d'Alice
 (3, 2, 3),  -- Bob like la natation de Claire
