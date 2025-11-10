@@ -10,6 +10,7 @@ from datetime import time
 from service.activity_service import ActivityService
 from service.commentaire_service import CommentaireService
 from service.like_service import LikeService
+from fastapi.responses import RedirectResponse
 
 
 try:
@@ -21,7 +22,7 @@ except ImportError as e:
     print(f"ATTENTION: Failed to load all SQLAlchemy models: {e}")
 
 
-app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8001")
+app = FastAPI(title="Striv API - Application de sport connectée", root_path="/proxy/8000")
 security = HTTPBasic()
 
 
@@ -45,6 +46,10 @@ def parse_strava_gpx(content):
         "vitesse max (km/h)": moving.max_speed*3.6
     }
 
+
+@app.get("/")
+def root():
+    return RedirectResponse(url="/docs")
 
 # ============================================================================
 # AUTHENTIFICATION
