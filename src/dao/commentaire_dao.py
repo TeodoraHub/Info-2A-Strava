@@ -17,12 +17,12 @@ class CommentaireDAO(metaclass=Singleton):
         self.Session = sessionmaker(bind=DBConnection().engine)
 
     @log
-    def creer_commentaire(self, id_user: int, id_activite: int, contenu: str) -> Commentaire:
+    def creer_commentaire(self, id_utilisateur: int, id_activite: int, contenu: str) -> Commentaire:
         """Création d'un commentaire dans la base de données.
 
         Parameters
         ----------
-        id_user : int
+        id_utilisateur : int
             Identifiant de l'utilisateur qui crée le commentaire.
         id_activite : int
             Identifiant de l'activité associée au commentaire.
@@ -37,7 +37,7 @@ class CommentaireDAO(metaclass=Singleton):
         session = self.Session()
         try:
             commentaire = Commentaire(
-                id_user=id_user,
+                id_utilisateur=id_utilisateur,
                 id_activite=id_activite,
                 contenu=contenu,
                 date_commentaire=datetime.now(),

@@ -47,5 +47,3 @@ class Commentaire(Base):
         self.contenu = contenu
         self.date_commentaire = date_commentaire
         self.id_user = id_utilisateur
-        self.id_user = id_utilisateur
-        
