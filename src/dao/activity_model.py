@@ -7,7 +7,7 @@ Base = declarative_base()
 class ActivityModel(Base):
     __tablename__ = 'activite'
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    id = Column('id_activite', Integer, primary_key=True, autoincrement=True)
     titre = Column(String, nullable=False)
     description = Column(String)
     sport = Column(String, nullable=False)
