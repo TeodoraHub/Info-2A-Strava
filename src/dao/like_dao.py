@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-import traceback # <--- NOUVEL IMPORT CRITIQUE
+import traceback  # <--- NOUVEL IMPORT CRITIQUE
 
 from business_object.like_comment_object.like import Like
 from dao.db_connection import DBConnection
@@ -28,10 +28,10 @@ class LikeDAO(metaclass=Singleton):
             # 🚨 DÉBOGAGE AJOUTÉ : Afficher le traceback complet 🚨
             print("--- ERREUR CRITIQUE DANS LikeDAO.creer_like ---")
             print(f"Échec de l'insertion du like. Détail de l'erreur (Type: {type(e).__name__}): {e}")
-            traceback.print_exc() # Affiche la pile d'exécution complète (l'erreur SQL exacte)
+            traceback.print_exc()  # Affiche la pile d'exécution complète (l'erreur SQL exacte)
             print("---------------------------------------------")
-            
-            logging.error(f"Échec de l'insertion de like: {e}") 
+
+            logging.error(f"Échec de l'insertion de like: {e}")
             self.session.rollback()
             return False
 

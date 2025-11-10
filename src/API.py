@@ -125,7 +125,7 @@ def create_user(nom_user: str, mail_user: str, mdp: str):
         if not nouvel_utilisateur:
             raise HTTPException(status_code=500, detail="Erreur lors de la création de l'utilisateur")
 
-        return {"message": "Utilisateur créé avec succès","user": nouvel_utilisateur}
+        return {"message": "Utilisateur créé avec succès", "user": nouvel_utilisateur}
 
     except HTTPException:
         raise
@@ -158,10 +158,6 @@ def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
     }
 
 
-
-
-
-
 # ============================================================================
 # ENDPOINTS ACTIVITÉS
 # ============================================================================
@@ -172,6 +168,7 @@ def convert_to_time(duree):
     hours = int(duree)  # Récupérer la partie entière (heures)
     minutes = int((duree - hours) * 60)  # Convertir la partie décimale en minutes
     return time(hours, minutes)
+
 
 @app.post("/activities")
 async def create_activity(
@@ -193,7 +190,7 @@ async def create_activity(
         if gpx_file:
             content = await gpx_file.read()
             gpx_data = parse_strava_gpx(content)
-            
+
             # Utiliser les données du GPX comme valeurs par défaut
             # Les paramètres fournis manuellement ont la priorité
             titre = titre or gpx_data.get("nom") or "Activité importée"
@@ -218,7 +215,7 @@ async def create_activity(
                     status_code=400,
                     detail="Les champs titre, sport, date_activite et distance sont obligatoires en mode manuel"
                 )
-            
+
             # Conversion de la date
             try:
                 date_obj = datetime.strptime(date_activite, "%Y-%m-%d").date()
@@ -259,7 +256,7 @@ async def create_activity(
         # Enregistrement de l'activité
         activity_service = ActivityService()
         success = activity_service.creer_activite_from_dict(activity_data)
-        
+
         if not success:
             raise HTTPException(status_code=500, detail="Erreur lors de la création de l'activité")
 
@@ -279,6 +276,7 @@ async def create_activity(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la création: {str(e)}")
+
 
 @app.get("/activities/{activity_id}")
 def get_activity(activity_id: int, current_user: dict = Depends(get_current_user)):
@@ -325,7 +323,6 @@ def delete_activity(activity_id: int, current_user: dict = Depends(get_current_u
     return {"message": f"Activité {activity_id} supprimée avec succès"}
 
 
-
 # ============================================================================
 # ENDPOINTS COMMENTAIRES
 # ============================================================================
@@ -350,7 +347,6 @@ def comment_activity(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
 # ============================================================================
 # ENDPOINTS LIKES
 # ============================================================================
@@ -372,7 +368,7 @@ def like_activity(activity_id: int, current_user: dict = Depends(get_current_use
         # 2. Vérifier si déjà liké
         existing_likes = like_service.get_likes_activite(activity_id)
         already_liked = any(like.id_user == user_id for like in existing_likes)
-        
+
         if already_liked:
             return {
                 "message": f"Activity {activity_id} already liked",
@@ -381,7 +377,7 @@ def like_activity(activity_id: int, current_user: dict = Depends(get_current_use
 
         # 3. Liker l'activité
         success = like_service.liker_activite(user_id, activity_id)
-        
+
         if not success:
             # Ceci attrape le cas où le service retourne False (échec DAO/DB)
             raise HTTPException(status_code=500, detail="Cannot like activity")
@@ -445,7 +441,6 @@ def get_activity_likes(activity_id: int, current_user: dict = Depends(get_curren
 # ============================================================================
 
 
-
 @app.post("/upload-gpx")
 async def upload_gpx(file: UploadFile = File(...)):
     # Lecture du contenu du fichier (texte)
@@ -460,4 +455,4 @@ async def upload_gpx(file: UploadFile = File(...)):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
