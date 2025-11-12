@@ -3,6 +3,7 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
+
 class AbstractActivity(Base):
     __tablename__ = "activite"  # une seule table pour tout
     id_activite = Column(Integer, primary_key=True, autoincrement=True)
