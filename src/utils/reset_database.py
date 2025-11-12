@@ -1,11 +1,11 @@
 import os
 import dotenv
 
-import sys 
+import sys
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(project_root)
 
-from utils.singleton import Singleton 
+from utils.singleton import Singleton
 from dao.db_connection import DBConnection
 
 class ResetDatabase(metaclass=Singleton):
@@ -30,7 +30,7 @@ class ResetDatabase(metaclass=Singleton):
         pop_db = open(pop_data_path, encoding="utf-8")
         pop_db_as_string = pop_db.read()
         pop_db.close()
-        
+
 
         # Chargement des fichiers
 
@@ -41,11 +41,11 @@ class ResetDatabase(metaclass=Singleton):
                     cursor.execute(create_schema)
                     print("📝 Exécution de init_db.sql...")
                     cursor.execute(init_db_as_string)
-                    print("📝 Exécution de pop_db.sql...")
-                    cursor.execute(pop_db_as_string)
+                    # print("📝 Exécution de pop_db.sql...")
+                    # cursor.execute(pop_db_as_string)
 
                 connection.commit()
-                print("✅ Base de données réinitialisée avec succès!")   
+                print("✅ Base de données réinitialisée avec succès!")
 
         except Exception as e:
             print(f"❌ Erreur lors de la réinitialisation: {e}")

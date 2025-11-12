@@ -4,7 +4,7 @@ from dao.activite_dao import ActivityDAO
 from dao.suivi_dao import SuiviDAO
 from utils.log_decorator import log
 from utils.singleton import Singleton
-from dao.activity_model import ActivityModel
+from dao.models.activite_model import ActivityModel
 
 
 class ActivityService(metaclass=Singleton):
@@ -44,7 +44,7 @@ class ActivityService(metaclass=Singleton):
             True si la création est réussie
         """
         try:
-            from dao.activity_model import ActivityModel
+            from dao.models.activite_model import ActivityModel
 
             # Créer le modèle ORM
             activity_model = ActivityModel(

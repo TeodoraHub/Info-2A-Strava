@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 from business_object.user_object.utilisateur import Utilisateur
-from dao.activity_model import ActivityModel
+from dao.models.activite_model import ActivityModel
 
 Base = declarative_base()
 

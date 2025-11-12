@@ -1,11 +1,9 @@
 from datetime import datetime
-from business_object.user_object.utilisateur import Utilisateur
-
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-Base = declarative_base()  # Définir la base pour tous les modèles SQLAlchemy
+Base = declarative_base()
 
 
 class Commentaire(Base):
@@ -22,28 +20,26 @@ class Commentaire(Base):
         Contenu du commentaire
     date_commentaire : DateTime
         Date du commentaire
-    id_user : int
+    id_utilisateur : int
         Identifiant de l'utilisateur qui commente l'activité
     """
 
-    __tablename__ = "commentaire"  # Nom de la table dans la base de données
+    __tablename__ = "commentaire"
 
-    # Définition des colonnes
     id_comment = Column(Integer, primary_key=True, autoincrement=True)
     id_utilisateur = Column(Integer, ForeignKey("utilisateur.id_user"), nullable=False)
-    id_activite = Column(Integer, ForeignKey("activite.id"), nullable=False)
+    id_activite = Column(Integer, ForeignKey("activite.id_activite"), nullable=False)
     contenu = Column(String, nullable=False)
     date_commentaire = Column(DateTime, nullable=False, default=datetime.now)
 
-    # Relations, pour accéder aux objets liés via la clé étrangère
-    utilisateur = relationship("Utilisateur", back_populates="commentaires")
-    activite = relationship("Activite", back_populates="commentaires")
+    # Relations - À L'INTÉRIEUR de la classe
+    utilisateur = relationship("Utilisateur", back_populates="commentaires", lazy='joined')
+    activite = relationship("Activite", back_populates="commentaires", lazy='joined')
 
-    # Le constructeur d'origine
-    def __init__(self, id_activite, contenu, date_commentaire, id_utilisateur, id_comment=None):
-        """Constructeur"""
+    # Constructeur
+    def __init__(self, id_activite, contenu, id_utilisateur, date_commentaire=None, id_comment=None):
         self.id_comment = id_comment
         self.id_activite = id_activite
         self.contenu = contenu
-        self.date_commentaire = date_commentaire
-        self.id_user = id_utilisateur
+        self.date_commentaire = date_commentaire or datetime.now()
+        self.id_utilisateur = id_utilisateur
