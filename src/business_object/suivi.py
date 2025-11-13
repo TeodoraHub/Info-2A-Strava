@@ -1,8 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer
-from sqlalchemy.ext.declarative import declarative_base
+from business_object.base import Base
 from sqlalchemy.orm import relationship
 
-Base = declarative_base()
 
 
 class Suivi(Base):

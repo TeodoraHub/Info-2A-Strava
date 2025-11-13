@@ -1,13 +1,7 @@
 from business_object.Activity_object.abstract_activity import AbstractActivity
 
-class Natation(AbstractActivity):
-    __tablename__ = 'activite'  # Nom de la table dans la base de données
-    __table_args__ = {'extend_existing': True}
-    __mapper_args__ = {
-        'polymorphic_identity': 'natation',  # Identifiant pour le polymorphisme
-        'polymorphic_on': 'sport'  # Colonne utilisée pour le polymorphisme
-    }
 
+class Natation(AbstractActivity):
     def __init__(
         self,
         id_activite,
@@ -17,8 +11,8 @@ class Natation(AbstractActivity):
         lieu: str,
         distance,
         id_user,
-        duree: float = None,
-        type_nage: str = None,
+        duree: float | None = None,
+        type_nage: str | None = None,
     ):
         super().__init__(
             id=id_activite,
@@ -29,16 +23,12 @@ class Natation(AbstractActivity):
             lieu=lieu,
             distance=distance,
             id_user=id_user,
-            duree=duree
+            duree=duree,
         )
         self.type_nage = type_nage
 
     def vitesse(self) -> float:
-        """
-        Calcule la vitesse en m/s (mètres par seconde)
-        Returns:
-            float: vitesse en m/s
-        """
+        """Vitesse moyenne en m/s."""
         if self.duree and self.duree > 0:
             # distance en km, durée en minutes -> vitesse en m/s
             return (self.distance * 1000) / (self.duree * 60)

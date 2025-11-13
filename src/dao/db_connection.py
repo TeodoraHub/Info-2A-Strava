@@ -18,14 +18,14 @@ load_dotenv(dotenv_path=dotenv_path, override=True)
 
 class DBConnection(metaclass=Singleton):
     """
-    Connexion unique à la base de données PostgreSQL
+    Connexion unique a la base de donnees PostgreSQL
     """
 
     def __init__(self):
         dotenv.load_dotenv(override=True)
-        # Récupérer le schéma
+        # Recuperer le schema
         schema = os.environ.get("POSTGRES_SCHEMA", "public")
-        # Connexion avec options pour définir le search_path
+        # Connexion avec options pour definir le search_path
         self.__connection = psycopg2.connect(
             host=os.environ["POSTGRES_HOST"],
             port=os.environ["POSTGRES_PORT"],
@@ -42,6 +42,7 @@ class DBConnection(metaclass=Singleton):
 
         # Create a scoped session factory
         session_factory = sessionmaker(bind=self.__engine)
+        self.__session_factory = session_factory
         self.__Session = scoped_session(session_factory)
 
     @property
@@ -71,13 +72,22 @@ class DBConnection(metaclass=Singleton):
         """
         return self.__Session()
 
+    @property
+    def session_factory(self):
+        """
+        return the SQLAlchemy session factory (non scoped).
+
+        :return: a sessionmaker bound to the project engine.
+        """
+        return self.__session_factory
+
     def close_session(self):
         """ Ferme la session SQLAlchemy """
 
         self.__Session.remove()
 
     def __del__(self):
-        """Nettoyage à la destruction de l'objet"""
+        """Nettoyage a la destruction de l'objet"""
         if hasattr(self, '_DBConnection__connection'):
             self.__connection.close()
         if hasattr(self, '_DBConnection__Session'):

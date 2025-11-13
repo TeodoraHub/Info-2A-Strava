@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from business_object.base import Base
 import gpxpy
 
 from business_object.Activity_object.course_a_pieds import CoursePied
@@ -8,10 +8,11 @@ from business_object.Activity_object.natation import Natation
 from business_object.Activity_object.randonnee import Randonnee
 from business_object.user_object.statistiques import Statistiques
 
-from sqlalchemy.ext.declarative import declarative_base
+
+
 from sqlalchemy import Column, Integer, String
 
-Base = declarative_base()
+
 
 class Utilisateur(Base):
     """
@@ -41,9 +42,11 @@ class Utilisateur(Base):
         self.mdp = mdp
 
     def __str__(self):
+        """Permet d'afficher les informations de l'utilisateur"""
         return f"Utilisateur({self.nom_user}, {self.mail_user})"
 
     def as_list(self) -> list[str]:
+        """Retourne les attributs de l'utilisateur dans une liste"""
         return [self.id_user, self.nom_user, self.mail_user]
 
     def creer_activite(
@@ -55,12 +58,34 @@ class Utilisateur(Base):
         fichier_gpx: str,
         **kwargs,
     ):
+        """
+        Permet de créer une nouvelle activité
+
+        Parameters
+        ----------
+        type_activite : str
+            type de l'activité (course, cyxlisme, natation ou randonnee)
+        titre : str
+            titre de l'activité
+        description : str
+            desription de l'activité
+        lieu : str
+            lieu de l'activité
+        fichier_gpx : str
+            fichier contenant les informations sur l'activité
+
+        Returns
+        -------
+        return : AbstractActivity
+            renvoie l'activité créée
+        """
         with open(fichier_gpx, "r", encoding="utf-8") as f:
             gpx = gpxpy.parse(f)
 
         distance_m = gpx.length_3d()
         duree = gpx.get_duration()
 
+        # Génération d’un id d’activité arbitraire
         id_activite = int(datetime.now().timestamp())
 
         if type_activite == "course":
@@ -81,7 +106,7 @@ class Utilisateur(Base):
                 id_activite=id_activite,
                 titre=titre,
                 description=description,
-                date_activite=datetime.now(),
+                date_activite=datetime.now().date(),
                 lieu=lieu,
                 duree=duree,
                 distance=distance_m,
@@ -119,8 +144,21 @@ class Utilisateur(Base):
 
         else:
             raise ValueError(f"Type d’activité inconnu: {type_activite}")
+    def obtenir_statistiques(self, periode: str = None, sport: str = None) -> dict:
+        """Retourne les statistiques de l'utilisateur connecté.
 
-    def obtenir_statistiques(self, periode: str = None, sport: str = None):
+        Parameters
+        ----------
+        periode : str, optional
+            période à filtrer ('7j' ou '30j')
+        sport : str, optional
+            sport à filtrer ('course', 'cyclisme', 'natation', 'randonnee')
+
+        Returns
+        -------
+        dict
+            Dictionnaire avec nombre d'activités, kilomètres et heures
+        """
         stats = {
             "nombre_activites": Statistiques.nombre_activites(self, periode, sport),
             "kilometres": Statistiques.kilometres(self, periode, sport),

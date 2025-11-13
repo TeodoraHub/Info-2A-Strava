@@ -1,24 +1,44 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
-from sqlalchemy.orm import declarative_base
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import Optional
 
-Base = declarative_base()
 
-class AbstractActivity(Base):
-    __tablename__ = "activite"  # une seule table pour tout
-    id_activite = Column(Integer, primary_key=True, autoincrement=True)
-    titre = Column(String, nullable=False)
-    description = Column(String)
-    sport = Column(String, nullable=False)
-    date_activite = Column(Date, nullable=False)
-    lieu = Column(String)
-    distance = Column(Float, nullable=False)
-    duree = Column(Float)
-    id_user = Column(Integer, ForeignKey("users.id_user"), nullable=False)  # assumes table users
+class AbstractActivity(ABC):
+    """Modèle métier d'activité (sans mapping ORM).
 
-    __mapper_args__ = {
-        'polymorphic_on': sport,
-        'polymorphic_identity': 'abstract_activity'
-    }
+    Attributs communs aux différentes activités (course, cyclisme, natation, randonnée).
+    """
 
+    def __init__(
+        self,
+        id: int,
+        titre: str,
+        description: str,
+        sport: str,
+        date_activite: datetime,
+        lieu: str,
+        distance: float,
+        id_user: int,
+        duree: Optional[float] = None,
+    ) -> None:
+        self.id = id
+        self.titre = titre
+        self.description = description
+        self.sport = sport
+        self.date_activite = date_activite
+        self.lieu = lieu
+        self.distance = float(distance)
+        self.duree = duree
+        self.id_user = id_user
+
+    @abstractmethod
     def vitesse(self) -> float:
-        raise NotImplementedError("Chaque sous-classe doit définir sa méthode vitesse")
+        """Calcule la vitesse moyenne de l'activité.
+
+        La convention des unités est laissée à la sous-classe
+        (km/h pour course/cyclisme/randonnée, m/s pour natation).
+        """
+        raise NotImplementedError
+
+    def __str__(self) -> str:
+        return f"{self.titre} - {self.sport}"

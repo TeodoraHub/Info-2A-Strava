@@ -14,5 +14,5 @@ uvicorn
 gpxpy
 pytest
 sqlalchemy
-python-multipart
 streamlit
+python-multipart

@@ -1,25 +1,14 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-
-from business_object.user_object.utilisateur import Utilisateur
-from dao.models.activite_model import ActivityModel
-
-Base = declarative_base()
+from business_object.base import Base
 
 
 class Like(Base):
-    """Modèle SQLAlchemy pour la table 'liker'"""
-
     __tablename__ = "liker"
 
     id_like = Column(Integer, primary_key=True, autoincrement=True)
     id_user = Column(Integer, ForeignKey("utilisateur.id_user"), nullable=False)
-    id_activite = Column(Integer, ForeignKey("activite.id"), nullable=False)
+    id_activite = Column(Integer, ForeignKey("activite.id_activite"), nullable=False)
     date_like = Column(DateTime, nullable=False)
-
-    user = relationship(lambda: Utilisateur, back_populates="likes")
-    activite = relationship(lambda: ActivityModel, back_populates="likes")
 
     def __init__(self, id_user, id_activite, date_like):
         self.id_user = id_user
