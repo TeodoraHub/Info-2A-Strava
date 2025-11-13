@@ -30,9 +30,9 @@ def main():
     print("🚀 Lancement de Striv API")
     print("=" * 60)
     print(f"Mode: {'Développement' if dev_mode else 'Production'}")
-    print("URL: http://localhost:8001")
-    print("Documentation: http://localhost:8001/docs")
-    print("ReDoc: http://localhost:8001/redoc")
+    print("URL: http://localhost:8000")
+    print("Documentation: http://localhost:8000/docs")
+    print("ReDoc: http://localhost:8000/redoc")
     print("=" * 60)
     print("\nUtilisateurs de test disponibles:")
     print("  - alice / wonderland (admin)")
@@ -51,7 +51,7 @@ def main():
     config = {
         "app": "API:app",
         "host": "0.0.0.0",
-        "port": 8001,
+        "port": 8000,
     }
 
     # Options supplémentaires en mode développement

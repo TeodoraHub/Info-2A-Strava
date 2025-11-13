@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 # URL de base de l'API
-API_URL = "http://localhost:8001"
+API_URL = "http://localhost:8000"
 
 # Initialisation de la session
 if "authenticated" not in st.session_state:
