@@ -148,7 +148,7 @@ else:
 
                 with col1:
                     st.metric(
-                        label="🏃 Activités totales", value=stats.get("nombre_activites_total", 0)
+                        label="🏃 Activités totales", value=stats.get("total_activites", 0)
                     )
 
                 with col2:
@@ -783,7 +783,7 @@ else:
                     col1, col2, col3, col4 = st.columns(4)
 
                     with col1:
-                        st.metric("Activités", stats.get("nombre_activites", 0))
+                        st.metric("Activités", stats.get("total_activites", 0))
 
                     with col2:
                         st.metric("Distance", f"{stats.get('distance_totale', 0):.1f} km")
@@ -848,7 +848,7 @@ else:
                     col1, col2, col3, col4 = st.columns(4)
 
                     with col1:
-                        st.metric("Activités", stats.get("nombre_activites", 0))
+                        st.metric("Activités", stats.get("total_activites", 0))
 
                     with col2:
                         st.metric("Distance", f"{stats.get('distance_totale', 0):.1f} km")
