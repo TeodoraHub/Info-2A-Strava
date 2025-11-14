@@ -177,32 +177,33 @@ else:
                         [
                             {
                                 "Sport": sport.capitalize(),
-                                "Activités": data.get("nombre", 0),
+                                "Activités": data.get("count", 0),
                                 "Distance (km)": data.get("distance", 0),
                                 "Durée (h)": data.get("duree", 0),
                             }
                             for sport, data in sports_data.items()
                         ]
                     )
+                    df_sports = df_sports.sort_values("Distance (km)", ascending=False)
 
                     col1, col2 = st.columns(2)
 
                     with col1:
-                        fig_activites = px.bar(
+                        fig_activites = px.pie(
                             df_sports,
-                            x="Sport",
-                            y="Activités",
-                            title="Nombre d'activités par sport",
-                            color="Sport",
+                            names="Sport",
+                            values="Activités",
+                            title="Nombre d'activités par sport"
                         )
                         st.plotly_chart(fig_activites, width='stretch')
 
                     with col2:
-                        fig_distance = px.pie(
+                        fig_distance = px.bar(
                             df_sports,
-                            values="Distance (km)",
-                            names="Sport",
+                            y="Distance (km)",
+                            x="Sport",
                             title="Répartition des distances par sport",
+                            color="Sport"
                         )
                         st.plotly_chart(fig_distance, width='stretch')
 
