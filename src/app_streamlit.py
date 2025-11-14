@@ -1,5 +1,7 @@
 # streamlit run src/app_streamlit.py --server.port=8501 --server.address=0.0.0.0
 from datetime import date, datetime
+from utils.format import format_h_m
+
 
 import pandas as pd
 import plotly.express as px
@@ -156,7 +158,7 @@ else:
                     )
 
                 with col3:
-                    st.metric(label="⏱️ Durée totale", value=f"{stats.get('duree_totale', 0):.1f} h")
+                    st.metric(label="⏱️ Durée totale", value=f"{format_h_m(stats.get('duree_totale'))}")
 
                 with col4:
                     st.metric(
@@ -240,7 +242,7 @@ else:
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
-                                    st.write(f"**Durée:** {activity.get('duree_heures', 0):.2f} h")
+                                    st.write(f"**Durée:** {format_h_m(activity.get('duree_heures'))}")
                                 st.write(f"**Date:** {activity.get('date_activite', 'N/A')}")
                                 if activity.get("lieu"):
                                     st.write(f"**Lieu:** {activity.get('lieu')}")
@@ -501,7 +503,7 @@ else:
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
-                                    st.write(f"**Durée:** {activity.get('duree_heures', 0):.2f} h")
+                                    st.write(f"**Durée:** {format_h_m(activity.get('duree_heures'))}")
 
                             with col2:
                                 st.write(f"**Date:** {activity.get('date_activite', 'N/A')}")
