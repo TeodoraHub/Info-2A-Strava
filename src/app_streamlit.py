@@ -1,5 +1,7 @@
-# streamlit run src/app_streamlit.py --server.port=8501 --server.address=0.0.0.0
+# streamlit run src/app_streamlit.py --server.port=5501 --server.address=0.0.0.0
 from datetime import date, datetime
+from utils.format import format_h_m
+
 
 import pandas as pd
 import plotly.express as px
@@ -10,7 +12,7 @@ import streamlit as st
 st.set_page_config(page_title="Striv - Application de sport", page_icon="🏃", layout="wide")
 
 # URL de base de l'API
-API_URL = "http://localhost:8000"
+API_URL = "http://localhost:5500"
 
 # Initialisation de la session
 if "authenticated" not in st.session_state:
@@ -156,7 +158,7 @@ else:
                     )
 
                 with col3:
-                    st.metric(label="⏱️ Durée totale", value=f"{stats.get('duree_totale', 0):.1f} h")
+                    st.metric(label="⏱️ Durée totale", value=f"{format_h_m(stats.get('duree_totale'))}")
 
                 with col4:
                     st.metric(
@@ -175,32 +177,33 @@ else:
                         [
                             {
                                 "Sport": sport.capitalize(),
-                                "Activités": data.get("nombre", 0),
+                                "Activités": data.get("count", 0),
                                 "Distance (km)": data.get("distance", 0),
                                 "Durée (h)": data.get("duree", 0),
                             }
                             for sport, data in sports_data.items()
                         ]
                     )
+                    df_sports = df_sports.sort_values("Distance (km)", ascending=False)
 
                     col1, col2 = st.columns(2)
 
                     with col1:
-                        fig_activites = px.bar(
+                        fig_activites = px.pie(
                             df_sports,
-                            x="Sport",
-                            y="Activités",
-                            title="Nombre d'activités par sport",
-                            color="Sport",
+                            names="Sport",
+                            values="Activités",
+                            title="Nombre d'activités par sport"
                         )
                         st.plotly_chart(fig_activites, width='stretch')
 
                     with col2:
-                        fig_distance = px.pie(
+                        fig_distance = px.bar(
                             df_sports,
-                            values="Distance (km)",
-                            names="Sport",
+                            y="Distance (km)",
+                            x="Sport",
                             title="Répartition des distances par sport",
+                            color="Sport"
                         )
                         st.plotly_chart(fig_distance, width='stretch')
 
@@ -239,7 +242,7 @@ else:
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
-                                    st.write(f"**Durée:** {activity.get('duree_heures', 0):.2f} h")
+                                    st.write(f"**Durée:** {format_h_m(activity.get('duree_heures'))}")
                                 st.write(f"**Date:** {activity.get('date_activite', 'N/A')}")
                                 if activity.get("lieu"):
                                     st.write(f"**Lieu:** {activity.get('lieu')}")
@@ -500,7 +503,7 @@ else:
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
-                                    st.write(f"**Durée:** {activity.get('duree_heures', 0):.2f} h")
+                                    st.write(f"**Durée:** {format_h_m(activity.get('duree_heures'))}")
 
                             with col2:
                                 st.write(f"**Date:** {activity.get('date_activite', 'N/A')}")
