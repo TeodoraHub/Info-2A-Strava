@@ -10,7 +10,7 @@ import streamlit as st
 st.set_page_config(page_title="Striv - Application de sport", page_icon="🏃", layout="wide")
 
 # URL de base de l'API
-API_URL = "http://localhost:8001"
+API_URL = "http://localhost:8000"
 
 # Initialisation de la session
 if "authenticated" not in st.session_state:
