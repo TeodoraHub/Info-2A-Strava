@@ -11,7 +11,7 @@ from service.like_service import LikeService
 from service.statistiques_service import StatistiquesService
 from service.utilisateur_service import UtilisateurService
 
-app = FastAPI(title="Striv API - Application de sport connectee", root_path="/proxy/8001")
+app = FastAPI(title="Striv API - Application de sport connectee", root_path="/proxy/5500")
 security = HTTPBasic()
 
 
@@ -740,4 +740,4 @@ def is_following(user_id: int, target_user_id: int, current_user: dict = Depends
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=5500)

@@ -1,4 +1,4 @@
-# streamlit run src/app_streamlit.py --server.port=8501 --server.address=0.0.0.0
+# streamlit run src/app_streamlit.py --server.port=5501 --server.address=0.0.0.0
 from datetime import date, datetime
 from utils.format import format_h_m
 
@@ -12,7 +12,7 @@ import streamlit as st
 st.set_page_config(page_title="Striv - Application de sport", page_icon="🏃", layout="wide")
 
 # URL de base de l'API
-API_URL = "http://localhost:8001"
+API_URL = "http://localhost:5500"
 
 # Initialisation de la session
 if "authenticated" not in st.session_state:

@@ -45,7 +45,7 @@ class TestCoursePiedCreation:
             lieu="Lyon",
             distance=12.0,
             id_user=1,
-            duree=1.0,
+            duree=60.0,
         )
 
         # WHEN - On calcule la vitesse
