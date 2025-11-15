@@ -72,6 +72,7 @@ class StatistiquesService(metaclass=Singleton):
                 "distance_totale": 0.0,
                 "duree_totale": 0.0,
                 "par_sport": defaultdict(lambda: {"count": 0, "distance": 0.0, "duree": 0.0}),
+                "sport_favori": None
             }
 
             aggregated = self._aggregate(activities)
@@ -81,6 +82,12 @@ class StatistiquesService(metaclass=Singleton):
                 stats["par_sport"][sport]["duree"] = values["duree"]
                 stats["distance_totale"] += values["distance"]
                 stats["duree_totale"] += values["duree"]
+
+            if stats["par_sport"]:
+                stats["sport_favori"] = max(
+                    stats["par_sport"].items(),
+                    key=lambda item: item[1]["count"],
+                )[0]
 
             stats["par_sport"] = dict(stats["par_sport"])
             return stats
@@ -100,6 +107,7 @@ class StatistiquesService(metaclass=Singleton):
                 "duree_totale": 0.0,
                 "par_mois": {},
                 "par_sport": defaultdict(lambda: {"count": 0, "distance": 0.0, "duree": 0.0}),
+                "sport_favori": None
             }
 
             for month in range(1, 13):
@@ -115,6 +123,12 @@ class StatistiquesService(metaclass=Singleton):
                     stats["par_sport"][sport]["count"] += values["count"]
                     stats["par_sport"][sport]["distance"] += values["distance"]
                     stats["par_sport"][sport]["duree"] += values["duree"]
+
+            if stats["par_sport"]:
+                stats["sport_favori"] = max(
+                    stats["par_sport"].items(),
+                    key=lambda item: item[1]["count"],
+                )[0]
 
             stats["par_sport"] = dict(stats["par_sport"])
             return stats
@@ -134,6 +148,7 @@ class StatistiquesService(metaclass=Singleton):
                 "par_sport": defaultdict(lambda: {"count": 0, "distance": 0.0, "duree": 0.0}),
                 "premiere_activite": None,
                 "derniere_activite": None,
+                "sport_favori": None
             }
 
             aggregated = self._aggregate(activities)
@@ -149,6 +164,12 @@ class StatistiquesService(metaclass=Singleton):
                 if dates:
                     stats["premiere_activite"] = min(dates)
                     stats["derniere_activite"] = max(dates)
+
+            if stats["par_sport"]:
+                stats["sport_favori"] = max(
+                    stats["par_sport"].items(),
+                    key=lambda item: item[1]["count"],
+                )[0]
 
             stats["par_sport"] = dict(stats["par_sport"])
             return stats

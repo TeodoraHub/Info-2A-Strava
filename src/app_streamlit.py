@@ -731,7 +731,7 @@ else:
                         )
 
                     with col3:
-                        st.metric("Heures / semaine", f"{stats.get('heures_par_semaine', 0):.1f} h")
+                        st.metric("Heures / semaine", f"{stats.get('duree_par_semaine', 0):.1f} h")
 
                     # Détails par sport
                     if stats.get("par_sport"):
@@ -753,7 +753,7 @@ else:
 
                                 with col3:
                                     st.write(
-                                        f"**Durée / semaine:** {sport_stats.get('heures_par_semaine', 0):.1f} h"
+                                        f"**Durée / semaine:** {sport_stats.get('duree_par_semaine', 0):.1f} h"
                                     )
                 else:
                     st.info("Pas assez de données pour calculer les moyennes")
