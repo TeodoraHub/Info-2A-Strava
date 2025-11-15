@@ -37,3 +37,4 @@ python -m uvicorn src.API:app --host 0.0.0.0 --port 8001 --reload
 ## pour lancer le streamlit (dans un autre terminam)
 streamlit run src/app_streamlit.py --server.port=8501 --server.address=0.0.0.0
 
+test branche Marius
