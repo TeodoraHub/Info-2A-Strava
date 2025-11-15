@@ -25,6 +25,16 @@ if "user_info" not in st.session_state:
     st.session_state.user_info = None
 if "gpx_data" not in st.session_state:
     st.session_state.gpx_data = None
+if "route_data" not in st.session_state:
+    st.session_state.route_data = None
+if "start_coords" not in st.session_state:
+    st.session_state.start_coords = None
+if "end_coords" not in st.session_state:
+    st.session_state.end_coords = None
+if "start_address" not in st.session_state:
+    st.session_state.start_address = None
+if "end_address" not in st.session_state:
+    st.session_state.end_address = None
 
 
 # Fonction d'authentification
@@ -124,6 +134,7 @@ else:
                 "📊 Tableau de bord",
                 "🌐 Fil d'actualité",
                 "➕ Nouvelle activité",
+                "🗺️ Créer un parcours",
                 "🔍 Mes activités",
                 "👥 Communauté",
                 "📈 Statistiques",
@@ -757,6 +768,172 @@ else:
 
         except Exception as e:
             st.error(f"Erreur: {str(e)}")
+
+    # ============================================================================
+    # CRÉER UN PARCOURS (NOUVEAU)
+    # ============================================================================
+    elif menu == "🗺️ Créer un parcours":
+        st.title("🗺️ Créer un parcours")
+        st.markdown("*Créez un parcours en saisissant une adresse de départ et d'arrivée*")
+
+        import folium
+        from streamlit_folium import st_folium
+
+        from utils.geolocation import get_coordinates, get_route
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            start_address = st.text_input(
+                "Adresse de départ*", placeholder="Ex: 123 Rue de Paris, 75000 Paris"
+            )
+
+        with col2:
+            end_address = st.text_input(
+                "Adresse d'arrivée*", placeholder="Ex: 456 Avenue de Lyon, 75012 Paris"
+            )
+
+        if st.button("🔍 Calculer l'itinéraire", type="primary", use_container_width=True):
+            if not start_address or not end_address:
+                st.error("Veuillez remplir les deux adresses")
+            else:
+                with st.spinner("Calcul de l'itinéraire..."):
+                    # Récupérer les coordonnées
+                    start_coords = get_coordinates(start_address)
+                    end_coords = get_coordinates(end_address)
+
+                    if not start_coords or not end_coords:
+                        st.error("❌ Une ou plusieurs adresses sont invalides. Veuillez vérifier.")
+                    else:
+                        # Récupérer l'itinéraire
+                        route_data = get_route(start_coords, end_coords)
+
+                        if route_data:
+                            st.session_state.route_data = route_data
+                            st.session_state.start_coords = start_coords
+                            st.session_state.end_coords = end_coords
+                            st.session_state.start_address = start_address
+                            st.session_state.end_address = end_address
+                            st.success("✅ Itinéraire calculé!")
+                        else:
+                            st.error("❌ Erreur lors du calcul de l'itinéraire")
+
+        st.divider()
+
+        # Afficher la carte si un itinéraire est calculé
+        if st.session_state.get("route_data"):
+            route_data = st.session_state.route_data
+            start_coords = st.session_state.start_coords
+            end_coords = st.session_state.end_coords
+
+            # Créer la carte
+            center_lat = (start_coords[0] + end_coords[0]) / 2
+            center_lon = (start_coords[1] + end_coords[1]) / 2
+
+            m = folium.Map(location=[center_lat, center_lon], zoom_start=13, tiles="OpenStreetMap")
+
+            # Ajouter les points de départ et d'arrivée
+            folium.Marker(
+                location=start_coords,
+                popup="🟢 Départ",
+                tooltip="Point de départ",
+                icon=folium.Icon(color="green", icon="play"),
+            ).add_to(m)
+
+            folium.Marker(
+                location=end_coords,
+                popup="🔴 Arrivée",
+                tooltip="Point d'arrivée",
+                icon=folium.Icon(color="red", icon="stop"),
+            ).add_to(m)
+
+            # Ajouter la route
+            folium.PolyLine(
+                locations=route_data["coordinates"], color="#667eea", weight=4, opacity=0.8
+            ).add_to(m)
+
+            # Afficher la carte
+            st_folium(m, width=1400, height=500)
+
+            st.divider()
+
+            # Afficher les statistiques du parcours
+            col1, col2, col3 = st.columns(3)
+
+            with col1:
+                st.metric(label="📏 Distance", value=f"{route_data['distance']:.2f} km")
+
+            with col2:
+                st.metric(label="⏱️ Durée estimée", value=f"{route_data['duration']:.1f}h")
+
+            with col3:
+                st.metric(
+                    label="📍 Vitesse moyenne",
+                    value=f"{route_data['distance'] / route_data['duration']:.1f} km/h",
+                )
+
+            st.divider()
+
+            # Formulaire pour sauvegarder comme activité
+            st.subheader("💾 Sauvegarder ce parcours comme activité")
+
+            with st.form("route_to_activity"):
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    titre = st.text_input("Titre du parcours*", placeholder="Ex: Parcours matinal")
+                    sport = st.selectbox("Type de sport*", ["course", "cyclisme", "randonnee"])
+
+                with col2:
+                    date_parcours = st.date_input("Date*", value=date.today())
+                    description = st.text_area("Description", placeholder="Décrivez ce parcours...")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    start_addr_display = st.text_input(
+                        "Lieu de départ", value=st.session_state.start_address, disabled=True
+                    )
+
+                with col2:
+                    end_addr_display = st.text_input(
+                        "Lieu d'arrivée", value=st.session_state.end_address, disabled=True
+                    )
+
+                submit_route = st.form_submit_button(
+                    "💾 Sauvegarder comme activité", type="primary", use_container_width=True
+                )
+
+                if submit_route:
+                    if not titre:
+                        st.error("Veuillez entrer un titre")
+                    else:
+                        try:
+                            params = {
+                                "titre": titre,
+                                "description": description,
+                                "sport": sport,
+                                "date_activite": date_parcours.strftime("%Y-%m-%d"),
+                                "lieu": f"De {st.session_state.start_address} à {st.session_state.end_address}",
+                                "distance": route_data["distance"],
+                                "duree": route_data["duration"],
+                            }
+
+                            response = requests.post(
+                                f"{API_URL}/activities", params=params, auth=get_auth()
+                            )
+
+                            if response.status_code == 200:
+                                st.success("✅ Parcours sauvegardé comme activité!")
+                                st.balloons()
+                                # Réinitialiser
+                                del st.session_state.route_data
+                                del st.session_state.start_coords
+                                del st.session_state.end_coords
+                                st.rerun()
+                            else:
+                                st.error("Erreur lors de la sauvegarde")
+                        except Exception as e:
+                            st.error(f"Erreur: {str(e)}")
 
     # ============================================================================
     # COMMUNAUTÉ
