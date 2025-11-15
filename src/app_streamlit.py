@@ -369,12 +369,7 @@ else:
                             title="Nombre d'activités par sport",
                             color_discrete_sequence=px.colors.qualitative.Set2,
                         )
-<<<<<<< HEAD
-                        st.plotly_chart(fig_activites_dashboard, width='stretch',
-                                        key="fig_activites_dashboard")
-=======
-                        st.plotly_chart(fig_activites, use_container_width=True)
->>>>>>> Marius_Branch
+                        st.plotly_chart(fig_activites_dashboard, use_container_width=True)
 
                     with col2:
                         fig_distance_dashboard = px.bar(
@@ -385,12 +380,7 @@ else:
                             color="Sport",
                             color_discrete_sequence=px.colors.qualitative.Pastel,
                         )
-<<<<<<< HEAD
-                        st.plotly_chart(fig_distance_dashboard, width='stretch',
-                                        key="fig_distance_dashboard")
-=======
-                        st.plotly_chart(fig_distance, use_container_width=True)
->>>>>>> Marius_Branch
+                        st.plotly_chart(fig_distance_dashboard, use_container_width=True)
 
             else:
                 st.info(
@@ -424,7 +414,9 @@ else:
 
                             with col1:
                                 st.subheader(f"🏃 {activity.get('titre', 'Sans titre')}")
-                                st.caption(f"📝 Publié par Utilisateur **{activity.get('id_user')}**")
+                                st.caption(
+                                    f"📝 Publié par Utilisateur **{activity.get('id_user')}**"
+                                )
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
@@ -1167,19 +1159,15 @@ else:
 
                         col1, col2 = st.columns(2)
                         with col1:
-<<<<<<< HEAD
                             fig_activites_mensuel = px.pie(
                                 df,
                                 names="Sport",
                                 values="Activités",
-                                title="Nombre d'activités par sport"
+                                title="Nombre d'activités par sport",
                             )
-                            st.plotly_chart(fig_activites_mensuel, width='stretch',
-                                            key="fig_ctivites_mensuel")
-=======
-                            fig = px.bar(df, x="Sport", y="Activités", title="Activités par sport")
-                            st.plotly_chart(fig, width="stretch")
->>>>>>> Marius_Branch
+                            st.plotly_chart(
+                                fig_activites_mensuel, width="stretch", key="fig_ctivites_mensuel"
+                            )
 
                         with col2:
                             fig_distance_mensuel = px.bar(
@@ -1187,14 +1175,11 @@ else:
                                 y="Distance (km)",
                                 x="Sport",
                                 title="Répartition des distances par sport",
-                                color="Sport"
+                                color="Sport",
                             )
-<<<<<<< HEAD
-                            st.plotly_chart(fig_distance_mensuel, width='stretch',
-                                            key="fig_distance_mensuel")
-=======
-                            st.plotly_chart(fig, width="stretch")
->>>>>>> Marius_Branch
+                            st.plotly_chart(
+                                fig_distance_mensuel, width="stretch", key="fig_distance_mensuel"
+                            )
                 else:
                     st.info("Aucune donnée pour cette période")
 
@@ -1258,14 +1243,11 @@ else:
                                 df,
                                 names="Sport",
                                 values="Activités",
-                                title="Nombre d'activités par sport"
+                                title="Nombre d'activités par sport",
                             )
-<<<<<<< HEAD
-                            st.plotly_chart(fig_activites_annuel, width='stretch',
-                                            key="fig_activites_annuel")
-=======
-                            st.plotly_chart(fig, width="stretch")
->>>>>>> Marius_Branch
+                            st.plotly_chart(
+                                fig_activites_annuel, width="stretch", key="fig_activites_annuel"
+                            )
 
                         with col2:
                             fig_distance_annuel = px.bar(
@@ -1273,14 +1255,11 @@ else:
                                 y="Distance (km)",
                                 x="Sport",
                                 title="Répartition des distances par sport",
-                                color="Sport"
+                                color="Sport",
                             )
-<<<<<<< HEAD
-                            st.plotly_chart(fig_distance_annuel, width='stretch',
-                                            key="fig_distance_annuel")
-=======
-                            st.plotly_chart(fig, width="stretch")
->>>>>>> Marius_Branch
+                            st.plotly_chart(
+                                fig_distance_annuel, width="stretch", key="fig_distance_annuel"
+                            )
                 else:
                     st.info("Aucune donnée pour cette année")
 
