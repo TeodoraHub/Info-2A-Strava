@@ -16,7 +16,7 @@ def test_health():
     """Test de l'endpoint health check"""
     print("🔍 Test de l'endpoint /health...")
     try:
-        response = requests.get("http://localhost:8000/health", timeout=5)
+        response = requests.get("http://localhost:5000/health", timeout=5)
         if response.status_code == 200:
             print("✅ Health check réussi!")
             print(f"   Réponse: {response.json()}")
@@ -37,7 +37,7 @@ def test_me(username, password):
     print(f"\n🔍 Test de l'endpoint /me avec {username}...")
     try:
         response = requests.get(
-            "http://localhost:8000/me", auth=HTTPBasicAuth(username, password), timeout=5
+            "http://localhost:5000/me", auth=HTTPBasicAuth(username, password), timeout=5
         )
         if response.status_code == 200:
             print("✅ Authentification réussie!")
@@ -56,7 +56,7 @@ def test_complete_workflow(username, password):
     print(f"\n🔍 Test de l'endpoint /test/complete-workflow avec {username}...")
     try:
         response = requests.get(
-            "http://localhost:8000/test/complete-workflow",
+            "http://localhost:5000/test/complete-workflow",
             auth=HTTPBasicAuth(username, password),
             timeout=30,
         )
@@ -120,7 +120,7 @@ def main():
     print("✨ Tests terminés!")
     print("=" * 70)
     print("\nPour voir la documentation complète de l'API:")
-    print("  http://localhost:8000/docs")
+    print("  http://localhost:5000/docs")
 
 
 if __name__ == "__main__":

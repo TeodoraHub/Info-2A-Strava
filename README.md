@@ -32,9 +32,7 @@ Ce projet a été réalisé par une équipe d'étudiants de l'**ENSAI**.
 Sous la direction de Samuel GOUTIN
 
 ## Pour lancer l'application
-python -m uvicorn src.API:app --host 0.0.0.0 --port 8001 --reload
+python -m uvicorn src.API:app --host 0.0.0.0 --port 5000 --reload
 
 ## pour lancer le streamlit (dans un autre terminam)
-streamlit run src/app_streamlit.py --server.port=8501 --server.address=0.0.0.0
-
-test branche Marius
+streamlit run src/app_streamlit.py --server.port=5001 --server.address=0.0.0.0
