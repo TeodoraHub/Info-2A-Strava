@@ -15,4 +15,5 @@ gpxpy
 pytest
 sqlalchemy
 streamlit
+plotly
 python-multipart
