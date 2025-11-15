@@ -369,7 +369,7 @@ else:
                             title="Nombre d'activités par sport",
                             color_discrete_sequence=px.colors.qualitative.Set2,
                         )
-                        st.plotly_chart(fig_activites_dashboard, use_container_width=True)
+                        st.plotly_chart(fig_activites_dashboard, width='stretch')
 
                     with col2:
                         fig_distance_dashboard = px.bar(
@@ -380,7 +380,7 @@ else:
                             color="Sport",
                             color_discrete_sequence=px.colors.qualitative.Pastel,
                         )
-                        st.plotly_chart(fig_distance_dashboard, use_container_width=True)
+                        st.plotly_chart(fig_distance_dashboard, width='stretch')
 
             else:
                 st.info(
@@ -796,7 +796,7 @@ else:
                 "Adresse d'arrivée*", placeholder="Ex: 456 Avenue de Lyon, 75012 Paris"
             )
 
-        if st.button("🔍 Calculer l'itinéraire", type="primary", use_container_width=True):
+        if st.button("🔍 Calculer l'itinéraire", type="primary", width='stretch'):
             if not start_address or not end_address:
                 st.error("Veuillez remplir les deux adresses")
             else:
@@ -903,7 +903,7 @@ else:
                     )
 
                 submit_route = st.form_submit_button(
-                    "💾 Sauvegarder comme activité", type="primary", use_container_width=True
+                    "💾 Sauvegarder comme activité", type="primary", width='stretch'
                 )
 
                 if submit_route:
