@@ -228,7 +228,7 @@ else:
 
                     try:
                         response_activities = requests.get(
-                            f"{API_URL}/users/{st.session_state.user_info['id']}/activities?limit=1",
+                            f"{API_URL}/stats/user/{st.session_state.user_info['id']}/monthly",  # ✅ CHANGÉ
                             auth=get_auth(),
                         )
 
@@ -369,7 +369,7 @@ else:
                             title="Nombre d'activités par sport",
                             color_discrete_sequence=px.colors.qualitative.Set2,
                         )
-                        st.plotly_chart(fig_activites_dashboard, width='stretch')
+                        st.plotly_chart(fig_activites_dashboard, width="stretch")
 
                     with col2:
                         fig_distance_dashboard = px.bar(
@@ -380,7 +380,7 @@ else:
                             color="Sport",
                             color_discrete_sequence=px.colors.qualitative.Pastel,
                         )
-                        st.plotly_chart(fig_distance_dashboard, width='stretch')
+                        st.plotly_chart(fig_distance_dashboard, width="stretch")
 
             else:
                 st.info(
@@ -516,12 +516,15 @@ else:
             "Choisir un fichier GPX pour pré-remplir le formulaire", type=["gpx"]
         )
 
+        # ========== SECTION 1: Télécharger GPX (ligne ~430) ==========
         if uploaded_file is not None:
             try:
                 files = {
                     "file": (uploaded_file.name, uploaded_file.getvalue(), "application/gpx+xml")
                 }
-                response = requests.post(f"{API_URL}/upload-gpx", files=files)
+                response = requests.post(
+                    f"{API_URL}/activities/upload-gpx", files=files
+                )  # ✅ CHANGÉ
 
                 if response.status_code == 200:
                     st.session_state.gpx_data = response.json()
@@ -658,7 +661,7 @@ else:
                 params["sport"] = filtre_sport
 
             response = requests.get(
-                f"{API_URL}/users/{st.session_state.user_info['id']}/activities",
+                f"{API_URL}/stats/user/{st.session_state.user_info['id']}/monthly",  # ✅ CHANGÉ
                 params=params,
                 auth=get_auth(),
             )
@@ -796,7 +799,7 @@ else:
                 "Adresse d'arrivée*", placeholder="Ex: 456 Avenue de Lyon, 75012 Paris"
             )
 
-        if st.button("🔍 Calculer l'itinéraire", type="primary", width='stretch'):
+        if st.button("🔍 Calculer l'itinéraire", type="primary", width="stretch"):
             if not start_address or not end_address:
                 st.error("Veuillez remplir les deux adresses")
             else:
@@ -903,7 +906,7 @@ else:
                     )
 
                 submit_route = st.form_submit_button(
-                    "💾 Sauvegarder comme activité", type="primary", width='stretch'
+                    "💾 Sauvegarder comme activité", type="primary", width="stretch"
                 )
 
                 if submit_route:

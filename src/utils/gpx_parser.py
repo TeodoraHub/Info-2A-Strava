@@ -5,7 +5,10 @@ Module pour parser les fichiers GPX et extraire les données d'activités sporti
 import logging
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+import gpxpy
+from fastapi import HTTPException
 
 
 class GPXParser:
@@ -253,3 +256,70 @@ class GPXParser:
                 denivele_negatif += abs(diff)
 
         return denivele_positif, denivele_negatif
+
+
+def parse_strava_gpx(content: bytes) -> Dict[str, Any]:
+    """Parse un fichier GPX et renvoie les donnees principales en km/h."""
+    gpx = gpxpy.parse(content)
+    distance_m = gpx.length_3d() or 0.0
+    duration_s = gpx.get_duration() or 0.0
+    moving = gpx.get_moving_data()
+    moving_time_s = moving.moving_time if moving and moving.moving_time else 0.0
+    moving_distance_m = moving.moving_distance if moving and moving.moving_distance else 0.0
+
+    distance_km = round(distance_m / 1000, 3)
+    duree_heures = round(duration_s / 3600, 3)
+    temps_mouvement_heures = round(moving_time_s / 3600, 3)
+    vitesse_moyenne = (moving_distance_m / moving_time_s) * 3.6 if moving_time_s > 0 else 0.0
+    vitesse_max = moving.max_speed * 3.6 if moving and moving.max_speed else 0.0
+
+    return {
+        "nom": gpx.tracks[0].name if gpx.tracks else None,
+        "type": gpx.tracks[0].type if gpx.tracks else None,
+        "distance_km": distance_km,
+        "distance totale (km)": distance_km,
+        "duree_heures": duree_heures,
+        "duree totale (min)": round(duration_s / 60, 3),
+        "temps_mouvement_heures": temps_mouvement_heures,
+        "temps en mouvement (min)": round(moving_time_s / 60, 3),
+        "distance en mouvement (km)": round(moving_distance_m / 1000, 3),
+        "vitesse moyenne (km/h)": vitesse_moyenne,
+        "vitesse max (km/h)": vitesse_max,
+    }
+
+
+def _parse_date(date_str: Optional[str]) -> datetime:
+    if not date_str:
+        return datetime.now()
+    try:
+        return datetime.fromisoformat(date_str)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail="Format de date invalide. Utilisez YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS",
+        ) from exc
+
+
+def _coerce_float(value: Any, field: str) -> Optional[float]:
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=f"{field} doit etre numerique") from exc
+
+
+def _activity_to_dict(activity) -> Dict[str, Any]:
+    identifier = getattr(activity, "id", None) or getattr(activity, "id_activite", None)
+    date_value = getattr(activity, "date_activite", None)
+    return {
+        "id": identifier,
+        "titre": getattr(activity, "titre", None),
+        "sport": getattr(activity, "sport", None),
+        "distance": getattr(activity, "distance", None),
+        "duree_heures": getattr(activity, "duree", None),
+        "date_activite": date_value.isoformat() if date_value else None,
+        "lieu": getattr(activity, "lieu", None),
+        "detail_sport": getattr(activity, "detail_sport", None),
+        "id_user": getattr(activity, "id_user", None),
+    }
