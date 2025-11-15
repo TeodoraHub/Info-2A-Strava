@@ -189,23 +189,25 @@ else:
                     col1, col2 = st.columns(2)
 
                     with col1:
-                        fig_activites = px.pie(
+                        fig_activites_dashboard = px.pie(
                             df_sports,
                             names="Sport",
                             values="Activités",
                             title="Nombre d'activités par sport"
                         )
-                        st.plotly_chart(fig_activites, width='stretch')
+                        st.plotly_chart(fig_activites_dashboard, width='stretch',
+                                        key="fig_activites_dashboard")
 
                     with col2:
-                        fig_distance = px.bar(
+                        fig_distance_dashboard = px.bar(
                             df_sports,
                             y="Distance (km)",
                             x="Sport",
                             title="Répartition des distances par sport",
                             color="Sport"
                         )
-                        st.plotly_chart(fig_distance, width='stretch')
+                        st.plotly_chart(fig_distance_dashboard, width='stretch',
+                                        key="fig_distance_dashboard")
 
             else:
                 st.info(
@@ -803,23 +805,35 @@ else:
                             sports_data.append(
                                 {
                                     "Sport": sport.capitalize(),
-                                    "Activités": data.get("nombre", 0),
+                                    "Activités": data.get("count", 0),
                                     "Distance (km)": data.get("distance", 0),
                                 }
                             )
 
                         df = pd.DataFrame(sports_data)
+                        df = df.sort_values("Distance (km)", ascending=False)
 
                         col1, col2 = st.columns(2)
                         with col1:
-                            fig = px.bar(df, x="Sport", y="Activités", title="Activités par sport")
-                            st.plotly_chart(fig, width='stretch')
+                            fig_activites_mensuel = px.pie(
+                                df,
+                                names="Sport",
+                                values="Activités",
+                                title="Nombre d'activités par sport"
+                            )
+                            st.plotly_chart(fig_activites_mensuel, width='stretch',
+                                            key="fig_ctivites_mensuel")
 
                         with col2:
-                            fig = px.bar(
-                                df, x="Sport", y="Distance (km)", title="Distance par sport"
+                            fig_distance_mensuel = px.bar(
+                                df,
+                                y="Distance (km)",
+                                x="Sport",
+                                title="Répartition des distances par sport",
+                                color="Sport"
                             )
-                            st.plotly_chart(fig, width='stretch')
+                            st.plotly_chart(fig_distance_mensuel, width='stretch',
+                                            key="fig_distance_mensuel")
                 else:
                     st.info("Aucune donnée pour cette période")
 
@@ -868,32 +882,36 @@ else:
                             sports_data.append(
                                 {
                                     "Sport": sport.capitalize(),
-                                    "Activités": data.get("nombre", 0),
+                                    "Activités": data.get("count", 0),
                                     "Distance (km)": data.get("distance", 0),
                                     "Durée (h)": data.get("duree", 0),
                                 }
                             )
 
                         df = pd.DataFrame(sports_data)
+                        df = df.sort_values("Distance (km)", ascending=False)
 
                         col1, col2 = st.columns(2)
                         with col1:
-                            fig = px.pie(
+                            fig_activites_annuel = px.pie(
                                 df,
-                                values="Activités",
                                 names="Sport",
-                                title="Répartition des activités",
+                                values="Activités",
+                                title="Nombre d'activités par sport"
                             )
-                            st.plotly_chart(fig, width='stretch')
+                            st.plotly_chart(fig_activites_annuel, width='stretch',
+                                            key="fig_activites_annuel")
 
                         with col2:
-                            fig = px.pie(
+                            fig_distance_annuel = px.bar(
                                 df,
-                                values="Distance (km)",
-                                names="Sport",
-                                title="Répartition des distances",
+                                y="Distance (km)",
+                                x="Sport",
+                                title="Répartition des distances par sport",
+                                color="Sport"
                             )
-                            st.plotly_chart(fig, width='stretch')
+                            st.plotly_chart(fig_distance_annuel, width='stretch',
+                                            key="fig_distance_annuel")
                 else:
                     st.info("Aucune donnée pour cette année")
 
