@@ -241,6 +241,7 @@ else:
 
                             with col1:
                                 st.subheader(f"🏃 {activity.get('titre', 'Sans titre')}")
+                                st.caption(f"📝 Publié par Utilisateur **{activity.get('id_user')}**")
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
