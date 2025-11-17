@@ -20,7 +20,7 @@ def get_route(start_coords, end_coords):
     """Récupère un itinéraire entre deux points via OpenRouteService"""
     try:
         # Utilise OpenRouteService (gratuit, pas d'API key pour usage basique)
-        url = "https://router.project-osrm.org/route/v1/driving"
+        url = "https://router.project-osrm.org/route/v1/foot-walking"
         params = f"{start_coords[1]},{start_coords[0]};{end_coords[1]},{end_coords[0]}"
 
         response = requests.get(f"{url}/{params}?overview=full&geometries=polyline")
@@ -32,7 +32,7 @@ def get_route(start_coords, end_coords):
                 # Décode la polyline
                 coords = pl.decode(route["geometry"])
                 distance = route["distance"] / 1000  # en km
-                duration = route["duration"] / 3600  # en heures
+                duration = distance / 10  # en heures
 
                 return {"coordinates": coords, "distance": distance, "duration": duration}
         return None
