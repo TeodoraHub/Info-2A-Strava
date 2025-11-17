@@ -8,6 +8,13 @@ import streamlit as st
 
 from utils.format import format_h_m
 
+color_map = {
+    "Course": "#EF476F",
+    "Cyclisme": "#FFD166",
+    "Natation": "#118AB2",
+    "Randonnee": "#06D6A0",
+}
+
 # Configuration de la page
 st.set_page_config(page_title="Striv - Application de sport", page_icon="🏃", layout="wide")
 
@@ -228,7 +235,7 @@ else:
 
                     try:
                         response_activities = requests.get(
-                            f"{API_URL}/stats/user/{st.session_state.user_info['id']}/monthly",  # ✅ CHANGÉ
+                            f"{API_URL}/stats/user/{st.session_state.user_info['id']}/monthly",
                             auth=get_auth(),
                         )
 
@@ -367,7 +374,8 @@ else:
                             names="Sport",
                             values="Activités",
                             title="Nombre d'activités par sport",
-                            color_discrete_sequence=px.colors.qualitative.Set2,
+                            color="Sport",
+                            color_discrete_map=color_map
                         )
                         st.plotly_chart(fig_activites_dashboard, width="stretch")
 
@@ -378,7 +386,7 @@ else:
                             x="Sport",
                             title="Répartition des distances par sport",
                             color="Sport",
-                            color_discrete_sequence=px.colors.qualitative.Pastel,
+                            color_discrete_map=color_map
                         )
                         st.plotly_chart(fig_distance_dashboard, width="stretch")
 
@@ -1167,6 +1175,8 @@ else:
                                 names="Sport",
                                 values="Activités",
                                 title="Nombre d'activités par sport",
+                                color="Sport",
+                                color_discrete_map=color_map
                             )
                             st.plotly_chart(
                                 fig_activites_mensuel, width="stretch", key="fig_ctivites_mensuel"
@@ -1179,6 +1189,7 @@ else:
                                 x="Sport",
                                 title="Répartition des distances par sport",
                                 color="Sport",
+                                color_discrete_map=color_map
                             )
                             st.plotly_chart(
                                 fig_distance_mensuel, width="stretch", key="fig_distance_mensuel"
@@ -1247,6 +1258,8 @@ else:
                                 names="Sport",
                                 values="Activités",
                                 title="Nombre d'activités par sport",
+                                color="Sport",
+                                color_discrete_map=color_map
                             )
                             st.plotly_chart(
                                 fig_activites_annuel, width="stretch", key="fig_activites_annuel"
@@ -1259,6 +1272,7 @@ else:
                                 x="Sport",
                                 title="Répartition des distances par sport",
                                 color="Sport",
+                                color_discrete_map=color_map
                             )
                             st.plotly_chart(
                                 fig_distance_annuel, width="stretch", key="fig_distance_annuel"
