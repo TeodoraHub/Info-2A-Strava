@@ -163,7 +163,7 @@ else:
                 initials = "".join(
                     [word[0].upper() for word in st.session_state.user_info["username"].split()]
                 )
-                avatar_color = "#FF6B6B"
+                avatar_color = "#EF476F"
                 st.markdown(
                     f"""
                 <div style="
@@ -248,7 +248,7 @@ else:
                                 st.markdown(
                                     f"""
                                 <div style="
-                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    background: linear-gradient(135deg, #EF476F 0%, #FF8A97 100%);
                                     padding: 20px;
                                     border-radius: 10px;
                                     color: white;
@@ -285,7 +285,7 @@ else:
                             st.markdown(
                                 f"""
                             <div style="
-                                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                                background: linear-gradient(135deg, #FFC42B 0%, #FFD263 100%);
                                 padding: 20px;
                                 border-radius: 10px;
                                 color: white;
@@ -324,7 +324,7 @@ else:
                             st.markdown(
                                 f"""
                             <div style="
-                                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                                background: linear-gradient(135deg, #118AB2 0%, #6EEBFF 100%);
                                 padding: 20px;
                                 border-radius: 10px;
                                 color: white;
@@ -784,7 +784,7 @@ else:
             st.error(f"Erreur: {str(e)}")
 
     # ============================================================================
-    # CRÉER UN PARCOURS (NOUVEAU)
+    # CRÉER UN PARCOURS
     # ============================================================================
     elif menu == "🗺️ Créer un parcours":
         st.title("🗺️ Créer un parcours")
