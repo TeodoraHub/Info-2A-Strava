@@ -1,11 +1,11 @@
 # streamlit run src/app_streamlit.py --server.port=5501 --server.address=0.0.0.0
+import base64
 from datetime import date, datetime
 
 import pandas as pd
 import plotly.express as px
 import requests
 import streamlit as st
-import base64
 
 from utils.format import format_h_m
 
@@ -23,10 +23,10 @@ def get_base64_image(image_path):
         # Lire le fichier en mode binaire
         with open(image_path, "rb") as img_file:
             encoded_string = base64.b64encode(img_file.read()).decode()
-            
+
             # Déterminer le type MIME pour le SVG
             mime_type = "image/svg+xml" if image_path.lower().endswith(".svg") else "image/png"
-            
+
             # Retourner la chaîne Base64 complète avec l'en-tête de données
             return f"data:{mime_type};base64,{encoded_string}"
     except FileNotFoundError:
@@ -38,7 +38,9 @@ logo_base64 = get_base64_image(LOGO_PATH)
 favicon_url = f"data:image/png;base64,{logo_base64}"
 
 # Configuration de la page
-st.set_page_config(page_title="Striv - Application de sport", page_icon="src/favicon.svg", layout="wide")
+st.set_page_config(
+    page_title="Striv - Application de sport", page_icon="src/favicon.svg", layout="wide"
+)
 
 # URL de base de l'API
 API_URL = "http://localhost:5000"
@@ -75,87 +77,337 @@ def get_auth():
 
 # Interface de connexion/inscription
 if not st.session_state.authenticated:
-    if logo_base64:
-        st.markdown(
-            f"""
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="{logo_base64}"
-                    width="60"
-                    style="margin-top: -10px;">
-                <h1 style="margin: 0;">Striv - Application de sport connectée</h1>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    else:
-        # Solution de secours si le logo n'est pas trouvé
-        st.title("🏃 Striv - Application de sport connectée")
+    # CSS personnalisé pour un design moderne
     st.markdown(
-        "### Alternative gratuite et sans abonnement pour le suivi de vos activités sportives"
+        """
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo-section h1 {
+            color: white;
+            margin: 15px 0 5px 0;
+            font-size: 2.5em;
+        }
+        
+        .logo-section p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1em;
+            margin: 0;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 0;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            background-color: transparent;
+            border-radius: 10px 10px 0 0;
+            padding: 10px 30px;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            border-bottom-color: #667eea;
+            background-color: #f0f0f0;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .error-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .divider-text {
+            text-align: center;
+            color: #999;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+        
+        .button-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .button-primary:hover {
+            transform: translateY(-2px);
+        }
+        
+        .benefits {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .benefit-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .benefit-card h4 {
+            color: #667eea;
+            margin: 10px 0 5px 0;
+            font-size: 0.95em;
+        }
+        
+        .benefit-card p {
+            color: #666;
+            font-size: 0.85em;
+            margin: 0;
+        }
+    </style>
+    """,
+        unsafe_allow_html=True,
     )
 
-    tab1, tab2 = st.tabs(["Connexion", "Inscription"])
+    # Conteneur principal
+    col_center = st.columns([1, 2, 1])
 
-    with tab1:
-        st.subheader("Connexion")
-        with st.form("login_form"):
-            username = st.text_input("Nom d'utilisateur")
-            password = st.text_input("Mot de passe", type="password")
-            submit = st.form_submit_button("Se connecter", width="stretch")
+    with col_center[1]:
+        # En-tête avec logo
+        if logo_base64:
+            st.markdown(
+                f"""
+                <div class="logo-section">
+                    <img src="{logo_base64}" width="80" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));">
+                    <h1>Striv</h1>
+                    <p>🏃 Application de sport connectée</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                """
+                <div class="logo-section">
+                    <h1>🏃 Striv</h1>
+                    <p>Application de sport connectée</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-            if submit:
-                try:
-                    response = requests.post(
-                        f"{API_URL}/login", params={"username": username, "password": password}
-                    )
-                    if response.status_code == 200:
-                        st.session_state.authenticated = True
-                        st.session_state.username = username
-                        st.session_state.password = password
-                        st.session_state.user_info = response.json()["user"]
-                        st.success("Connexion réussie!")
-                        st.rerun()
+        st.markdown(
+            """
+            <p style="text-align: center; color: #666; font-size: 0.95em; margin: 0;">
+            Alternative gratuite et sans abonnement pour le suivi de vos activités sportives
+            </p>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
+        # Onglets
+        tab1, tab2 = st.tabs(["🔐 Connexion", "📝 Inscription"])
+
+        with tab1:
+            st.markdown("<div class='form-container'>", unsafe_allow_html=True)
+
+            with st.form("login_form", clear_on_submit=True):
+                st.markdown("### Se connecter à votre compte")
+
+                username = st.text_input(
+                    "👤 Nom d'utilisateur",
+                    placeholder="Entrez votre nom d'utilisateur",
+                    key="login_username",
+                )
+
+                password = st.text_input(
+                    "🔒 Mot de passe",
+                    type="password",
+                    placeholder="Entrez votre mot de passe",
+                    key="login_password",
+                )
+
+                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+
+                submit = st.form_submit_button(
+                    "🚀 Se connecter", use_container_width=True, type="primary"
+                )
+
+                if submit:
+                    if not username or not password:
+                        st.error("⚠️ Veuillez remplir tous les champs")
                     else:
-                        st.error("Identifiants incorrects")
-                except Exception as e:
-                    st.error(f"Erreur de connexion: {str(e)}")
-
-    with tab2:
-        st.subheader("Créer un compte")
-        with st.form("signup_form"):
-            new_username = st.text_input("Nom d'utilisateur")
-            new_email = st.text_input("Email")
-            new_password = st.text_input("Mot de passe", type="password")
-            confirm_password = st.text_input("Confirmer le mot de passe", type="password")
-            submit_signup = st.form_submit_button("S'inscrire", width="stretch")
-
-            if submit_signup:
-                if new_password != confirm_password:
-                    st.error("Les mots de passe ne correspondent pas")
-                elif len(new_password) < 4:
-                    st.error("Le mot de passe doit contenir au moins 4 caractères")
-                else:
-                    try:
-                        response = requests.post(
-                            f"{API_URL}/users",
-                            params={
-                                "nom_user": new_username,
-                                "mail_user": new_email,
-                                "mdp": new_password,
-                            },
-                        )
-                        if response.status_code == 200:
-                            st.success(
-                                "Compte créé avec succès! Vous pouvez maintenant vous connecter."
+                        try:
+                            response = requests.post(
+                                f"{API_URL}/login",
+                                params={"username": username, "password": password},
                             )
-                        else:
-                            st.error(f"Erreur: {response.json().get('detail', 'Erreur inconnue')}")
-                    except Exception as e:
-                        st.error(f"Erreur lors de la création: {str(e)}")
+                            if response.status_code == 200:
+                                st.session_state.authenticated = True
+                                st.session_state.username = username
+                                st.session_state.password = password
+                                st.session_state.user_info = response.json()["user"]
+                                st.success("✅ Connexion réussie! Redirection...")
+                                st.balloons()
+                                st.rerun()
+                            else:
+                                st.error("❌ Identifiants incorrects. Veuillez réessayer.")
+                        except Exception as e:
+                            st.error(f"❌ Erreur de connexion: {str(e)}")
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with tab2:
+            st.markdown("<div class='form-container'>", unsafe_allow_html=True)
+
+            with st.form("signup_form", clear_on_submit=True):
+                st.markdown("### Créer un nouveau compte")
+
+                new_username = st.text_input(
+                    "👤 Nom d'utilisateur",
+                    placeholder="Choisissez un nom d'utilisateur",
+                    key="signup_username",
+                )
+
+                new_email = st.text_input(
+                    "📧 Adresse email", placeholder="votre@email.com", key="signup_email"
+                )
+
+                new_password = st.text_input(
+                    "🔒 Mot de passe",
+                    type="password",
+                    placeholder="Créez un mot de passe sécurisé",
+                    key="signup_password",
+                )
+
+                confirm_password = st.text_input(
+                    "🔒 Confirmer le mot de passe",
+                    type="password",
+                    placeholder="Confirmez votre mot de passe",
+                    key="signup_confirm",
+                )
+
+                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+
+                submit_signup = st.form_submit_button(
+                    "✨ S'inscrire", use_container_width=True, type="primary"
+                )
+
+                if submit_signup:
+                    if not new_username or not new_email or not new_password:
+                        st.error("⚠️ Veuillez remplir tous les champs obligatoires")
+                    elif new_password != confirm_password:
+                        st.error("❌ Les mots de passe ne correspondent pas")
+                    elif len(new_password) < 4:
+                        st.error("❌ Le mot de passe doit contenir au moins 4 caractères")
+                    elif "@" not in new_email:
+                        st.error("❌ Veuillez entrer une adresse email valide")
+                    else:
+                        try:
+                            response = requests.post(
+                                f"{API_URL}/users",
+                                params={
+                                    "nom_user": new_username,
+                                    "mail_user": new_email,
+                                    "mdp": new_password,
+                                },
+                            )
+                            if response.status_code == 200:
+                                st.success("✅ Compte créé avec succès!")
+                                st.info(
+                                    "📱 Vous pouvez maintenant vous connecter avec vos identifiants."
+                                )
+                                st.balloons()
+                            else:
+                                error_msg = response.json().get("detail", "Erreur inconnue")
+                                st.error(f"❌ Erreur: {error_msg}")
+                        except Exception as e:
+                            st.error(f"❌ Erreur lors de la création: {str(e)}")
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        # Avantages en bas de page
+        st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
+
+        st.markdown(
+            """
+        <div class="benefits">
+            <div class="benefit-card">
+                <div style="font-size: 2em; margin-bottom: 10px;">🆓</div>
+                <h4>100% Gratuit</h4>
+                <p>Sans abonnement ni frais cachés</p>
+            </div>
+            <div class="benefit-card">
+                <div style="font-size: 2em; margin-bottom: 10px;">📊</div>
+                <h4>Statistiques</h4>
+                <p>Analysez vos performances</p>
+            </div>
+            <div class="benefit-card">
+                <div style="font-size: 2em; margin-bottom: 10px;">👥</div>
+                <h4>Communauté</h4>
+                <p>Partagez avec vos amis</p>
+            </div>
+            <div class="benefit-card">
+                <div style="font-size: 2em; margin-bottom: 10px;">🗺️</div>
+                <h4>Parcours</h4>
+                <p>Créez vos itinéraires</p>
+            </div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
 
 # Interface principale (après connexion)
 else:
-
     with st.sidebar:
         if logo_base64:
             st.markdown(
@@ -167,7 +419,7 @@ else:
                     <h1 style="margin: 0; padding-top: 20px; font-size: 36px;">Striv</h1>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
         else:
             # Solution de secours si le fichier Base64 n'est pas trouvé
@@ -426,7 +678,7 @@ else:
                             values="Activités",
                             title="Nombre d'activités par sport",
                             color="Sport",
-                            color_discrete_map=color_map
+                            color_discrete_map=color_map,
                         )
                         st.plotly_chart(fig_activites_dashboard, width="stretch")
 
@@ -437,7 +689,7 @@ else:
                             x="Sport",
                             title="Répartition des distances par sport",
                             color="Sport",
-                            color_discrete_map=color_map
+                            color_discrete_map=color_map,
                         )
                         st.plotly_chart(fig_distance_dashboard, width="stretch")
 
@@ -1227,7 +1479,7 @@ else:
                                 values="Activités",
                                 title="Nombre d'activités par sport",
                                 color="Sport",
-                                color_discrete_map=color_map
+                                color_discrete_map=color_map,
                             )
                             st.plotly_chart(
                                 fig_activites_mensuel, width="stretch", key="fig_ctivites_mensuel"
@@ -1240,7 +1492,7 @@ else:
                                 x="Sport",
                                 title="Répartition des distances par sport",
                                 color="Sport",
-                                color_discrete_map=color_map
+                                color_discrete_map=color_map,
                             )
                             st.plotly_chart(
                                 fig_distance_mensuel, width="stretch", key="fig_distance_mensuel"
@@ -1310,7 +1562,7 @@ else:
                                 values="Activités",
                                 title="Nombre d'activités par sport",
                                 color="Sport",
-                                color_discrete_map=color_map
+                                color_discrete_map=color_map,
                             )
                             st.plotly_chart(
                                 fig_activites_annuel, width="stretch", key="fig_activites_annuel"
@@ -1323,7 +1575,7 @@ else:
                                 x="Sport",
                                 title="Répartition des distances par sport",
                                 color="Sport",
-                                color_discrete_map=color_map
+                                color_discrete_map=color_map,
                             )
                             st.plotly_chart(
                                 fig_distance_annuel, width="stretch", key="fig_distance_annuel"
