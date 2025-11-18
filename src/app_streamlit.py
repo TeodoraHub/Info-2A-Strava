@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.express as px
 import requests
 import streamlit as st
+import base64
 
 from utils.format import format_h_m
 
@@ -15,8 +16,22 @@ color_map = {
     "Randonnee": "#06D6A0",
 }
 
+
+def get_base64_image(image_path):
+    """Encode une image locale en chaîne Base64."""
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except FileNotFoundError:
+        return None
+
+
+LOGO_PATH = "src/Logo_Striv_blanc.png"
+logo_base64 = get_base64_image(LOGO_PATH)
+favicon_url = f"data:image/png;base64,{logo_base64}"
+
 # Configuration de la page
-st.set_page_config(page_title="Striv - Application de sport", page_icon="🏃", layout="wide")
+st.set_page_config(page_title="Striv - Application de sport", page_icon=favicon_url, layout="wide")
 
 # URL de base de l'API
 API_URL = "http://localhost:5000"
@@ -119,9 +134,24 @@ if not st.session_state.authenticated:
 
 # Interface principale (après connexion)
 else:
-    # Sidebar
+
     with st.sidebar:
-        st.title("🏃 Striv")
+        
+        if logo_base64:
+            st.markdown(
+                f"""
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <img src="data:image/png;base64,{logo_base64}" 
+                         width="50" 
+                         style="margin-right: 10px;">
+                    <h1 style="margin: 0; padding-top: 5px;">Striv</h1>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        else:
+            # Solution de secours si le fichier Base64 n'est pas trouvé
+            st.markdown("## 🏃 Striv")
         st.write(f"**{st.session_state.user_info['username']}**")
         st.write(f"📧 {st.session_state.user_info['email']}")
 
