@@ -20,18 +20,25 @@ color_map = {
 def get_base64_image(image_path):
     """Encode une image locale en chaîne Base64."""
     try:
+        # Lire le fichier en mode binaire
         with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
+            encoded_string = base64.b64encode(img_file.read()).decode()
+            
+            # Déterminer le type MIME pour le SVG
+            mime_type = "image/svg+xml" if image_path.lower().endswith(".svg") else "image/png"
+            
+            # Retourner la chaîne Base64 complète avec l'en-tête de données
+            return f"data:{mime_type};base64,{encoded_string}"
     except FileNotFoundError:
         return None
 
 
-LOGO_PATH = "src/Logo_Striv_blanc.png"
+LOGO_PATH = "src/favicon.svg"
 logo_base64 = get_base64_image(LOGO_PATH)
 favicon_url = f"data:image/png;base64,{logo_base64}"
 
 # Configuration de la page
-st.set_page_config(page_title="Striv - Application de sport", page_icon=favicon_url, layout="wide")
+st.set_page_config(page_title="Striv - Application de sport", page_icon="src/favicon.svg", layout="wide")
 
 # URL de base de l'API
 API_URL = "http://localhost:5000"
@@ -68,7 +75,21 @@ def get_auth():
 
 # Interface de connexion/inscription
 if not st.session_state.authenticated:
-    st.title("🏃 Striv - Application de sport connectée")
+    if logo_base64:
+        st.markdown(
+            f"""
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="{logo_base64}"
+                    width="60"
+                    style="margin-top: -10px;">
+                <h1 style="margin: 0;">Striv - Application de sport connectée</h1>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        # Solution de secours si le logo n'est pas trouvé
+        st.title("🏃 Striv - Application de sport connectée")
     st.markdown(
         "### Alternative gratuite et sans abonnement pour le suivi de vos activités sportives"
     )
@@ -136,15 +157,14 @@ if not st.session_state.authenticated:
 else:
 
     with st.sidebar:
-        
         if logo_base64:
             st.markdown(
                 f"""
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <img src="data:image/png;base64,{logo_base64}" 
-                         width="50" 
+                    <img src="{logo_base64}"
+                         width="50"
                          style="margin-right: 10px;">
-                    <h1 style="margin: 0; padding-top: 5px;">Striv</h1>
+                    <h1 style="margin: 0; padding-top: 20px; font-size: 36px;">Striv</h1>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -208,6 +228,7 @@ else:
                     color: white;
                     font-weight: bold;
                     margin: 0 auto;
+                    margin-top: 25px;
                 ">
                     {initials}
                 </div>
