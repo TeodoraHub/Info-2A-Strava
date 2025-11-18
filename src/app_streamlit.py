@@ -7,6 +7,7 @@ import plotly.express as px
 import requests
 import streamlit as st
 
+from routers import activities, comments, followers, stats
 from utils.format import format_h_m
 
 color_map = {
@@ -1324,6 +1325,7 @@ else:
 
                 if response.status_code == 200:
                     following = response.json()
+                    count_following = len(following)
 
                     if not following:
                         st.info("Vous ne suivez personne pour le moment")
@@ -1585,3 +1587,140 @@ else:
 
             except Exception as e:
                 st.error(f"Erreur: {str(e)}")
+
+    # ============================================================================
+    # PRÉDICTIONS
+    # ============================================================================
+    elif menu == "🔮 Prédictions":
+        st.title("🔮 Prédictions de Performance")
+        st.markdown("*Prédisez vos performances basées sur votre historique*")
+
+        try:
+            # Onglets
+            tab1, tab2 = st.tabs(["Distance pour une durée", "Durée pour une distance"])
+
+            with tab1:
+                st.subheader("📏 Quelle distance allez-vous parcourir ?")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    sport = st.selectbox(
+                        "Sport*", ["course", "cyclisme", "natation", "randonnee"], key="pred_sport1"
+                    )
+                with col2:
+                    duration = st.number_input(
+                        "Durée (heures)*", min_value=0.1, step=0.25, value=1.0
+                    )
+
+                period = st.slider(
+                    "Période d'analyse (jours)", min_value=7, max_value=365, value=90, step=7
+                )
+
+                if st.button("🔮 Prédire la distance", type="primary", use_container_width=True):
+                    try:
+                        response = requests.get(
+                            f"{API_URL}/predictions/distance",
+                            params={
+                                "sport": sport,
+                                "duration_hours": duration,
+                                "period_days": period,
+                            },
+                            auth=get_auth(),
+                        )
+
+                        if response.status_code == 200:
+                            prediction = response.json()
+
+                            st.success("✅ Prédiction calculée!")
+
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric(
+                                    "Distance prédite", f"{prediction['predicted_distance']:.2f} km"
+                                )
+                            with col2:
+                                st.metric("Vitesse moyenne", f"{prediction['mean_speed']:.2f} km/h")
+                            with col3:
+                                st.metric("Confiance", prediction["confidence"])
+
+                            st.info(
+                                f"""
+                                **Intervalle de confiance:**
+                                - Min: {prediction["lower_bound"]:.2f} km
+                                - Max: {prediction["upper_bound"]:.2f} km
+                                
+                                **Basé sur:** {prediction["activities_used"]} activités
+                                """
+                            )
+                        else:
+                            st.error(f"Erreur: {response.json()['detail']}")
+                    except Exception as e:
+                        st.error(f"Erreur: {str(e)}")
+
+            with tab2:
+                st.subheader("⏱️ Combien de temps cela vous prendra-t-il ?")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    sport = st.selectbox(
+                        "Sport*", ["course", "cyclisme", "natation", "randonnee"], key="pred_sport2"
+                    )
+                with col2:
+                    distance = st.number_input(
+                        "Distance (km)*", min_value=0.1, step=0.5, value=10.0
+                    )
+
+                period = st.slider(
+                    "Période d'analyse (jours)",
+                    min_value=7,
+                    max_value=365,
+                    value=90,
+                    step=7,
+                    key="period2",
+                )
+
+                if st.button("🔮 Prédire la durée", type="primary", use_container_width=True):
+                    try:
+                        response = requests.get(
+                            f"{API_URL}/predictions/time",
+                            params={"sport": sport, "distance_km": distance, "period_days": period},
+                            auth=get_auth(),
+                        )
+
+                        if response.status_code == 200:
+                            prediction = response.json()
+
+                            st.success("✅ Prédiction calculée!")
+
+                            hours = int(prediction["predicted_time_hours"])
+                            minutes = int((prediction["predicted_time_hours"] % 1) * 60)
+
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("Durée prédite", f"{hours}h {minutes}min")
+                            with col2:
+                                st.metric("Vitesse moyenne", f"{prediction['mean_speed']:.2f} km/h")
+                            with col3:
+                                st.metric("Confiance", prediction["confidence"])
+
+                            lower_h = int(prediction["lower_bound_hours"])
+                            lower_m = int((prediction["lower_bound_hours"] % 1) * 60)
+                            upper_h = int(prediction["upper_bound_hours"])
+                            upper_m = int((prediction["upper_bound_hours"] % 1) * 60)
+
+                            st.info(
+                                f"""
+                                **Intervalle de confiance:**
+                                - Min: {lower_h}h {lower_m}min
+                                - Max: {upper_h}h {upper_m}min
+                                
+                                **Basé sur:** {prediction["activities_used"]} activités
+                                """
+                            )
+                        else:
+                            st.error(f"Erreur: {response.json()['detail']}")
+                    except Exception as e:
+                        st.error(f"Erreur: {str(e)}")
+
+        except Exception as e:
+            st.error(f"Erreur: {str(e)}")
