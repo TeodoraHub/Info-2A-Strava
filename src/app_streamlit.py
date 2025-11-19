@@ -302,6 +302,8 @@ else:
 
                             if activities:
                                 last_activity = activities[0]
+                                sport = last_activity.get("sport", "").lower()
+                                sport_emoji = SPORT_ICONS.get(sport, "🏃")
 
                                 st.markdown(
                                     f"""
@@ -311,7 +313,7 @@ else:
                                     border-radius: 10px;
                                     color: white;
                                 ">
-                                    <h4 style="margin: 0 0 10px 0;">🏃 {last_activity.get("titre", "Sans titre")}</h4>
+                                    <h4 style="margin: 0 0 10px 0;">{sport_emoji} {last_activity.get("titre", "Sans titre")}</h4>
                                     <p style="margin: 5px 0;"><b>Sport:</b> {last_activity.get("sport", "N/A").capitalize()}</p>
                                     <p style="margin: 5px 0;"><b>Distance:</b> {last_activity.get("distance", 0):.2f} km</p>
                                     <p style="margin: 5px 0;"><b>Durée:</b> {format_h_m(last_activity.get("duree_heures", 0))}</p>
