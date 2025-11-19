@@ -467,15 +467,29 @@ else:
                         "Votre fil d'actualité est vide. Suivez d'autres utilisateurs pour voir leurs activités !"
                     )
                 else:
+                    # Récupérer la liste de tous les utilisateurs
+                    users_response = requests.get(f"{API_URL}/users", auth=get_auth())
+                    users_dict = {}
+                    if users_response.status_code == 200:
+                        users_list = users_response.json()
+                        # Créer un dictionnaire {id_user: nom_user}
+                        users_dict = {user['id_user']: user['nom_user'] for user in users_list}
+                        uid = st.session_state.user_info['id']
+                        if uid:
+                            users_dict[uid] = st.session_state.user_info["username"]
+
+                    # Maintenant parcourir les activités
                     for activity in activities:
                         with st.container():
                             col1, col2 = st.columns([3, 1])
 
                             with col1:
+                                # Récupérer le nom de l'utilisateur depuis le dictionnaire
+                                user_id = activity.get('id_user')
+                                user_name = users_dict.get(user_id, "Nom inconnu")
+                                
                                 st.subheader(f"🏃 {activity.get('titre', 'Sans titre')}")
-                                st.caption(
-                                    f"📝 Publié par Utilisateur **{activity.get('id_user')}**"
-                                )
+                                st.caption(f"📝 Publié par **{user_name}**")
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
@@ -532,8 +546,10 @@ else:
 
                                     if comments:
                                         for comment in comments:
+                                            cid = comment.get("id_user")
+                                            cname = users_dict.get(cid, "Nom inconnu")
                                             st.write(
-                                                f"**Utilisateur {comment['id_user']}:** {comment['contenu']}"
+                                                f"**{cname}:** {comment['contenu']}"
                                             )
                                             st.caption(f"Le {comment['date_comment']}")
                                     else:
