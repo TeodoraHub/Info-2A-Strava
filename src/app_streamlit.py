@@ -16,6 +16,13 @@ color_map = {
     "Randonnee": "#06D6A0",
 }
 
+SPORT_ICONS = {
+    "course": "🏃",
+    "cyclisme": "🚴",
+    "natation": "🏊",
+    "randonnee": "🚶",
+}
+
 
 def get_base64_image(image_path):
     """Encode une image locale en chaîne Base64."""
@@ -487,8 +494,9 @@ else:
                                 # Récupérer le nom de l'utilisateur depuis le dictionnaire
                                 user_id = activity.get('id_user')
                                 user_name = users_dict.get(user_id, "Nom inconnu")
-                                
-                                st.subheader(f"🏃 {activity.get('titre', 'Sans titre')}")
+                                sport = activity.get("sport", "").lower()
+                                icon = SPORT_ICONS.get(sport, "[ACT]")
+                                st.subheader(f"{icon} {activity.get('titre', 'Sans titre')}")
                                 st.caption(f"📝 Publié par **{user_name}**")
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
