@@ -17,6 +17,13 @@ color_map = {
     "Randonnee": "#06D6A0",
 }
 
+SPORT_ICONS = {
+    "course": "🏃",
+    "cyclisme": "🚴",
+    "natation": "🏊",
+    "randonnee": "🚶",
+}
+
 
 def get_base64_image(image_path):
     """Encode une image locale en chaîne Base64."""
@@ -548,6 +555,8 @@ else:
 
                             if activities:
                                 last_activity = activities[0]
+                                sport = last_activity.get("sport", "").lower()
+                                sport_emoji = SPORT_ICONS.get(sport, "🏃")
 
                                 st.markdown(
                                     f"""
@@ -557,7 +566,7 @@ else:
                                     border-radius: 10px;
                                     color: white;
                                 ">
-                                    <h4 style="margin: 0 0 10px 0;">🏃 {last_activity.get("titre", "Sans titre")}</h4>
+                                    <h4 style="margin: 0 0 10px 0;">{sport_emoji} {last_activity.get("titre", "Sans titre")}</h4>
                                     <p style="margin: 5px 0;"><b>Sport:</b> {last_activity.get("sport", "N/A").capitalize()}</p>
                                     <p style="margin: 5px 0;"><b>Distance:</b> {last_activity.get("distance", 0):.2f} km</p>
                                     <p style="margin: 5px 0;"><b>Durée:</b> {format_h_m(last_activity.get("duree_heures", 0))}</p>
@@ -720,15 +729,30 @@ else:
                         "Votre fil d'actualité est vide. Suivez d'autres utilisateurs pour voir leurs activités !"
                     )
                 else:
+                    # Récupérer la liste de tous les utilisateurs
+                    users_response = requests.get(f"{API_URL}/users", auth=get_auth())
+                    users_dict = {}
+                    if users_response.status_code == 200:
+                        users_list = users_response.json()
+                        # Créer un dictionnaire {id_user: nom_user}
+                        users_dict = {user['id_user']: user['nom_user'] for user in users_list}
+                        uid = st.session_state.user_info['id']
+                        if uid:
+                            users_dict[uid] = st.session_state.user_info["username"]
+
+                    # Maintenant parcourir les activités
                     for activity in activities:
                         with st.container():
                             col1, col2 = st.columns([3, 1])
 
                             with col1:
-                                st.subheader(f"🏃 {activity.get('titre', 'Sans titre')}")
-                                st.caption(
-                                    f"📝 Publié par Utilisateur **{activity.get('id_user')}**"
-                                )
+                                # Récupérer le nom de l'utilisateur depuis le dictionnaire
+                                user_id = activity.get('id_user')
+                                user_name = users_dict.get(user_id, "Nom inconnu")
+                                sport = activity.get("sport", "").lower()
+                                icon = SPORT_ICONS.get(sport, "[ACT]")
+                                st.subheader(f"{icon} {activity.get('titre', 'Sans titre')}")
+                                st.caption(f"📝 Publié par **{user_name}**")
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
@@ -785,8 +809,10 @@ else:
 
                                     if comments:
                                         for comment in comments:
+                                            cid = comment.get("id_user")
+                                            cname = users_dict.get(cid, "Nom inconnu")
                                             st.write(
-                                                f"**Utilisateur {comment['id_user']}:** {comment['contenu']}"
+                                                f"**{cname}:** {comment['contenu']}"
                                             )
                                             st.caption(f"Le {comment['date_comment']}")
                                     else:

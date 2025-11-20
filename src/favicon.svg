@@ -1,7 +1,7 @@
 <svg viewBox="0 0 2550 3300" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <style>
     /* Couleur par défaut (Thème Clair) */
-    .logo-fill { fill: black; }
+    .logo-fill { fill: #32333f; }
     
     /* Changement de couleur pour le Thème Sombre */
     @media (prefers-color-scheme: dark) {
