@@ -9,9 +9,7 @@ from business_object.Activity_object.randonnee import Randonnee
 from business_object.user_object.statistiques import Statistiques
 
 
-
 from sqlalchemy import Column, Integer, String
-
 
 
 class Utilisateur(Base):
@@ -144,6 +142,7 @@ class Utilisateur(Base):
 
         else:
             raise ValueError(f"Type d’activité inconnu: {type_activite}")
+
     def obtenir_statistiques(self, periode: str = None, sport: str = None) -> dict:
         """Retourne les statistiques de l'utilisateur connecté.
 

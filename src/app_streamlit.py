@@ -699,7 +699,7 @@ else:
                 params["sport"] = filtre_sport
 
             response = requests.get(
-                f"{API_URL}/stats/user/{st.session_state.user_info['id']}/monthly",  # ✅ CHANGÉ
+                f"{API_URL}/stats/user/{st.session_state.user_info['id']}/monthly",
                 params=params,
                 auth=get_auth(),
             )
