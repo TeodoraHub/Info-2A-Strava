@@ -1,54 +1,62 @@
 import os
+import logging
 import dotenv
-import sys 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(project_root)
+import sys
 
-from utils.singleton import Singleton 
+# Nécessaire pour les chemins absolus (suppose que vous remontez de src/utils/ à la racine)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+sys.path.append(os.path.join(project_root, "src")) 
+
+from utils.singleton import Singleton
 from dao.db_connection import DBConnection
+# from service.joueur_service import JoueurService # Commenté car non défini dans l'input
+
+# Définition des chemins absolus
+DATA_DIR = os.path.join(project_root, "data")
+INIT_DB_PATH = os.path.join(DATA_DIR, "init_db.sql")
+POP_DB_PATH = os.path.join(DATA_DIR, "pop_db.sql")
+POP_DB_TEST_PATH = os.path.join(DATA_DIR, "pop_db_test.sql")
+
 
 class ResetDatabase(metaclass=Singleton):
-    """
-    Réinitialisation de la base de données
-    """
-
-    def lancer(self):
-        print("Ré-initialisation de la base de données")
-
-        pop_data_path = "data/pop_db.sql"
-
+    
+    def lancer(self, test_dao=False):
         dotenv.load_dotenv()
-
-        schema = os.environ["POSTGRES_SCHEMA"]
+        if test_dao:
+            schema = "projet_test_dao"
+            pop_data_path = POP_DB_TEST_PATH
+        else:
+            schema = os.environ.get("POSTGRES_SCHEMA", "public")
+            pop_data_path = POP_DB_PATH
 
         create_schema = f"DROP SCHEMA IF EXISTS {schema} CASCADE; CREATE SCHEMA {schema};"
 
-        init_db = open("data/init_db.sql", encoding="utf-8")
-        init_db_as_string = init_db.read()
-        init_db.close()
-
-        pop_db = open(pop_data_path, encoding="utf-8")
-        pop_db_as_string = pop_db.read()
-        pop_db.close()
+        try:
+            with open(INIT_DB_PATH, encoding="utf-8") as init_db:
+                init_db_as_string = init_db.read()
+            with open(pop_data_path, encoding="utf-8") as pop_db:
+                pop_db_as_string = pop_db.read()
+        except FileNotFoundError as e:
+            logging.error(f"Fichier SQL introuvable: {e}")
+            raise
 
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
-                    print("📝 Création de schema ")
+                    print(f"📝 Réinitialisation du schéma : {schema}")
                     cursor.execute(create_schema)
-                    print("📝 Exécution de init_db.sql...")
+                    # Force le search_path pour toutes les requêtes suivantes
+                    cursor.execute(f"SET search_path TO {schema};")
                     cursor.execute(init_db_as_string)
-                    print("📝 Exécution de pop_db.sql...")
                     cursor.execute(pop_db_as_string)
-
                     connection.commit()
-                print("✅ Base de données réinitialisée avec succès!")
         except Exception as e:
-            print(f"❌ Erreur lors de la réinitialisation: {e}")
+            logging.error(e)
             raise
-
-        print("Ré-initialisation de la base de données - Terminée")
         return True
+
+
 
 
 if __name__ == "__main__":
