@@ -16,22 +16,36 @@ color_map = {
     "Randonnee": "#06D6A0",
 }
 
+SPORT_ICONS = {
+    "course": "🏃",
+    "cyclisme": "🚴",
+    "natation": "🏊",
+    "randonnee": "🚶",
+}
+
 
 def get_base64_image(image_path):
     """Encode une image locale en chaîne Base64."""
     try:
+        # Lire le fichier en mode binaire
         with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
+            encoded_string = base64.b64encode(img_file.read()).decode()
+            
+            # Déterminer le type MIME pour le SVG
+            mime_type = "image/svg+xml" if image_path.lower().endswith(".svg") else "image/png"
+            
+            # Retourner la chaîne Base64 complète avec l'en-tête de données
+            return f"data:{mime_type};base64,{encoded_string}"
     except FileNotFoundError:
         return None
 
 
-LOGO_PATH = "src/Logo_Striv_blanc.png"
+LOGO_PATH = "src/favicon.svg"
 logo_base64 = get_base64_image(LOGO_PATH)
 favicon_url = f"data:image/png;base64,{logo_base64}"
 
 # Configuration de la page
-st.set_page_config(page_title="Striv - Application de sport", page_icon=favicon_url, layout="wide")
+st.set_page_config(page_title="Striv - Application de sport", page_icon="src/favicon.svg", layout="wide")
 
 # URL de base de l'API
 API_URL = "http://localhost:5000"
@@ -68,7 +82,21 @@ def get_auth():
 
 # Interface de connexion/inscription
 if not st.session_state.authenticated:
-    st.title("🏃 Striv - Application de sport connectée")
+    if logo_base64:
+        st.markdown(
+            f"""
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="{logo_base64}"
+                    width="60"
+                    style="margin-top: -10px;">
+                <h1 style="margin: 0;">Striv - Application de sport connectée</h1>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        # Solution de secours si le logo n'est pas trouvé
+        st.title("🏃 Striv - Application de sport connectée")
     st.markdown(
         "### Alternative gratuite et sans abonnement pour le suivi de vos activités sportives"
     )
@@ -136,15 +164,14 @@ if not st.session_state.authenticated:
 else:
 
     with st.sidebar:
-        
         if logo_base64:
             st.markdown(
                 f"""
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <img src="data:image/png;base64,{logo_base64}" 
-                         width="50" 
+                    <img src="{logo_base64}"
+                         width="50"
                          style="margin-right: 10px;">
-                    <h1 style="margin: 0; padding-top: 5px;">Striv</h1>
+                    <h1 style="margin: 0; padding-top: 20px; font-size: 36px;">Striv</h1>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -208,6 +235,7 @@ else:
                     color: white;
                     font-weight: bold;
                     margin: 0 auto;
+                    margin-top: 25px;
                 ">
                     {initials}
                 </div>
@@ -274,6 +302,8 @@ else:
 
                             if activities:
                                 last_activity = activities[0]
+                                sport = last_activity.get("sport", "").lower()
+                                sport_emoji = SPORT_ICONS.get(sport, "🏃")
 
                                 st.markdown(
                                     f"""
@@ -283,7 +313,7 @@ else:
                                     border-radius: 10px;
                                     color: white;
                                 ">
-                                    <h4 style="margin: 0 0 10px 0;">🏃 {last_activity.get("titre", "Sans titre")}</h4>
+                                    <h4 style="margin: 0 0 10px 0;">{sport_emoji} {last_activity.get("titre", "Sans titre")}</h4>
                                     <p style="margin: 5px 0;"><b>Sport:</b> {last_activity.get("sport", "N/A").capitalize()}</p>
                                     <p style="margin: 5px 0;"><b>Distance:</b> {last_activity.get("distance", 0):.2f} km</p>
                                     <p style="margin: 5px 0;"><b>Durée:</b> {format_h_m(last_activity.get("duree_heures", 0))}</p>
@@ -446,15 +476,30 @@ else:
                         "Votre fil d'actualité est vide. Suivez d'autres utilisateurs pour voir leurs activités !"
                     )
                 else:
+                    # Récupérer la liste de tous les utilisateurs
+                    users_response = requests.get(f"{API_URL}/users", auth=get_auth())
+                    users_dict = {}
+                    if users_response.status_code == 200:
+                        users_list = users_response.json()
+                        # Créer un dictionnaire {id_user: nom_user}
+                        users_dict = {user['id_user']: user['nom_user'] for user in users_list}
+                        uid = st.session_state.user_info['id']
+                        if uid:
+                            users_dict[uid] = st.session_state.user_info["username"]
+
+                    # Maintenant parcourir les activités
                     for activity in activities:
                         with st.container():
                             col1, col2 = st.columns([3, 1])
 
                             with col1:
-                                st.subheader(f"🏃 {activity.get('titre', 'Sans titre')}")
-                                st.caption(
-                                    f"📝 Publié par Utilisateur **{activity.get('id_user')}**"
-                                )
+                                # Récupérer le nom de l'utilisateur depuis le dictionnaire
+                                user_id = activity.get('id_user')
+                                user_name = users_dict.get(user_id, "Nom inconnu")
+                                sport = activity.get("sport", "").lower()
+                                icon = SPORT_ICONS.get(sport, "[ACT]")
+                                st.subheader(f"{icon} {activity.get('titre', 'Sans titre')}")
+                                st.caption(f"📝 Publié par **{user_name}**")
                                 st.write(f"**Sport:** {activity.get('sport', 'N/A').capitalize()}")
                                 st.write(f"**Distance:** {activity.get('distance', 0):.2f} km")
                                 if activity.get("duree_heures"):
@@ -511,8 +556,10 @@ else:
 
                                     if comments:
                                         for comment in comments:
+                                            cid = comment.get("id_user")
+                                            cname = users_dict.get(cid, "Nom inconnu")
                                             st.write(
-                                                f"**Utilisateur {comment['id_user']}:** {comment['contenu']}"
+                                                f"**{cname}:** {comment['contenu']}"
                                             )
                                             st.caption(f"Le {comment['date_comment']}")
                                     else:
