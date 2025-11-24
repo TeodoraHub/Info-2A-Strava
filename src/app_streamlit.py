@@ -760,8 +760,10 @@ else:
                     st.write(f"**{len(activities)} activité(s) trouvée(s)**")
 
                     for activity in activities:
+                        sport = activity.get("sport", "course").lower()
+                        icon = SPORT_ICONS.get(sport, "🏃")
                         with st.expander(
-                            f"🏃 {activity.get('titre', 'Sans titre')} - {activity.get('date_activite', 'N/A')}"
+                            f"{icon} {activity.get('titre', 'Sans titre')} - {activity.get('date_activite', 'N/A')}"
                         ):
                             col1, col2, col3 = st.columns([2, 2, 1])
 
