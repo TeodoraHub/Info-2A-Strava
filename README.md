@@ -1,27 +1,27 @@
-# Striv : Application Sportive Connectée
+# Striv: Connected Sports App
 
 ## Introduction
 
-**Striv** (mot breton signifiant "effort") est une application développée pour le suivi et le partage d'activités sportives.
+**Striv** (Breton word meaning 'effort') is an application developed for monitoring and sharing sports activities.
 
-Notre objectif est de créer une **alternative accessible et sans abonnement payant** aux grandes plateformes existantes. Striv permet aux utilisateurs d'analyser leurs performances, de partager leurs activités et d'interagir au sein d'un réseau social sportif.
-
----
-
-## Fonctionnalités Clés
-
-L'application est construite autour des activités d'endurance (course à pied, cyclisme, randonnée, natation) et propose les fonctionnalités suivantes :
-
-* **Création d'Activité** : Les utilisateurs peuvent charger leurs activités via un fichier **GPX**.
-* **Analyse de Performance** : Accès à des statistiques personnalisées sur les performances (nombre d'activités, distance, durée par semaine/sport).
-* **Réseau Social** : Consultation d'un **fil d'actualité** listant les activités des utilisateurs suivis.
-* **Interaction** : Possibilité de **liker et commenter** les activités partagées.
+Our goal is to create an accessible **free alternative** to the existing major platforms. Striv allows users to analyze their performance, share their activities and interact within a sports social network.
 
 ---
 
-## Équipe de Développement
+## Key Features
 
-Ce projet a été réalisé par une équipe d'étudiants de l'**ENSAI**.
+The application is built around endurance activities (running, cycling, hiking, swimming) and offers the following features:
+
+* **Activity Creation** : Users can upload their activities via a **GPX** file.
+* **Performance Analysis**: Access to personalized statistics on performance (number of activities, distance, duration per week/sport).
+* **Social Network**: Consultation of a **news feed** listing the activities of followed users.
+* **Interaction** : Ability to **like and comment** shared activities.
+
+---
+
+## Development Team
+
+This project was carried out by a team of students from **ENSAI**.
 
 * Abel CORNET-CARLOS
 * Victor GAUTIER
@@ -29,10 +29,10 @@ Ce projet a été réalisé par une équipe d'étudiants de l'**ENSAI**.
 * Grégoire WEBER
 * Anicet Marius YABOYA
 
-Sous la direction de Samuel GOUTIN
+Under the direction of Samuel GOUTIN
 
-## Pour lancer l'application
+## To launch the application
 python -m uvicorn src.API:app --host 0.0.0.0 --port 5000 --reload
 
-## pour lancer le streamlit (dans un autre terminam)
+## To launch the streamlit (in another terminal)
 streamlit run src/app_streamlit.py --server.port=5001 --server.address=0.0.0.0
