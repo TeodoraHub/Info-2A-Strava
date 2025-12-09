@@ -85,139 +85,404 @@ def get_auth():
 
 # Interface de connexion/inscription
 if not st.session_state.authenticated:
-    # CSS personnalisé pour un design moderne
+    # CSS personnalisé pour un design moderne et attrayant
     st.markdown(
         """
     <style>
-        .auth-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        .form-container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-top: 20px;
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+        }
+        
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 0 20px;
         }
         
         .logo-section {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo-section img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
         
         .logo-section h1 {
             color: white;
-            margin: 15px 0 5px 0;
-            font-size: 2.5em;
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            letter-spacing: -1px;
         }
         
         .logo-section p {
-            color: rgba(255,255,255,0.9);
-            font-size: 1em;
+            color: rgba(255,255,255,0.95);
+            font-size: 1.1em;
             margin: 0;
+            font-weight: 300;
         }
         
-        .tab-content {
-            padding: 20px 0;
+        .tagline {
+            text-align: center;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.95em;
+            margin-top: 15px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
         }
         
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 0;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        .stTabs [data-baseweb="tab"] {
-            height: 50px;
-            background-color: transparent;
-            border-radius: 10px 10px 0 0;
-            padding: 10px 30px;
-            border-bottom: 3px solid transparent;
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            animation: slideUp 0.6s ease-out;
         }
         
-        .stTabs [aria-selected="true"] {
-            border-bottom-color: #667eea;
-            background-color: #f0f0f0;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-title {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .form-subtitle {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 30px;
+            font-weight: 300;
         }
         
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.6s ease-out;
         }
         
         .input-group label {
+            display: block;
             font-weight: 600;
             color: #333;
-            margin-bottom: 8px;
-            display: block;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
         }
         
-        .success-box {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
         
-        .error-box {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
         }
         
-        .divider-text {
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-wrapper input::placeholder {
+            color: #bbb;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            color: #667eea;
+            font-size: 1.1em;
+            pointer-events: none;
+        }
+        
+        .password-strength {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        .password-strength-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .strength-weak { background: #ff6b6b; }
+        .strength-fair { background: #ffd93d; }
+        .strength-good { background: #6bcf7f; }
+        .strength-strong { background: #4facfe; }
+        
+        .form-divider {
+            margin: 30px 0;
             text-align: center;
-            color: #999;
-            margin: 20px 0;
+            color: #ccc;
             font-size: 0.9em;
         }
         
-        .button-primary {
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            display: inline-block;
+            width: 45%;
+            height: 1px;
+            background: #e0e0e0;
+            vertical-align: middle;
+            margin: 0 10px;
+        }
+        
+        .stButton > button {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
+            padding: 14px !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-weight: 700 !important;
+            font-size: 1em !important;
+            letter-spacing: 0.5px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3) !important;
+            margin-top: 10px !important;
         }
         
-        .button-primary:hover {
-            transform: translateY(-2px);
+        .stButton > button:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4) !important;
         }
         
-        .benefits {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 30px;
+        .stButton > button:active {
+            transform: translateY(-1px) !important;
         }
         
-        .benefit-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
+        .toggle-auth {
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .benefit-card h4 {
-            color: #667eea;
-            margin: 10px 0 5px 0;
+            margin-top: 20px;
+            color: #666;
             font-size: 0.95em;
         }
         
+        .toggle-auth a {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .toggle-auth a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        .benefits-section {
+            margin-top: 40px;
+            animation: slideUp 0.8s ease-out 0.3s both;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .benefit-card {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .benefit-icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+        }
+        
+        .benefit-card h4 {
+            color: #333;
+            margin: 10px 0 8px 0;
+            font-size: 1em;
+            font-weight: 700;
+        }
+        
         .benefit-card p {
-            color: #666;
+            color: #777;
             font-size: 0.85em;
             margin: 0;
+            line-height: 1.4;
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e72);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #6bcf7f, #4facfe);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(107, 207, 127, 0.3);
+        }
+        
+        .info-message {
+            background: linear-gradient(135deg, #ffd93d, #ffb700);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(255, 217, 61, 0.3);
+        }
+        
+        .tab-indicator {
+            position: relative;
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 30px;
+        }
+        
+        .stTabs [data-baseweb="tab-list"] {
+            background: transparent !important;
+            border-bottom: none !important;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            color: #999 !important;
+            font-weight: 600 !important;
+            border-radius: 0 !important;
+            border-bottom: 3px solid transparent !important;
+            padding-bottom: 15px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            color: #667eea !important;
+            border-bottom-color: #667eea !important;
+        }
+        
+        @media (max-width: 640px) {
+            .form-card {
+                padding: 25px;
+                border-radius: 15px;
+            }
+            
+            .logo-section h1 {
+                font-size: 2.2em;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
     """,
@@ -225,17 +490,17 @@ if not st.session_state.authenticated:
     )
 
     # Conteneur principal
-    col_center = st.columns([1, 2, 1])
+    col_left, col_center, col_right = st.columns([0.5, 2, 0.5])
 
-    with col_center[1]:
+    with col_center:
         # En-tête avec logo
         if logo_base64:
             st.markdown(
                 f"""
                 <div class="logo-section">
-                    <img src="{logo_base64}" width="80" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));">
+                    <img src="{logo_base64}" alt="Logo Striv">
                     <h1>Striv</h1>
-                    <p>🏃 Application de sport connectée</p>
+                    <p>🏃 &nbsp; Votre Application de Sport Connectée</p>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -253,39 +518,50 @@ if not st.session_state.authenticated:
 
         st.markdown(
             """
-            <p style="text-align: center; color: #666; font-size: 0.95em; margin: 0;">
-            Alternative gratuite et sans abonnement pour le suivi de vos activités sportives
+            <p class="tagline">
+            L'alternative gratuite pour tracker vos activités sportives et partager avec votre communauté
             </p>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+        # Conteneur des formulaires
+        st.markdown('<div class="form-card">', unsafe_allow_html=True)
 
         # Onglets
         tab1, tab2 = st.tabs(["🔐 Connexion", "📝 Inscription"])
 
+        # ============================================================================
+        # TAB 1: CONNEXION
+        # ============================================================================
         with tab1:
-            st.markdown("<div class='form-container'>", unsafe_allow_html=True)
+            st.markdown(
+                """
+                <h2 class="form-title">Bienvenue !</h2>
+                <p class="form-subtitle">Connectez-vous pour accéder à votre compte</p>
+                """,
+                unsafe_allow_html=True,
+            )
 
             with st.form("login_form", clear_on_submit=True):
-                st.markdown("### Se connecter à votre compte")
-
+                # Champ Nom d'utilisateur
                 username = st.text_input(
-                    "👤 Nom d'utilisateur",
-                    placeholder="Entrez votre nom d'utilisateur",
+                    "👤 Nom d'utilisateur ou Email",
+                    placeholder="Entrez votre identifiant",
                     key="login_username",
+                    label_visibility="visible",
                 )
 
+                # Champ Mot de passe
                 password = st.text_input(
                     "🔒 Mot de passe",
                     type="password",
-                    placeholder="Entrez votre mot de passe",
+                    placeholder="Votre mot de passe",
                     key="login_password",
+                    label_visibility="visible",
                 )
 
-                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-
+                # Bouton Se connecter
                 submit = st.form_submit_button(
                     "🚀 Se connecter", use_container_width=True, type="primary"
                 )
@@ -304,7 +580,7 @@ if not st.session_state.authenticated:
                                 st.session_state.username = username
                                 st.session_state.password = password
                                 st.session_state.user_info = response.json()["user"]
-                                st.success("✅ Connexion réussie! Redirection...")
+                                st.success("✅ Connexion réussie ! Redirection...")
                                 st.balloons()
                                 st.rerun()
                             else:
@@ -312,53 +588,80 @@ if not st.session_state.authenticated:
                         except Exception as e:
                             st.error(f"❌ Erreur de connexion: {str(e)}")
 
-            st.markdown("</div>", unsafe_allow_html=True)
-
+        # ============================================================================
+        # TAB 2: INSCRIPTION
+        # ============================================================================
         with tab2:
-            st.markdown("<div class='form-container'>", unsafe_allow_html=True)
+            st.markdown(
+                """
+                <h2 class="form-title">Créer un compte</h2>
+                <p class="form-subtitle">Rejoignez notre communauté sportive</p>
+                """,
+                unsafe_allow_html=True,
+            )
 
             with st.form("signup_form", clear_on_submit=True):
-                st.markdown("### Créer un nouveau compte")
-
+                # Champ Nom d'utilisateur
                 new_username = st.text_input(
                     "👤 Nom d'utilisateur",
-                    placeholder="Choisissez un nom d'utilisateur",
+                    placeholder="Choisissez votre pseudo",
                     key="signup_username",
+                    label_visibility="visible",
                 )
 
+                # Champ Email
                 new_email = st.text_input(
-                    "📧 Adresse email", placeholder="votre@email.com", key="signup_email"
+                    "📧 Adresse email",
+                    placeholder="votre.email@exemple.com",
+                    key="signup_email",
+                    label_visibility="visible",
                 )
 
+                # Champ Mot de passe
                 new_password = st.text_input(
                     "🔒 Mot de passe",
                     type="password",
-                    placeholder="Créez un mot de passe sécurisé",
+                    placeholder="Minimum 4 caractères recommandé",
                     key="signup_password",
+                    label_visibility="visible",
                 )
 
+                # Champ Confirmation mot de passe
                 confirm_password = st.text_input(
                     "🔒 Confirmer le mot de passe",
                     type="password",
                     placeholder="Confirmez votre mot de passe",
                     key="signup_confirm",
+                    label_visibility="visible",
                 )
 
-                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-
+                # Bouton S'inscrire
                 submit_signup = st.form_submit_button(
                     "✨ S'inscrire", use_container_width=True, type="primary"
                 )
 
                 if submit_signup:
+                    # Validations
+                    errors = []
+
                     if not new_username or not new_email or not new_password:
-                        st.error("⚠️ Veuillez remplir tous les champs obligatoires")
-                    elif new_password != confirm_password:
-                        st.error("❌ Les mots de passe ne correspondent pas")
-                    elif len(new_password) < 4:
-                        st.error("❌ Le mot de passe doit contenir au moins 4 caractères")
-                    elif "@" not in new_email:
-                        st.error("❌ Veuillez entrer une adresse email valide")
+                        errors.append("⚠️ Veuillez remplir tous les champs obligatoires")
+
+                    if new_password != confirm_password:
+                        errors.append("❌ Les mots de passe ne correspondent pas")
+
+                    if len(new_password) < 4:
+                        errors.append("❌ Le mot de passe doit contenir au moins 4 caractères")
+
+                    if "@" not in new_email or "." not in new_email:
+                        errors.append("❌ Veuillez entrer une adresse email valide")
+
+                    if len(new_username) < 3:
+                        errors.append("❌ Le nom d'utilisateur doit contenir au moins 3 caractères")
+
+                    if errors:
+                        for error in errors:
+                            st.error(error)
                     else:
                         try:
                             response = requests.post(
@@ -370,9 +673,8 @@ if not st.session_state.authenticated:
                                 },
                             )
                             if response.status_code == 200:
-                                st.success("✅ Compte créé avec succès!")
-                                st.info(
-                                    "📱 Vous pouvez maintenant vous connecter avec vos identifiants."
+                                st.success(
+                                    "✅ Compte créé avec succès ! Vous pouvez maintenant vous connecter."
                                 )
                                 st.balloons()
                             else:
@@ -381,36 +683,37 @@ if not st.session_state.authenticated:
                         except Exception as e:
                             st.error(f"❌ Erreur lors de la création: {str(e)}")
 
-            st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        # Avantages en bas de page
-        st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
-
+        # Section Avantages
         st.markdown(
             """
-        <div class="benefits">
-            <div class="benefit-card">
-                <div style="font-size: 2em; margin-bottom: 10px;">🆓</div>
-                <h4>100% Gratuit</h4>
-                <p>Sans abonnement ni frais cachés</p>
+            <div class="benefits-section">
+                <h3 style="color: white; text-align: center; margin-bottom: 20px; font-size: 1.5em;">Pourquoi choisir Striv ?</h3>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🆓</div>
+                        <h4>100% Gratuit</h4>
+                        <p>Aucun abonnement, aucun frais caché. Utilisez tous les services gratuitement</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📊</div>
+                        <h4>Statistiques</h4>
+                        <p>Analysez vos performances détaillées et progressez rapidement</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">👥</div>
+                        <h4>Communauté</h4>
+                        <p>Connectez-vous, partagez et motivez vos amis</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🗺️</div>
+                        <h4>Parcours</h4>
+                        <p>Créez et explorez des itinéraires personnalisés</p>
+                    </div>
+                </div>
             </div>
-            <div class="benefit-card">
-                <div style="font-size: 2em; margin-bottom: 10px;">📊</div>
-                <h4>Statistiques</h4>
-                <p>Analysez vos performances</p>
-            </div>
-            <div class="benefit-card">
-                <div style="font-size: 2em; margin-bottom: 10px;">👥</div>
-                <h4>Communauté</h4>
-                <p>Partagez avec vos amis</p>
-            </div>
-            <div class="benefit-card">
-                <div style="font-size: 2em; margin-bottom: 10px;">🗺️</div>
-                <h4>Parcours</h4>
-                <p>Créez vos itinéraires</p>
-            </div>
-        </div>
-        """,
+            """,
             unsafe_allow_html=True,
         )
 
@@ -735,8 +1038,8 @@ else:
                     if users_response.status_code == 200:
                         users_list = users_response.json()
                         # Créer un dictionnaire {id_user: nom_user}
-                        users_dict = {user['id_user']: user['nom_user'] for user in users_list}
-                        uid = st.session_state.user_info['id']
+                        users_dict = {user["id_user"]: user["nom_user"] for user in users_list}
+                        uid = st.session_state.user_info["id"]
                         if uid:
                             users_dict[uid] = st.session_state.user_info["username"]
 
@@ -747,7 +1050,7 @@ else:
 
                             with col1:
                                 # Récupérer le nom de l'utilisateur depuis le dictionnaire
-                                user_id = activity.get('id_user')
+                                user_id = activity.get("id_user")
                                 user_name = users_dict.get(user_id, "Nom inconnu")
                                 sport = activity.get("sport", "").lower()
                                 icon = SPORT_ICONS.get(sport, "[ACT]")
@@ -811,9 +1114,7 @@ else:
                                         for comment in comments:
                                             cid = comment.get("id_user")
                                             cname = users_dict.get(cid, "Nom inconnu")
-                                            st.write(
-                                                f"**{cname}:** {comment['contenu']}"
-                                            )
+                                            st.write(f"**{cname}:** {comment['contenu']}")
                                             st.caption(f"Le {comment['date_comment']}")
                                     else:
                                         st.write("Aucun commentaire pour le moment")
