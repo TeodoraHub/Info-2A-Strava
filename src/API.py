@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from routers import activities, auth, comments, feed, followers, likes, stats
 
-app = FastAPI(title="Striv API - Application de sport connectee", root_path="/proxy/5000")
+app = FastAPI(title="Striv API - Application de sport connectee", root_path="/proxy/5100")
 
 # Inclusion des routers
 app.include_router(auth.router)
@@ -22,4 +22,4 @@ def health():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=5100)
