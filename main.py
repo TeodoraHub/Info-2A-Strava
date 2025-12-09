@@ -11,14 +11,40 @@ Pour le développement avec rechargement automatique:
     python main.py --dev
 """
 
-import sys, os
-from pathlib import Path
+import os
+import sys
 
 import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Ajouter le dossier src au PYTHONPATH
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
+from routers import activities, auth, comments, feed, followers, likes, stats, predictions  # NOQA
+
+app = FastAPI()
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Enregistrer les routeurs
+app.include_router(auth.router)
+app.include_router(activities.router)
+app.include_router(stats.router)
+app.include_router(comments.router)
+app.include_router(followers.router)
+app.include_router(likes.router)
+app.include_router(feed.router)
+app.include_router(predictions.router)  # ✅ AJOUTER CETTE LIGNE
+
 
 def main():
     """Lance le serveur uvicorn avec l'application FastAPI"""
