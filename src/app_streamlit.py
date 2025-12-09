@@ -1,4 +1,4 @@
-# streamlit run src/app_streamlit.py --server.port=5501 --server.address=0.0.0.0
+# streamlit run src/app_streamlit.py --server.port=5200 --server.address=0.0.0.0
 import base64
 from datetime import date, datetime
 
@@ -45,13 +45,16 @@ LOGO_PATH = "src/favicon.svg"
 logo_base64 = get_base64_image(LOGO_PATH)
 favicon_url = f"data:image/png;base64,{logo_base64}"
 
+LOGO_PATH = "src/Logo.svg"
+logo_text_base64 = get_base64_image(LOGO_PATH)
+
 # Configuration de la page
 st.set_page_config(
     page_title="Striv - Application de sport", page_icon="src/favicon.svg", layout="wide"
 )
 
 # URL de base de l'API
-API_URL = "http://localhost:5000"
+API_URL = "http://localhost:5100"
 
 # Initialisation de la session
 if "authenticated" not in st.session_state:
@@ -83,9 +86,8 @@ def get_auth():
     return None
 
 
-# Interface de connexion/inscription
 if not st.session_state.authenticated:
-    # CSS personnalisé pour un design moderne et attrayant
+    # CSS personnalisé avec adaptation au thème et logo agrandi
     st.markdown(
         """
     <style>
@@ -95,9 +97,232 @@ if not st.session_state.authenticated:
             box-sizing: border-box;
         }
         
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            min-height: 100vh;
+        .block-container {
+            padding-top: 0rem !important;
+        }
+
+        /* Adaptation au thème clair/sombre */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            }
+            
+            .auth-wrapper {
+                background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+            }
+            
+            .form-card {
+                background: #2d2d44;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            }
+            
+            .form-title {
+                color: #e0e0e0;
+                background: linear-gradient(135deg, #8a9aff, #9d7ed9);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            
+            .form-subtitle {
+                color: #a0a0a0;
+            }
+            
+            .input-group label {
+                color: #e0e0e0;
+            }
+            
+            .input-wrapper input {
+                background: #1f1f2e;
+                border-color: #3d3d5c;
+                color: #e0e0e0;
+            }
+            
+            .input-wrapper input:focus {
+                border-color: #8a9aff;
+                background: #2a2a3e;
+                box-shadow: 0 0 0 3px rgba(138, 154, 255, 0.2);
+            }
+            
+            .input-wrapper input::placeholder {
+                color: #6a6a8a;
+            }
+            
+            .input-icon {
+                color: #8a9aff;
+            }
+            
+            .password-strength {
+                background: #1f1f2e;
+                color: #a0a0a0;
+            }
+            
+            .password-strength-bar {
+                background: #3d3d5c;
+            }
+            
+            .benefit-card {
+                background: rgba(45, 45, 68, 0.95);
+                border: 1px solid rgba(138, 154, 255, 0.2);
+            }
+            
+            .benefit-card h4 {
+                color: #e0e0e0;
+            }
+            
+            .benefit-card p {
+                color: #a0a0a0;
+            }
+            
+            .toggle-auth {
+                color: #a0a0a0;
+            }
+            
+            .toggle-auth a {
+                color: #8a9aff;
+            }
+            
+            .toggle-auth a:hover {
+                color: #9d7ed9;
+            }
+            
+            .form-divider {
+                color: #6a6a8a;
+            }
+            
+            .form-divider::before,
+            .form-divider::after {
+                background: #3d3d5c;
+            }
+            
+            .tab-indicator {
+                border-bottom-color: #3d3d5c;
+            }
+            
+            .stTabs [data-baseweb="tab"] {
+                color: #6a6a8a !important;
+            }
+            
+            .stTabs [aria-selected="true"] {
+                color: #8a9aff !important;
+                border-bottom-color: #8a9aff !important;
+            }
+        }
+        
+        /* Thème clair (par défaut) */
+        @media (prefers-color-scheme: light) {
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            }
+            
+            .auth-wrapper {
+                background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+            }
+
+            .logo-section img {
+                filter: brightness(0) drop-shadow(0 10px 25px rgba(0,0,0,0.2));
+            }
+            
+            .logo-section h1,
+            .logo-section p {
+                color: #000000 !important;
+                text-shadow: 0 2px 4px rgba(255,255,255,0.3);
+            }
+            
+            .form-card {
+                background: white;
+            }
+            
+            .form-title {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            
+            .form-subtitle {
+                color: #999;
+            }
+            
+            .input-group label {
+                color: #333;
+            }
+            
+            .input-wrapper input {
+                background: #f9f9f9;
+                border-color: #e0e0e0;
+                color: #333;
+            }
+            
+            .input-wrapper input:focus {
+                border-color: #667eea;
+                background: white;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+            
+            .input-wrapper input::placeholder {
+                color: #bbb;
+            }
+            
+            .input-icon {
+                color: #667eea;
+            }
+            
+            .password-strength {
+                background: #f5f5f5;
+                color: #666;
+            }
+            
+            .password-strength-bar {
+                background: #e0e0e0;
+            }
+            
+            .benefit-card {
+                background: rgba(255,255,255,0.95);
+                border: 1px solid rgba(255,255,255,0.5);
+            }
+            
+            .benefit-card h4 {
+                color: #333;
+            }
+            
+            .benefit-card p {
+                color: #777;
+            }
+            
+            .toggle-auth {
+                color: #666;
+            }
+            
+            .toggle-auth a {
+                color: #667eea;
+            }
+            
+            .toggle-auth a:hover {
+                color: #764ba2;
+            }
+            
+            .form-divider {
+                color: #ccc;
+            }
+            
+            .form-divider::before,
+            .form-divider::after {
+                background: #e0e0e0;
+            }
+            
+            .tab-indicator {
+                border-bottom-color: #e0e0e0;
+            }
+            
+            .stTabs [data-baseweb="tab"] {
+                color: #999 !important;
+            }
+            
+            .stTabs [aria-selected="true"] {
+                color: #667eea !important;
+                border-bottom-color: #667eea !important;
+            }
         }
         
         .auth-wrapper {
@@ -105,9 +330,9 @@ if not st.session_state.authenticated:
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
+            padding-top: 0 !important;
         }
         
         @keyframes gradient {
@@ -139,22 +364,23 @@ if not st.session_state.authenticated:
             }
         }
         
+        /* Logo agrandi */
         .logo-section img {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+            width: 180px;
+            height: 180px;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.3));
             animation: float 3s ease-in-out infinite;
         }
         
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-15px); }
         }
         
         .logo-section h1 {
             color: white;
-            font-size: 3em;
+            font-size: 3.5em;
             font-weight: 700;
             margin-bottom: 10px;
             text-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -183,7 +409,6 @@ if not st.session_state.authenticated:
         }
         
         .form-card {
-            background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
@@ -202,21 +427,9 @@ if not st.session_state.authenticated:
         }
         
         .form-title {
-            color: #333;
             font-size: 1.8em;
             font-weight: 700;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .form-subtitle {
-            color: #999;
-            font-size: 0.9em;
-            margin-bottom: 30px;
-            font-weight: 300;
         }
         
         .input-group {
@@ -227,7 +440,6 @@ if not st.session_state.authenticated:
         .input-group label {
             display: block;
             font-weight: 600;
-            color: #333;
             margin-bottom: 10px;
             font-size: 0.95em;
             letter-spacing: 0.5px;
@@ -243,28 +455,15 @@ if not st.session_state.authenticated:
             width: 100%;
             padding: 12px 16px;
             padding-left: 40px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid;
             border-radius: 12px;
             font-size: 1em;
             transition: all 0.3s ease;
-            background: #f9f9f9;
-        }
-        
-        .input-wrapper input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .input-wrapper input::placeholder {
-            color: #bbb;
         }
         
         .input-icon {
             position: absolute;
             left: 12px;
-            color: #667eea;
             font-size: 1.1em;
             pointer-events: none;
         }
@@ -272,15 +471,12 @@ if not st.session_state.authenticated:
         .password-strength {
             margin-top: 8px;
             padding: 8px 12px;
-            background: #f5f5f5;
             border-radius: 8px;
             font-size: 0.85em;
-            color: #666;
         }
         
         .password-strength-bar {
             height: 4px;
-            background: #e0e0e0;
             border-radius: 2px;
             margin-top: 6px;
             overflow: hidden;
@@ -300,7 +496,6 @@ if not st.session_state.authenticated:
         .form-divider {
             margin: 30px 0;
             text-align: center;
-            color: #ccc;
             font-size: 0.9em;
         }
         
@@ -310,7 +505,6 @@ if not st.session_state.authenticated:
             display: inline-block;
             width: 45%;
             height: 1px;
-            background: #e0e0e0;
             vertical-align: middle;
             margin: 0 10px;
         }
@@ -340,25 +534,6 @@ if not st.session_state.authenticated:
             transform: translateY(-1px) !important;
         }
         
-        .toggle-auth {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 0.95em;
-        }
-        
-        .toggle-auth a {
-            color: #667eea;
-            font-weight: 600;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        
-        .toggle-auth a:hover {
-            color: #764ba2;
-            text-decoration: underline;
-        }
-        
         .benefits-section {
             margin-top: 40px;
             animation: slideUp 0.8s ease-out 0.3s both;
@@ -372,14 +547,12 @@ if not st.session_state.authenticated:
         }
         
         .benefit-card {
-            background: rgba(255,255,255,0.95);
             padding: 25px;
             border-radius: 15px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.5);
         }
         
         .benefit-card:hover {
@@ -393,14 +566,12 @@ if not st.session_state.authenticated:
         }
         
         .benefit-card h4 {
-            color: #333;
             margin: 10px 0 8px 0;
             font-size: 1em;
             font-weight: 700;
         }
         
         .benefit-card p {
-            color: #777;
             font-size: 0.85em;
             margin: 0;
             line-height: 1.4;
@@ -447,7 +618,7 @@ if not st.session_state.authenticated:
             position: relative;
             display: flex;
             gap: 0;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid;
             margin-bottom: 30px;
         }
         
@@ -457,17 +628,11 @@ if not st.session_state.authenticated:
         }
         
         .stTabs [data-baseweb="tab"] {
-            color: #999 !important;
             font-weight: 600 !important;
             border-radius: 0 !important;
             border-bottom: 3px solid transparent !important;
             padding-bottom: 15px !important;
             transition: all 0.3s ease !important;
-        }
-        
-        .stTabs [aria-selected="true"] {
-            color: #667eea !important;
-            border-bottom-color: #667eea !important;
         }
         
         @media (max-width: 640px) {
@@ -476,8 +641,13 @@ if not st.session_state.authenticated:
                 border-radius: 15px;
             }
             
+            .logo-section img {
+                width: 140px;
+                height: 140px;
+            }
+            
             .logo-section h1 {
-                font-size: 2.2em;
+                font-size: 2.5em;
             }
             
             .benefits-grid {
@@ -494,12 +664,11 @@ if not st.session_state.authenticated:
 
     with col_center:
         # En-tête avec logo
-        if logo_base64:
+        if logo_text_base64:
             st.markdown(
                 f"""
                 <div class="logo-section">
-                    <img src="{logo_base64}" alt="Logo Striv">
-                    <h1>Striv</h1>
+                    <img src="{logo_text_base64}" alt="Logo Striv">
                     <p>🏃 &nbsp; Votre Application de Sport Connectée</p>
                 </div>
                 """,
@@ -525,8 +694,6 @@ if not st.session_state.authenticated:
             unsafe_allow_html=True,
         )
 
-        # Conteneur des formulaires
-        st.markdown('<div class="form-card">', unsafe_allow_html=True)
 
         # Onglets
         tab1, tab2 = st.tabs(["🔐 Connexion", "📝 Inscription"])
@@ -1437,6 +1604,10 @@ else:
             start_address = st.text_input(
                 "Adresse de départ*", placeholder="Ex: 123 Rue de Paris, 75000 Paris"
             )
+            vitesse = st.number_input(
+                "Vitesse moyenne (km/h)", min_value=1.0, max_value=25.0, value=10.0, step=0.1,
+                help="Indiquez la vitesse moyenne prévue pour le parcours"
+            )
 
         with col2:
             end_address = st.text_input(
@@ -1456,7 +1627,7 @@ else:
                         st.error("❌ Une ou plusieurs adresses sont invalides. Veuillez vérifier.")
                     else:
                         # Récupérer l'itinéraire
-                        route_data = get_route(start_coords, end_coords)
+                        route_data = get_route(start_coords, end_coords, vitesse)
 
                         if route_data:
                             st.session_state.route_data = route_data

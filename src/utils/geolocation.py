@@ -16,7 +16,7 @@ def get_coordinates(address):
         return None
 
 
-def get_route(start_coords, end_coords):
+def get_route(start_coords, end_coords, speed_kmh):
     """Récupère un itinéraire entre deux points via OpenRouteService"""
     try:
         # Utilise OpenRouteService (gratuit, pas d'API key pour usage basique)
@@ -32,7 +32,7 @@ def get_route(start_coords, end_coords):
                 # Décode la polyline
                 coords = pl.decode(route["geometry"])
                 distance = route["distance"] / 1000  # en km
-                duration = distance / 10  # en heures
+                duration = distance / speed_kmh  # en heures
 
                 return {"coordinates": coords, "distance": distance, "duration": duration}
         return None
