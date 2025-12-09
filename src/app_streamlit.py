@@ -1685,7 +1685,7 @@ else:
                 st.metric(label="📏 Distance", value=f"{route_data['distance']:.2f} km")
 
             with col2:
-                st.metric(label="⏱️ Durée estimée", value=f"{route_data['duration']:.1f}h")
+                st.metric(label="⏱️ Durée estimée", value=f"{format_h_m(route_data['duration'])}")
 
             with col3:
                 st.metric(

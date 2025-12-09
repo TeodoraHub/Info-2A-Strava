@@ -5,5 +5,10 @@ def format_h_m(hours: float) -> str:
 
     h = int(hours)
     m = int(round((hours - h) * 60))
+
+    if m == 60:
+        h += 1
+        m = 0
+
     return f"{h}h{m:02d}"
 
